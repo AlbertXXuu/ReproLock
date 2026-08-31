@@ -1,9 +1,10 @@
 # Phase Context 00 — Repository Foundation
 
-- Status: `in_progress`
+- Status: `complete`
 - Date: `2026-09-01`
 - Branch: `chore/repository-foundation`
 - Base commit: `092ff412e5a7ae8b2ecb532b0cb7deecd72477aa`
+- Foundation implementation commit: `12c0c90302e0931dc71933ac0c4971381b054c78`
 
 ## Source and authorization
 
@@ -135,6 +136,24 @@ The canonical Node matrix was run by resolving the `node@24.20.0` binary, prepen
 to `PATH`, and invoking the pinned Corepack pnpm CLI; both `process.execPath` and the script-level
 `node --version` reported `v24.20.0`.
 
+### Clean-clone acceptance
+
+Commit `12c0c90302e0931dc71933ac0c4971381b054c78` was cloned with no dependency directory.
+The clone path was an isolated local audit directory and is omitted from durable evidence.
+
+```text
+git clone --local --branch chore/repository-foundation --single-branch ... exit 0
+Node 24.20.0: pnpm install --frozen-lockfile                  exit 0; 6 packages added
+Node 24.20.0: pnpm check                                     exit 0; 3/3 tests
+Node 24.20.0: pnpm package:smoke                             exit 0; 36,563-byte tgz
+Node 22.23.2: pnpm install --frozen-lockfile                  exit 0; unchanged
+Node 22.23.2: pnpm check                                     exit 0; 3/3 tests
+Node 22.23.2: pnpm package:smoke                             exit 0; 36,563-byte tgz
+pnpm dlx prettier@3.6.2 --check .github/workflows/ci.yml     exit 0
+pnpm audit --audit-level high                               exit 0; no known vulnerabilities
+git diff --check && git status --porcelain                   exit 0; clean
+```
+
 ## Stable interfaces for the next phase
 
 Later phases may rely on:
@@ -155,8 +174,9 @@ contract. A later task must not infer implementation readiness from this foundat
 ## Unresolved items and next gate
 
 - No remote or CI run exists; local CI-equivalent validation is authoritative for Wave 0.
-- The final clean-clone validation and immutable integration commit are still pending at this point
-  in the phase record; the integration evidence commit closes them.
+- The disposable clean-clone directory remains under the parent workspace's private `.workspace`
+  audit area because the execution environment rejected its recursive cleanup command. It is not
+  registered, tracked, or used by later phases and may be removed by workspace maintenance.
 - ReproLock remains a working name and `0.0.0` private package; publication is prohibited.
 - Product feasibility, architecture, real Bug/Fix reproduction, mutation quality, and WebMCP parity
   are Wave 1 questions, not claims established here.

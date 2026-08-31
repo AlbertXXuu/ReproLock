@@ -1,6 +1,6 @@
 # Wave 0 Repository Foundation ExecPlan
 
-- Status: `in_progress`
+- Status: `complete`
 - Branch: `chore/repository-foundation`
 - Started: `2026-09-01` (Asia/Shanghai)
 
@@ -138,4 +138,7 @@ After a successful fast-forward merge, remove only the verified clean Wave 0 wor
 - `2026-09-01`: Governance, charter/foundation docs, and toolchain/CI implementation completed in
   the isolated branch.
 - `2026-09-01`: Node 22.23.2 and Node 24.20.0 local matrices passed; independent review findings
-  were corrected. Clean-clone verification and immutable integration evidence remain.
+  were corrected.
+- `2026-09-01`: A fresh clone of implementation commit `12c0c90302e0931dc71933ac0c4971381b054c78`
+  passed frozen install, check, package smoke, YAML parsing, audit, diff, and clean-status checks on
+  the declared runtime matrix. All Wave 0 milestones are complete.

@@ -19,7 +19,7 @@ from an agent's assertion alone.
 
 | Wave | Phase | Source branch/commit | Verdict | Evidence | Remaining condition |
 | --- | --- | --- | --- | --- | --- |
-| 0 | Repository foundation | Pending integration | Pending | `harness/context/00-repository-foundation.md` | Run and record the complete foundation verification matrix. |
+| 0 | Repository foundation | `chore/repository-foundation` @ `12c0c90302e0931dc71933ac0c4971381b054c78` | GO | `harness/context/00-repository-foundation.md` | Remote GitHub-hosted CI is unobserved; no product implementation Gate is opened by Wave 0. |
 
 An integration entry is complete only when it names an immutable commit, links repository-relative
 evidence, records actual verification results, and states every residual risk or condition.
