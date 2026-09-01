@@ -39,7 +39,9 @@ This repository is for local functional QA and regression engineering.
 - Prefer small, reviewable commits.
 - Resolve routine ambiguity using the safest reversible option and record the decision.
 - Do not claim success without command output or inspectable artifacts.
-- If a hard gate cannot be met, return `blocked`, `inconclusive`, or `NO-GO` with evidence.
+- If required inputs are missing, return `blocked`; if an accepted check cannot observe one
+  outcome, classify that outcome `inconclusive`; if a required Spike gate fails, the final Spike
+  decision is `NO-GO`. Always include evidence.
 - Parallel branches update only their own phase context. The integration branch alone updates the central build log.
 
 ## Local execution and data handling
@@ -63,7 +65,7 @@ This repository is for local functional QA and regression engineering.
 - Expected operational failures use typed results; programming defects may throw.
 - Avoid hidden mutable global state.
 - Bound all long-running work with timeout, cancellation, and resource limits.
-- Every replay begins from an explicit reset strategy or receives a lower-confidence classification.
+- Every replay begins from an explicit, verified reset; otherwise its outcome is `inconclusive`.
 - Canonicalize persisted JSON before hashing.
 - Use atomic writes and preserve failed attempts as evidence.
 

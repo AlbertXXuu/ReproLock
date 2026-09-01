@@ -35,6 +35,8 @@ jobs:
           pnpm --version
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+      - name: Install the pinned Chromium browser
+        run: pnpm exec playwright install --with-deps chromium
       - name: Check formatting
         run: pnpm format:check
       - name: Lint

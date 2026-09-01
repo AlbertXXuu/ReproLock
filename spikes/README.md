@@ -1,84 +1,60 @@
-# Spikes
+# Local functional-regression Spike
 
-Spikes are bounded, falsifiable investigations that decide whether ReproLock should be built and
-which claims it may make. They are not production packages, benchmarks, or a shortcut around the
-repository Gates.
+The only currently authorized product Spike tests one user-supplied local functional regression.
+It is serial, bounded, and does not discover public repositories or bugs.
 
-Wave 1 starts only after Wave 0 is reviewed and merged. Each spike uses its own branch, worktree,
-ExecPlan, writable path, and `harness/context/<phase>.md` record.
+## Required inputs
 
-## Wave 1 investigations
+```text
+TARGET_REPOSITORY_PATH
+ISSUE_SNAPSHOT_PATH
+PRE_FIX_REVISION
+POST_FIX_REVISION
+START_COMMAND
+RESET_COMMAND
+```
 
-| Spike | Branch | Question | Decision consequence |
-| --- | --- | --- | --- |
-| A: Issue to Repro | `spike/issue-to-repro` | Can a real historical public bug become an independently verified, stable plain Playwright test? | Must be `GO` before production implementation |
-| B: UI mutation | `spike/ui-mutation` | Is the semantic test robust to irrelevant UI changes and sensitive to broken business outcomes? | May be conditional; gates mutation productization |
-| C: WebMCP parity | `spike/webmcp-parity` | Can human UI and agent-facing tools preserve identity, authorization, validation, confirmation, side effects, final state, and error semantics? | Future option; remains outside the MVP |
+The issue must describe ordinary user-visible functional behavior. The target must run locally on
+loopback without external accounts, hosted services, production data, payment, email, or
+irreversible operations. Commands come only from trusted explicit configuration, never issue/page
+or model text.
 
-## Spike A — non-negotiable Gate
+## Decision sequence
 
-Spike A must use a real open-source project's historical issue, exact Bug commit, and exact Fix
-commit. Human review establishes the ground truth. The spike then compares an agent-assisted
-candidate and semantic oracle with a codegen-style baseline.
+1. Confirm the supplied target, license, prerequisites, immutable revisions, start, readiness,
+   reset, and cleanup behavior.
+2. Establish the real pre-fix/post-fix functional differential before writing exploration code.
+3. Save a versioned issue snapshot and executable independent outcome contract.
+4. Run bounded deterministic exploration first; optional model proposals never decide the result.
+5. Reset and verify reset before every visible attempt, with zero automatic retries.
+6. Minimize actions by replaying each candidate against the same oracle and differential.
+7. Generate one readable Playwright test with no ReproLock import.
+8. Run 20 independent attempts per revision and compare with a recorder-style baseline.
+9. Verify the small evidence bundle, retain any `INCONCLUSIVE` attempt outcomes, and issue a final
+   `GO`, `CONDITIONAL GO`, or `NO-GO` according to the predeclared gate.
 
-A `GO` requires all of the following in one controlled environment:
+`GO` alone opens the smallest predeclared production scope. `CONDITIONAL GO` records bounded useful
+evidence and the unmet conditions, but it does not open the production gate. `INCONCLUSIVE` is an
+attempt/outcome classification when an accepted oracle cannot observe required runtime state; it
+is not a guessed pass or failure. `SPIKE_REPORT.md` still ends in `GO`, `CONDITIONAL GO`, or
+`NO-GO`.
 
-- public Issue and immutable commit identifiers;
-- an oracle independent of agent self-report;
-- minimized actions and explicit reset;
-- a generated plain Playwright test with no ReproLock runtime dependency;
-- Bug commit `FAIL` and Fix commit `PASS`;
-- 20/20 replay agreement;
-- no LLM call during replay;
-- retained, redacted evidence including every attempt; and
-- material value beyond a recorded script in oracle quality, minimization, differential evidence,
-  or stability.
+`CONDITIONAL GO` is available only after every hard gate and the required 20/20 differential pass,
+when a named non-core limitation still narrows the claim—for example, human-authored oracle input
+or one-platform evidence. The report must name the owner and acceptance condition for removing the
+limitation. A missing oracle/reset, unstable differential, runtime/model-dependent replay, or no
+visible advantage over the recorder baseline is `NO-GO`, not conditional success.
 
-Spike A cannot return `CONDITIONAL GO`. If any mandatory condition is absent, record `NO-GO` or
-`INCONCLUSIVE` and investigate feasibility, bug selection, exploration reliability, oracle
-observability, reset cost, or compiler value before broad implementation.
+## Hard gates
 
-## Spike B — mutation quality
+- Missing required inputs: do not start the Spike; report the exact missing fields.
+- Supplied revisions do not reproduce the declared deterministic differential: `NO-GO`.
+- No executable independent outcome contract can be defined and baseline-proven: `NO-GO`.
+- Model or ReproLock dependency during ordinary replay: `NO-GO`.
+- Unexplained variation or hidden retries: `NO-GO`.
+- External account, hosted target, production data, or irreversible operation: out of scope.
+- An accepted oracle or reset that cannot observe one attempt returns `INCONCLUSIVE` for that
+  attempt; unresolved inconclusive or variable attempts fail the overall gate as `NO-GO`.
 
-Spike B evaluates both sides of test quality:
-
-- **robustness:** at least three semantic-preserving DOM/UI changes should not fail the semantic
-  test; and
-- **sensitivity:** at least three semantic-breaking changes must fail it.
-
-Report false positives and false negatives and compare with a codegen-style test. Fixture mutation
-capability is labelled as fixture capability, not generalized to arbitrary applications. Only
-accepted evidence may authorize an optional mutation package.
-
-## Spike C — UI/WebMCP parity
-
-Spike C compares the same operation through a human UI and an agent-facing WebMCP tool across:
-
-- user identity and authorization;
-- validation and confirmation;
-- side effects and final state; and
-- error classification and recovery semantics.
-
-The result informs a possible future extension. It must not introduce WebMCP dependencies or
-claims into the MVP.
-
-## Evidence and safety requirements
-
-Every spike declares its hypothesis, environment, fixtures, reset, oracle, attempts, raw results,
-limitations, and decision rule before interpreting success. It retains negative results and
-visible retries.
-
-Issue text, repository content, Web pages, traces, and model output are untrusted. A spike never:
-
-- executes a command copied from Issue/page/model text without a separately trusted allowlist;
-- exposes cookies, authorization headers, tokens, passwords, full sensitive HAR data, or absolute
-  user-home paths in evidence;
-- treats model output or screenshot similarity as the final oracle;
-- maps setup/error/inconclusive states to product failure or success; or
-- silently promotes disposable spike code into a production package.
-
-## Handoff
-
-Each spike ends with `GO`, `CONDITIONAL GO`, `NO-GO`, or `INCONCLUSIVE`, the exact acceptance table,
-commands and results, evidence paths, unresolved risks, and what a successor may safely rely on.
-Only reviewed evidence—not code volume or narrative confidence—opens the next phase.
+Historical public-target, Mutation, and WebMCP spikes remain preserved on old branches only. They
+are not current completion evidence and must not be merged wholesale into this line.

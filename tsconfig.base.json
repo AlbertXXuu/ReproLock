@@ -20,6 +20,6 @@
     "types": ["node"],
     "verbatimModuleSyntax": true
   },
-  "include": ["packages/**/*.ts", "examples/**/*.ts", "spikes/**/*.ts", "tests/**/*.ts"],
+  "include": ["src/**/*.ts", "fixtures/**/*.ts", "tests/**/*.ts", "playwright.config.ts"],
   "exclude": ["node_modules", "dist", "coverage"]
 }

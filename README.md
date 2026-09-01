@@ -1,88 +1,80 @@
 # ReproLock
 
-> Turn a messy browser bug report into a verified, durable Playwright regression test.
+ReproLock turns a user-supplied functional bug description or recorded browser workflow into an
+independently checked, minimized, standalone Playwright regression test.
 
-**Project status — 2026-09-01:** ReproLock is a provisional working name for an AlvenX
-pre-product candidate. The repository is in Wave 0 foundation work, is unpublished, and has not
-passed the product Gate. There is no released package or production implementation yet.
+## Status
 
-## The outcome
+ReproLock is an unpublished local-functional-QA project. The repository has a locally verified
+engineering foundation and an architecture suitable for one user-supplied Spike. It has **not** passed the
+product Gate: no real local target has yet demonstrated the same generated test failing 20/20 on a
+known pre-fix revision and passing 20/20 on a known post-fix revision.
 
-ReproLock is intended to turn a GitHub bug report or one successful browser workflow into a
-plain Playwright test that remains useful without ReproLock. Agent-assisted exploration may
-propose actions and outcomes, but a deterministic oracle must independently confirm the final
-business state.
+The current decision is therefore `CONDITIONAL GO` for foundation and architecture only. Product
+implementation beyond the bounded Spike remains gated.
 
-The product contract is evidence-first:
+## Product contract
 
-- Agent output is a candidate, never the verdict.
-- Final replay and CI do not call an LLM.
-- An unobservable or unresettable result is `INCONCLUSIVE`, not confirmed.
-- Generated tests are ordinary, readable Playwright tests with no ReproLock runtime import.
-- Evidence is versioned, hashable, reviewable, and redacted; failed attempts remain visible.
-- The first violated outcome is reported without inventing a root cause.
+- A model may propose actions; it never decides whether the outcome succeeded.
+- Independent executable oracles produce `pass`, `fail`, or `inconclusive`.
+- Operational `error`, `cancelled`, and `policy_denied` results remain distinct from functional
+  outcomes.
+- Replay and ordinary CI do not call a model.
+- Generated tests are ordinary readable Playwright tests without a ReproLock runtime import.
+- Every attempt starts from an explicit, verified reset; there are no hidden retries.
+- Evidence is versioned, canonical, hashable, bounded to an output root, and data-minimized.
+- The first failed checkpoint locates the observed difference; it is not a root-cause claim.
 
-The complete mission, users, scope, invariants, and release gates live in
-[PROJECT_CHARTER.md](PROJECT_CHARTER.md).
+Read [PROJECT_CHARTER.md](PROJECT_CHARTER.md) for product scope and
+[the architecture baseline](reference/ARCHITECTURE_AND_ACCEPTANCE_BASELINE.md) for executable
+contracts and gates.
 
-## Current Gate
+## Development
 
-Wave 0 establishes repository governance and a reproducible TypeScript/pnpm toolchain. Wave 1
-then tests the product hypothesis with an architecture review and three bounded spikes. Product
-implementation may start only when the architecture is at least `CONDITIONAL GO` and Spike A is
-`GO`.
-
-Spike A must supply all of the following evidence:
-
-- a public historical issue with identified Bug and Fix commits;
-- an independently verified oracle;
-- a generated plain Playwright test;
-- Bug commit `FAIL` and Fix commit `PASS` in the same controlled environment;
-- 20 out of 20 consistent replays;
-- no LLM call during replay; and
-- no credential disclosure or arbitrary-command path.
-
-If those conditions cannot be demonstrated, the correct result is to stop or revise the product
-hypothesis rather than expand the implementation.
-
-## Foundation development
-
-The pinned development runtime is Node.js `24.20.0`; the supported range is
-`>=22.23.2 <25`. The package manager is pnpm `11.19.0`. See
-[ADR 0001](docs/adr/0001-runtime-and-toolchain.md) for the dated evidence and rationale.
+The pinned package manager is pnpm `11.19.0`. Node.js `24.20.0` is the primary runtime and
+`22.23.2` is the minimum declared runtime.
 
 ```bash
 corepack enable
 pnpm install --frozen-lockfile
-pnpm format:check
-pnpm lint
-pnpm typecheck
-pnpm test
+pnpm exec playwright install chromium
+pnpm check
 pnpm package:smoke
 ```
 
-These commands validate the repository foundation; they are not evidence that the product Gate
-has passed. Contribution and security procedures are documented in
-[CONTRIBUTING.md](CONTRIBUTING.md) and [SECURITY.md](SECURITY.md).
+`pnpm check` runs formatting, lint, strict typechecking, deterministic unit/integration tests, and
+one Chromium smoke against an ephemeral `127.0.0.1` fixture with zero retries.
 
-## Repository map
+## Current repository map
 
-- [`docs/foundation/`](docs/foundation/) — repository layout and branch/worktree rules.
-- [`docs/adr/`](docs/adr/) — accepted, reviewable technical decisions.
-- [`plans/`](plans/) — ExecPlans for substantial work.
-- [`harness/`](harness/) — phase context and evidence-backed build records.
-- [`packages/`](packages/) — gated production package area; intentionally empty in Wave 0.
-- [`examples/`](examples/) — gated, runnable product examples; intentionally empty in Wave 0.
-- [`spikes/`](spikes/) — falsifiable investigations used to decide whether implementation proceeds.
+- `src/domain/` — deterministic terminal-result contracts.
+- `src/evidence/` — canonical JSON and bounded atomic evidence writing.
+- `fixtures/loopback/` — synthetic loopback-only acceptance fixture.
+- `tests/domain/`, `tests/evidence/`, `tests/playwright/` — executable foundation evidence.
+- `reference/` — current architecture and acceptance baseline.
+- `docs/foundation/` — repository layout and sequential worktree policy.
+- `plans/` and `harness/context/` — phase-local execution and evidence records.
+- `examples/`, `packages/`, and `spikes/` — admission policies, not prebuilt product surfaces.
 
-Every Codex task uses its own branch and Git worktree and may modify only its assigned paths. See
-[the branch and worktree policy](docs/foundation/branch-and-worktree-policy.md).
+Historical Wave 0 records are preserved for auditability but do not authorize the old parallel
+public-target, Mutation, or WebMCP route. Old branches, worktrees, and stash objects are history,
+not completion evidence for the current scope.
 
-## Project relationship
+## Next Gate
 
-ReproLock belongs to AlvenX and inherits evidence discipline developed through
-OpenMultimodalLab, BrowserAgentRegression, and PhysGauge. Those projects remain independent,
-stable/maintained projects; ReproLock does not use them as a place to grow its feature surface.
+The user must supply:
 
-Formal naming, package publication, and any release claim remain reserved until the documented
-Gates are satisfied.
+```text
+TARGET_REPOSITORY_PATH
+ISSUE_SNAPSHOT_PATH
+PRE_FIX_REVISION
+POST_FIX_REVISION
+START_COMMAND
+RESET_COMMAND
+```
+
+The Spike must remain local and loopback-only, prove the baseline differential first, define an
+independent outcome contract, preserve all attempts, minimize actions, emit one standalone test,
+and obtain stable 20/20 results on each revision. Missing inputs prevent the Spike from starting;
+an individual accepted check may be `inconclusive`, while an absent contract, reset, differential,
+or unresolved variation makes the overall Spike `NO-GO`.

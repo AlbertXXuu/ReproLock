@@ -1,25 +1,27 @@
 # ExecPlan Directory
 
-This directory contains living execution plans governed by the root `PLANS.md`.
+Multi-step work maintains one living plan under `plans/`, governed by root `PLANS.md`.
 
-## Naming
-
-Use one lowercase kebab-case file per approved phase or substantial task:
+Use a stable lowercase identifier:
 
 ```text
-plans/<phase-or-task>.md
+plans/<phase>.md
+harness/context/<phase>.md
 ```
 
-Use the same stable phase identifier for the branch context at
-`harness/context/<phase-or-task>.md`. Do not create a plan for a trivial, local, reversible edit.
+Create the plan before implementation. Keep it current when evidence changes scope, milestones,
+decisions, risks, or the gate. A complete plan includes:
 
-## Lifecycle
+- one observable goal;
+- writable paths and explicit exclusions;
+- trusted user inputs and unknowns;
+- exact baseline commands and results;
+- milestones with verification, rollback, and stop conditions;
+- alternatives and reversible decisions;
+- security, privacy, cancellation, cleanup, and data-handling considerations;
+- progress, failures, retries, and inconclusive observations; and
+- exact completion criteria.
 
-1. Create the plan before implementation when `PLANS.md` requires it.
-2. Record the baseline, authorized paths, gates, milestones, and verification commands.
-3. Update decisions and progress as evidence changes the implementation.
-4. On completion or a hard blocker, record the final state and remaining risks; keep the plan as a
-   durable decision record.
-
-Plans describe intended and evolving work. Actual command results and evidence belong in the
-matching phase context. The integration verdict belongs in `harness/build-log.md`.
+The matching phase context is the durable handoff: commands actually run, artifacts produced,
+limitations, stable contracts, and assumptions successors must not make. Historical plans remain
+unchanged except for a clear supersession notice when their scope no longer governs new work.

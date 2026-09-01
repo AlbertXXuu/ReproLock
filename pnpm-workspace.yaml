@@ -1,4 +1,1 @@
-packages:
-  - "packages/*"
-  - "examples/*"
-  - "spikes/*"
+packages: []
