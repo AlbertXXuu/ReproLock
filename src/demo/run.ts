@@ -169,16 +169,18 @@ export class DemoRunner {
     this.cancellation?.abort();
   }
   async shutdown(): Promise<void> {
-    await this.startup?.catch(() => {});
     this.cancel();
+    await this.startup?.catch(() => {});
     await this.completion;
   }
 
   start(): Promise<string> {
     if (this.active) return Promise.reject(new Error("One run is already active"));
+    this.cancellation = new AbortController();
     this.startup = this.initialize();
     return this.startup.finally(() => {
       this.startup = null;
+      if (!this.completion) this.cancellation = null;
     });
   }
 
@@ -193,7 +195,6 @@ export class DemoRunner {
     this.directory = join(resolved, id);
     await mkdir(this.directory);
     this.reports.clear();
-    this.cancellation = new AbortController();
     this.live = {
       run: {
         schemaVersion: 1,
@@ -294,6 +295,7 @@ export class DemoRunner {
         live.run.sourceHashes[`demo/${name}`] = digest(
           await readFile(join(this.root, "src/demo", name)),
         );
+      stopped();
       const prerequisites = await checkPrerequisites(this.root, this.config);
       stopped();
       if (!prerequisites.ok) {
