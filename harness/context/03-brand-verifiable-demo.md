@@ -60,7 +60,9 @@ state stayed clean. Hashes of all four captured Demo source files match the actu
   tests**, **4/4 Chromium browser tests**. No model, external target or credential needed for CI.
 - `pnpm check`, pinned Node **24.20.0**, `CI=true`: same complete pass. Both environments use
   pnpm **11.19.0**, `enableGlobalVirtualStore:false`, `verifyDepsBeforeRun:error`.
-- `pnpm package:smoke` on both runtimes: passed, **107 archive entries**; the private package
+- `pnpm package:smoke` on both runtimes: passed, 107 entries at the full matrix check;
+  the final archive check passed with **108 entries / 361,348 bytes** after adding the recorded-run
+  gate script. The private package
   includes every standalone Demo UI/font/resource. No publication/installability claim is made.
 - `pnpm evidence:verify`: complete historical bundle passed.
 - `pnpm demo:verify:recorded`: complete/cancel/deadline exports all internally consistent;
@@ -95,9 +97,24 @@ Screenshots: `output/playwright/demo-acceptance/` contains `running-1440.png`,
 `timeout-900.png`. The README includes the complete 1440px screenshot. Responsive captures were
 checked against actual `innerWidth`, not merely the requested browser override.
 
+## Independent export acceptance
+
+Exported source commit `ae7c9817b4119743086c33dee1aa12d2913a8961` with `git archive` into a
+new directory outside the AlvenX workspace, without copying a working directory or dependencies.
+`pnpm install --frozen-lockfile` installed the nine locked dependencies; `pnpm brand:verify`,
+`pnpm demo:verify:recorded` and `pnpm test:browser` passed (4/4 browser tests). The command
+`pnpm demo --config demo.local.json --port 4319` started the exported application at
+`http://127.0.0.1:4319`. The local config points only at the same explicitly supplied target
+worktrees. The archive and actual install/browser logs are in the audit directory above.
+
+The recorded-run CI gate explicitly requires the three expected final statuses and a confirmed
+differential only for the complete run. A valid cancelled/partial export cannot silently replace
+the checked-in complete demonstration.
+
 ## Remaining handoff gates and limits
 
-Independent export/install, final PR CI and merge/main synchronization are pending the following
-handoff step. Historical experimental results have not been relabeled as current execution.
+Final GitHub README rendering, PR CI and merge/main synchronization are the remaining integration
+gates; their exact remote receipts will be retained in the local audit and PR. Historical
+experimental results have not been relabeled as current execution.
 Product decision remains **SPIKE_CONDITIONAL**: one unusually detailed case, equivalent manual
 baseline, no measured effort/maintenance advantage, no general issue-to-test flow, no public release.
