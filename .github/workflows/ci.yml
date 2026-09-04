@@ -49,6 +49,8 @@ jobs:
         run: pnpm typecheck:standalone
       - name: Verify the checked-in evidence bundle
         run: pnpm evidence:verify
+      - name: Verify recorded Demo success and interruption evidence
+        run: pnpm demo:verify:recorded
       - name: Test
         run: pnpm test
       - name: Smoke-test the package archive

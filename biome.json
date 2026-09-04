@@ -26,6 +26,10 @@
   },
   "overrides": [
     {
+      "includes": ["docs/demo-evidence/**/*.json"],
+      "formatter": { "enabled": false }
+    },
+    {
       "includes": ["docs/assets/alvenx-ui.css"],
       "formatter": { "enabled": false },
       "linter": { "enabled": false }

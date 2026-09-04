@@ -19,8 +19,11 @@
     "test:browser": "playwright test",
     "test": "pnpm test:unit && pnpm test:browser",
     "package:smoke": "node scripts/package-smoke.mjs",
-    "check": "pnpm format:check && pnpm lint && pnpm brand:verify && pnpm typecheck && pnpm typecheck:standalone && pnpm test && pnpm evidence:verify",
+    "check": "pnpm format:check && pnpm lint && pnpm brand:verify && pnpm typecheck && pnpm typecheck:standalone && pnpm test && pnpm evidence:verify && pnpm demo:verify:recorded",
     "brand:verify": "node scripts/verify-brand.mjs",
+    "demo": "node src/demo/server.ts",
+    "demo:verify": "node src/demo/evidence.ts",
+    "demo:verify:recorded": "node scripts/verify-demo-recordings.mjs",
     "typecheck:standalone": "tsc --project spikes/local-functional-regression/generated/tsconfig.json --noEmit && tsc --project spikes/local-functional-regression/baseline/tsconfig.json --noEmit",
     "evidence:verify": "node spikes/local-functional-regression/tools/evidence-cli.ts verify --bundle-root spikes/local-functional-regression"
   },

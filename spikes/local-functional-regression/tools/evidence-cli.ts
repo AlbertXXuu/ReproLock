@@ -582,6 +582,17 @@ function verifyGeneratedPreFixSemantics(results: readonly ParsedPlaywrightTestRe
   }
 }
 
+/** Reuse the frozen generated-report identity and assertion gates for a new Demo run. */
+export function validateGeneratedDemoReport(
+  report: unknown,
+  side: "pre-fix" | "post-fix",
+): readonly ParsedPlaywrightTestResult[] {
+  const results = parsePlaywrightJsonReport(report);
+  validateReportEnvelope(report, results, "generated", sha256(serializeCanonicalJson(report)));
+  if (side === "pre-fix") verifyGeneratedPreFixSemantics(results);
+  return results;
+}
+
 async function loadCandidateActionCount(root: string): Promise<number> {
   const candidate = asObject(await readBundleJson(root, candidateTracePath), candidateTracePath);
   asSchemaVersion(candidate, candidateTracePath);

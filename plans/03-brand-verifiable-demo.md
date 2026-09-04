@@ -62,8 +62,8 @@ preserve the failure record. Do not silently repair or terminate another task's 
 ## Progress and completion gate
 
 - [x] P2 and pnpm fix merged and main CI passed.
-- [ ] Brand commit, independent asset validation and parent checks.
-- [ ] Runnable Demo, meaningful regression tests and current evidence verification.
+- [x] Brand commit `0ed04d9`, independent asset validation and parent checks.
+- [x] Runnable Demo, meaningful regression tests and current evidence verification.
 - [ ] Real differential, lifecycle tests, standalone install and browser acceptance.
 - [ ] Review, PR/CI/merge, D main sync and exact delivery record.
 

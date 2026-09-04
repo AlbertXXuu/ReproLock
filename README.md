@@ -10,7 +10,8 @@ workflow into an independently checked, maintainable, standalone Playwright regr
 ## Status — 2026-09-04
 
 The current implementation is one private TypeScript root application with deterministic evidence
-utilities, a loopback fixture, and one case-specific local functional-regression Spike.
+utilities, a loopback fixture, one case-specific local functional-regression Spike, and an
+owner-authorized local Demo for that supplied case.
 
 Safe Unfollow #163 has an unchanged standalone test with **20/20 expected pre-fix failures and
 20/20 post-fix passes**. The honest manual/recorder baseline achieves the same differential and
@@ -25,6 +26,29 @@ value to authorize production implementation. Source hosting and passing CI do n
 There is no published package, general explorer/compiler, or released GitHub Action.
 The recovered source and current engineering checks are available in
 [private PR #1](https://github.com/AlbertXXuu/ReproLock/pull/1).
+
+## Verifiable local Demo
+
+Install the dependencies below, then copy `demo.example.json` to `demo.local.json` and point it at
+the two supplied Safe Unfollow worktrees. Run `npm ci` in each target; see the
+[exact revisions and setup](docs/demo.md).
+
+```bash
+pnpm demo --config demo.local.json
+```
+
+Open **http://127.0.0.1:4317**. Inspect the frozen source and historical evidence, check prerequisites,
+then run the same test **20 times before and 20 times after** the fix. The UI shows actual progress,
+first failed checkpoint, cancellation/deadline status and independent current-run verification.
+Each run preserves its own evidence under `output/demo/`; failed attempts remain inspectable.
+Download the ordinary Playwright test/config and portable evidence, then check an export with
+`pnpm demo:verify output/demo/<run-id>/export.json`.
+
+This demonstrates one supplied case. It does not establish incremental value over the manual
+baseline or implement a general “issue → test” flow. See the [brand contract](docs/brand.md) and
+[actual acceptance record](harness/context/03-brand-verifiable-demo.md).
+
+![A real 20+20 local differential, with independent verification](docs/demo-evidence/demo-1440.png)
 
 ## Development
 
@@ -47,8 +71,9 @@ pnpm check
 pnpm package:smoke
 ```
 
-`pnpm check` runs format, lint, root and both standalone typechecks, unit tests, a Chromium
-loopback fixture, and verification of the checked-in Spike bundle. CI repeats those checks on
+`pnpm check` runs format, lint, brand/README validation, root and both standalone typechecks,
+unit/process tests, Chromium fixture and Demo browser tests, and verification of the checked-in
+Spike bundle. CI repeats those checks on
 Node 22.23.2 and 24.20.0. The package smoke inspects archive paths, content and private metadata;
 it does not claim an installable published product. No target checkout or model credential is
 required for these engineering checks.
@@ -89,6 +114,7 @@ internal consistency, and do not authenticate who executed the experiment.
 ## Repository map
 
 - `src/domain/` and `src/evidence/`: terminal contracts, canonical JSON and atomic evidence writing.
+- `src/demo/`: the bounded local Safe Unfollow Demo, runner, reporter and current-run verifier.
 - `fixtures/loopback/` and `tests/`: executable foundation and bounded Spike regression checks.
 - `spikes/local-functional-regression/`: frozen standalone output, case-specific evidence tools,
   historical records and separate dated revalidation.
@@ -103,8 +129,8 @@ Historical Wave 1 branches and stash objects remain preserved and are not curren
 
 ## Next gate
 
-Engineering recovery does not authorize the next product phase. Removing the conditional status
+The owner has separately authorized the branded local single-case Demo. Removing the conditional status
 requires a user-supplied, less-structured local functional case and an explicit scope/value decision.
 That case must retain a model-free stable differential and show measurable effort or maintenance
 benefit over an honest manual baseline. No second target, provider credentials, production packages,
-public release or website work is admitted by this source-recovery task.
+public release or website work is admitted by this Demo task.
