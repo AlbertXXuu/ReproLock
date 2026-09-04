@@ -2,7 +2,7 @@
 
 ## Scope and result
 
-- Branch: `spike/local-functional-regression`
+- Current branch: `codex/spike-recovery-20260904` (adopted from `spike/local-functional-regression`)
 - Base commit: `83daeeed3b9947fff89cfd7942c3dd0b32fc5475`
 - Target: user-supplied `https://github.com/ignromanov/safe-unfollow.git`
 - Pre-fix: `64c8a1d0f4c1a9a4ffbab2ea319d89bcab21ad47`
@@ -273,3 +273,25 @@ is `https://github.com/AlbertXXuu/ReproLock`, verified PRIVATE, and origin is se
 Sandbox-only gh returned 401; accessing the existing Windows credential store outside the sandbox
 worked without copying or exposing a token. Source push/PR/CI follow this verified local gate;
 their immutable commit and run links are recorded in the delivery follow-up.
+
+## Verified source delivery — 2026-09-04
+
+- Source commit: [bfc2d521631b1bb69a0bf83a1a512a213cf97211](https://github.com/AlbertXXuu/ReproLock/commit/bfc2d521631b1bb69a0bf83a1a512a213cf97211).
+- Private source PR: [ReproLock #1](https://github.com/AlbertXXuu/ReproLock/pull/1).
+- Source CI: [run 33867375012](https://github.com/AlbertXXuu/ReproLock/actions/runs/33867375012),
+  completed SUCCESS on that exact source SHA. Both Ubuntu jobs, Node 22.23.2 and 24.20.0,
+  passed 28/28 unit tests, 1/1 browser test, standalone typechecks, evidence verification and archive
+  content smoke (78 files, 102686 bytes).
+- Historical main was pushed unchanged at 18b83c0b2892c7d93caaa863f26fbc9c861ae4ac; its
+  [initial CI](https://github.com/AlbertXXuu/ReproLock/actions/runs/33867302013) also passed.
+- `git ls-remote --heads origin main codex/spike-recovery-20260904` matched both local refs.
+  Git initially encountered schannel/OpenSSL TLS handshake failures; per-command OpenSSL plus
+  HTTP/1.1 succeeded with certificate verification still enabled. No force-push or history rewrite.
+- `gh pr view` reported MERGEABLE / CLEAN for the verified source commit. This documentation
+  follow-up does not change executable sources or the evidence bundle; the current
+  [PR checks](https://github.com/AlbertXXuu/ReproLock/pull/1/checks) are authoritative for its own CI.
+
+The working tree was clean after the source commit. The D-drive main checkout remains the preserved
+historical entry point until a separately reviewed integration; current work is on the task branch.
+No PR merge, package/Release publication, public-visibility change, website deployment, second target
+or production stage was performed. The remaining product decision is still SPIKE_CONDITIONAL.

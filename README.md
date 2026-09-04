@@ -19,6 +19,8 @@ The decision remains **SPIKE_CONDITIONAL**. Evidence structure and checkpoint di
 but this unusually detailed case has not demonstrated enough incremental effort or maintenance
 value to authorize production implementation. Source hosting and passing CI do not grant product GO.
 There is no published package, general explorer/compiler, or released GitHub Action.
+The recovered source and current engineering checks are available in
+[private PR #1](https://github.com/AlbertXXuu/ReproLock/pull/1).
 
 ## Development
 

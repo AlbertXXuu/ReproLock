@@ -130,7 +130,7 @@ checks passed.
 - [x] Complete 20 + 20 independent attempts.
 - [x] Verify evidence and ReproLock checks.
 - [x] Stop owned runtime resources and inspect the final scope.
-- [ ] Commit one coherent Spike result; report the resulting SHA after the self-referential step.
+- [x] Commit one coherent Spike result: `bfc2d521631b1bb69a0bf83a1a512a213cf97211`.
 
 ## Completion gate
 
@@ -180,85 +180,15 @@ Stop on unverified cleanup/differential, ownership conflict, or unavailable GitH
 Rollback uses the preserved patches as inspectable recovery data, never reset/clean. Production
 scope and a second user-supplied case remain separate decisions after engineering acceptance.
 
-## Recovery execution evidence — 2026-09-04
+## Recovery completion
 
-Read-only foundation/evidence reviews identified false runtime binding in the proposed envelope,
-duplicate-attempt acceptance, swallowed/contradictory errors, incomplete minimization validation,
-missing current-artifact CI checks, unbounded cancellation cleanup and readiness redirects. The
-minimal fixes retain one root application and the ordinary frozen Playwright output. No dependency,
-provider, production module or target source change was added.
+- [x] Resolve the evidence/runtime/CI findings and obtain independent final reviews without P1/P2 findings.
+- [x] Preserve historical bytes and verify fresh generated/manual 20+20 differentials.
+- [x] Verify real cancellation/timeout process cleanup and the full exact Node 22/24 local matrix.
+- [x] Create the private source PR and obtain successful CI for the implementation commit.
 
-The first repair run caught a missing TypeScript field in the new report-ID parser; it was corrected
-before the real replay. All subsequent unit runs passed, reaching 28 tests with the added failure
-cases. Current checks use the actual project contract, not changed expected hashes to hide failure.
-
-Fresh differential ran 2026-09-04T11:06:28.235Z through 2026-09-04T11:11:25.132Z, Node v22.23.2,
-Windows Chromium. Exact commands used for each supplied detached revision:
-
-```text
-git status --porcelain
-git rev-parse HEAD
-npm run dev -- --host 127.0.0.1 --port 4173 --strictPort
-node node_modules/@playwright/test/cli.js test --config spikes/local-functional-regression/generated/playwright.config.ts --repeat-each=20 --reporter=json --output <new-run-output>/generated-<side>-artifacts
-node node_modules/@playwright/test/cli.js test --config spikes/local-functional-regression/baseline/playwright.config.ts --repeat-each=20 --reporter=json --output <new-run-output>/baseline-<side>-artifacts
-node spikes/local-functional-regression/generated/replay-safe-unfollow-163.mjs --repeat 1
-```
-
-Each pre-fix CLI exited 1 for twenty expected visible-spinner functional failures; each post-fix
-CLI exited 0 for twenty passes. The normal post-fix wrapper exited 0 for one pass. Every report was
-then imported through `materializeEvidenceBundle` into a fresh isolated bundle; its manifest and
-`verifyEvidenceBundle` returned zero issues. The four derived documents and capture record are
-preserved in `spikes/local-functional-regression/revalidation/2026-09-04/`. Original raw files
-remain in `output/spike-safe-unfollow-163/raw/`; new raw files, process-test logs and full local
-execution record remain in `output/recovery-20260904/`. These local raw logs are ignored because
-Playwright includes machine paths. Committed summaries contain only relative paths and hashes.
-
-Cancellation check invoked exported `replay({repeat:20, signal, timeoutMs:20000})` with an
-AbortController aborted after 5000 ms. Timeout check used `replay({repeat:20, timeoutMs:5000})`.
-For each, Windows CIM process snapshots observed the wrapper/runner/browser descendants before
-termination and checked all observed IDs after completion: 7 observed, 0 survivors, results
-`cancelled/130` and `timeout/124`. No other task's process was terminated. Target services were
-separately stopped using only their owned PID trees; both clean detached revisions were retained.
-
-Next phase assessment: N002 engineering recovery can proceed to source PR review; N003 production
-scope remains blocked by product-value evidence and owner scope/case selection. The existing case
-already supplies target/issue/revisions/start/reset; README no longer asks for its first inputs.
-Successful source submission, CI, and archive inspection do not satisfy product GO or publication.
-
-## Final local engineering acceptance — 2026-09-04
-
-Both exact runtimes, Node 22.23.2 and Node 24.20.0, executed pinned pnpm 11.19.0 with the selected
-Node directory first on PATH. No dependency versions or lockfile changed. The bundled fallback
-shim uses its own Node, so the matrix explicitly invoked the installed pinned pnpm entry point.
-
-| Command | Node 22.23.2 | Node 24.20.0 |
-| --- | --- | --- |
-| `pnpm install --offline --frozen-lockfile` | exit 0 | exit 0 |
-| `pnpm exec node --version` | v22.23.2 | v24.20.0 |
-| `pnpm check` | exit 0 | exit 0 |
-| format/lint/root typecheck within check | pass, no lint warnings | pass, no lint warnings |
-| `pnpm typecheck:standalone` within check | both projects pass | both projects pass |
-| unit tests within check | 28/28 pass | 28/28 pass |
-| Chromium loopback test within check | 1/1 pass | 1/1 pass |
-| `pnpm evidence:verify` within check | zero issues | zero issues |
-| `pnpm package:smoke` | exit 0, 78 files | exit 0, 78 files |
-| `git diff --check` and `git diff --cached --check` | exit 0 | exit 0 |
-
-Archive content smoke verified relative paths, excluded local state and private 0.0.0 metadata;
-the matrix archive was 101790 bytes before this final documentation entry. Installability or
-publication is not claimed. A harmless inherited NO_COLOR/FORCE_COLOR warning appeared in the
-browser runner; it did not change retries or outcomes.
-
-Independent SHA-256 comparison preserved 18 historical files, including all nine frozen
-hypothesis inputs, the original forty attempts and three summaries, and all original local Spike
-raw/failed-attempt evidence. The archived original manifest also matches its pre-recovery bytes.
-The current manifest has 32 entries. No target source, old branch, stash, main checkout or central
-build log was changed. The source PR includes only the current v2 foundation history plus this
-reviewed Spike recovery; old parallel Wave 1 work is excluded.
-
-Private hosting: authenticated account AlbertXXuu, immutable account ID 204706285. Authenticated
-repository listing found no case-insensitive ReproLock match before creation. The new repository
-is `https://github.com/AlbertXXuu/ReproLock`, verified PRIVATE, and origin is set to that URL.
-Sandbox-only gh returned 401; accessing the existing Windows credential store outside the sandbox
-worked without copying or exposing a token. Source push/PR/CI follow this verified local gate;
-their immutable commit and run links are recorded in the delivery follow-up.
+Exact commands, errors, local results, immutable source SHA and successful CI links are recorded in
+[harness/context/02-local-functional-regression-spike-a.md](../harness/context/02-local-functional-regression-spike-a.md).
+The containing documentation commit is checked again through PR #1 before delivery. No executable
+source or evidence bytes changed in this follow-up. Product SPIKE_CONDITIONAL and N003 scope/value
+inputs remain unresolved; source submission does not open the next product gate.
