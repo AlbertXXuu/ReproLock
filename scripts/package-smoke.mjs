@@ -33,9 +33,15 @@ try {
   assert.ok(entries.includes("package/package.json"));
   assert.ok(entries.includes("package/src/domain/verdict.ts"));
   for (const path of [
+    "LICENSE",
+    "NOTICE",
+    "THIRD_PARTY_NOTICES.md",
+    "TRADEMARKS.md",
     "src/verify/cli.ts",
     "src/verify/evidence.ts",
     "src/verify/reporter.ts",
+    "src/verify/workspace.ts",
+    "scripts/quickstart.mjs",
     "docs/local-verification.md",
     "scripts/verify-drawdb-recording.mjs",
     "spikes/local-candidate-verification/drawdb-687/candidate.spec.ts",
@@ -57,6 +63,10 @@ try {
       entries.includes(`package/${path}`),
       `standalone source archive must contain ${path}`,
     );
+  assert.ok(
+    !entries.includes("package/docs/brand-registration.patch"),
+    "obsolete parent-workspace patch must not ship",
+  );
   assert.ok(
     entries.includes(
       "package/spikes/local-functional-regression/generated/safe-unfollow-163.spec.ts",

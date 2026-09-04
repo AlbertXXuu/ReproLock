@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
-import { readFile } from "node:fs/promises";
+import { lstat, readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import {
@@ -90,6 +90,196 @@ export type DemoVerification = {
 };
 export const digest = (value: string | Uint8Array): string =>
   createHash("sha256").update(value).digest("hex");
+const sha256 = /^[a-f0-9]{64}$/u;
+
+const record = (value: unknown, label: string): Record<string, unknown> => {
+  assert.ok(
+    value && typeof value === "object" && !Array.isArray(value),
+    `${label} must be an object`,
+  );
+  return value as Record<string, unknown>;
+};
+
+const exactKeys = (
+  value: Record<string, unknown>,
+  expected: readonly string[],
+  label: string,
+): void => {
+  assert.deepEqual(
+    Object.keys(value).sort(),
+    [...expected].sort(),
+    `Unknown or missing ${label} fields`,
+  );
+};
+
+type PortableCompletion = { finishedAt: string; status: string };
+type PortableReportTiming = { completion: PortableCompletion | null; startedAt: string };
+
+function validTimestamp(value: unknown, label: string): asserts value is string {
+  assert.ok(
+    typeof value === "string" && Number.isFinite(Date.parse(value)),
+    `${label} must be an ISO timestamp`,
+  );
+}
+
+function strictPortableReport(value: unknown): PortableReportTiming {
+  const report = record(value, "Report");
+  exactKeys(
+    report,
+    ["completion", "config", "errors", "observations", "rawReportSha256", "suites"],
+    "report",
+  );
+  const config = record(report.config, "Report config");
+  exactKeys(
+    config,
+    ["configFile", "projects", "repeatEach", "retries", "startedAt", "workers"],
+    "report config",
+  );
+  assert.equal(
+    config.configFile,
+    "spikes/local-functional-regression/generated/playwright.config.ts",
+  );
+  assert.equal(config.workers, 1);
+  assert.equal(config.repeatEach, CASE.repeat);
+  assert.equal(config.retries, 0);
+  validTimestamp(config.startedAt, "Report start time");
+  assert.ok(
+    Array.isArray(config.projects) && config.projects.length === 1,
+    "Report must contain one project",
+  );
+  for (const item of config.projects) {
+    const project = record(item, "Report project");
+    exactKeys(project, ["name", "repeatEach", "retries"], "project");
+    assert.equal(project.name, "");
+    assert.equal(project.repeatEach, CASE.repeat);
+    assert.equal(project.retries, 0);
+  }
+  let completion: PortableCompletion | null = null;
+  if (report.completion !== null) {
+    const rawCompletion = record(report.completion, "Report completion");
+    exactKeys(rawCompletion, ["finishedAt", "status"], "completion");
+    assert.ok(
+      typeof rawCompletion.status === "string" &&
+        ["passed", "failed", "timedout", "interrupted"].includes(rawCompletion.status),
+      "Report completion status is invalid",
+    );
+    validTimestamp(rawCompletion.finishedAt, "Report completion time");
+    assert.ok(
+      Date.parse(rawCompletion.finishedAt) >= Date.parse(config.startedAt),
+      "Report completion precedes its start",
+    );
+    completion = {
+      finishedAt: rawCompletion.finishedAt,
+      status: rawCompletion.status,
+    };
+  }
+  assert.ok(Array.isArray(report.errors), "Report errors must be an array");
+  for (const item of report.errors) {
+    const error = record(item, "Report error");
+    exactKeys(error, ["message"], "report error");
+    assert.ok(
+      typeof error.message === "string" && error.message.length <= 1_024,
+      "Report error message is invalid",
+    );
+  }
+  assert.ok(Array.isArray(report.observations), "Report observations must be an array");
+  assert.ok(report.observations.length <= CASE.repeat);
+  for (const item of report.observations) {
+    const observation = record(item, "Report observation");
+    exactKeys(
+      observation,
+      ["at", "attempt", "file", "id", "result", "title", "workerIndex"],
+      "observation",
+    );
+    assert.ok(
+      Number.isInteger(observation.attempt) &&
+        Number(observation.attempt) >= 1 &&
+        Number(observation.attempt) <= CASE.repeat,
+      "Observation attempt is invalid",
+    );
+    assert.ok(
+      Number.isInteger(observation.workerIndex) && Number(observation.workerIndex) >= -1,
+      "Observation worker is invalid",
+    );
+    validTimestamp(observation.at, "Observation time");
+    assert.ok(
+      typeof observation.id === "string" &&
+        observation.id.length >= 1 &&
+        observation.id.length <= 256,
+      "Observation id is invalid",
+    );
+    assert.equal(observation.file, "safe-unfollow-163.spec.ts");
+    assert.equal(observation.title, "recovers the upload page after interrupted local analysis");
+    const result = record(observation.result, "Observation result");
+    exactKeys(result, ["duration", "errors", "retry", "status"], "observation result");
+    assert.ok(
+      ["passed", "failed", "timedOut", "skipped", "interrupted"].includes(String(result.status)),
+      "Observation status is invalid",
+    );
+    assert.equal(result.retry, 0);
+    assert.ok(
+      typeof result.duration === "number" &&
+        Number.isFinite(result.duration) &&
+        result.duration >= 0,
+      "Observation duration is invalid",
+    );
+    assert.ok(Array.isArray(result.errors), "Observation errors must be an array");
+    assert.ok(result.errors.length <= 8);
+    for (const item of result.errors) {
+      const error = record(item, "Observation error");
+      exactKeys(error, ["message"], "observation error");
+      assert.ok(
+        typeof error.message === "string" && error.message.length <= 1_024,
+        "Observation error message is invalid",
+      );
+    }
+  }
+  assert.ok(Array.isArray(report.suites), "Report suites must be an array");
+  for (const item of report.suites) {
+    const suite = record(item, "Report suite");
+    exactKeys(suite, ["specs", "title"], "suite");
+    assert.ok(Array.isArray(suite.specs), "Suite specs must be an array");
+    for (const item of suite.specs) {
+      const spec = record(item, "Report spec");
+      exactKeys(spec, ["file", "id", "tests", "title"], "spec");
+      assert.ok(Array.isArray(spec.tests), "Spec tests must be an array");
+      for (const item of spec.tests) {
+        const test = record(item, "Report test");
+        exactKeys(test, ["projectName", "results"], "test");
+        assert.ok(Array.isArray(test.results), "Test results must be an array");
+        for (const item of test.results) {
+          const result = record(item, "Test result");
+          exactKeys(result, ["duration", "errors", "retry", "status"], "test result");
+          assert.ok(Array.isArray(result.errors), "Test result errors must be an array");
+          for (const error of result.errors)
+            exactKeys(record(error, "Test result error"), ["message"], "test result error");
+        }
+      }
+    }
+  }
+  if (completion?.status === "passed" || completion?.status === "failed") {
+    assert.equal(
+      report.observations.length,
+      CASE.repeat,
+      "A completed report must contain every repetition",
+    );
+    const observations = report.observations as { result: { errors: unknown[]; status: string } }[];
+    if (completion.status === "passed")
+      assert.ok(
+        observations.every(
+          (observation) =>
+            observation.result.status === "passed" && observation.result.errors.length === 0,
+        ),
+        "Passed completion contradicts its observations",
+      );
+    else
+      assert.ok(
+        observations.some((observation) => observation.result.status !== "passed"),
+        "Failed completion contradicts its observations",
+      );
+  }
+  return { completion, startedAt: config.startedAt };
+}
 
 /** Reporter observations are provisional until report, execution and cleanup gates agree. */
 export function reportFromObservations(
@@ -166,12 +356,32 @@ export function verifyDemoExport(value: unknown): DemoVerification {
   let consistent = false;
   let differential = false;
   try {
-    const bundle = value as DemoExport;
+    const rawBundle = record(value, "Demo export");
+    exactKeys(rawBundle, ["schemaVersion", "files", "manifest"], "Demo export");
+    const bundle = rawBundle as DemoExport;
     assert.equal(bundle.schemaVersion, 1);
+    assert.ok(bundle.files && typeof bundle.files === "object" && !Array.isArray(bundle.files));
+    assert.ok(Array.isArray(bundle.manifest) && bundle.manifest.length <= 6);
+    for (const entry of bundle.manifest)
+      exactKeys(record(entry, "Manifest entry"), ["bytes", "path", "sha256"], "manifest entry");
+    const allowedFiles = new Set([
+      "run.json",
+      "attempts.json",
+      "safe-unfollow-163.spec.ts",
+      "playwright.config.ts",
+      "reports/pre-fix.json",
+      "reports/post-fix.json",
+    ]);
+    let totalBytes = 0;
     const artifacts = Object.entries(bundle.files).map(([path, contents]) => {
-      assert.equal(typeof contents, "string");
+      assert.ok(allowedFiles.has(path), `Unexpected exported file: ${path}`);
+      assert.equal(typeof contents, "string", `${path} must contain text`);
+      const bytes = Buffer.byteLength(contents);
+      assert.ok(bytes <= 4_194_304, `${path} exceeds 4 MiB`);
+      totalBytes += bytes;
       return { path, contents };
     });
+    assert.ok(artifacts.length <= 6 && totalBytes <= 8_388_608, "Demo export exceeds limits");
     const check = verifyManifestEntries(bundle.manifest, artifacts);
     assert.ok(check.ok, "Manifest does not match exported files");
     integrity = true;
@@ -180,22 +390,79 @@ export function verifyDemoExport(value: unknown): DemoVerification {
       assert.equal(typeof contents, "string", `${name} is missing`);
       return JSON.parse(contents as string);
     };
-    const run = json("run.json") as DemoRun;
+    const rawRun = record(json("run.json"), "Demo run");
+    exactKeys(
+      rawRun,
+      [
+        "schemaVersion",
+        "id",
+        "caseId",
+        "startedAt",
+        "finishedAt",
+        "status",
+        "phase",
+        "diagnostic",
+        "repeatEach",
+        "timeoutMs",
+        "executions",
+        "sourceHashes",
+        "modelCalls",
+      ],
+      "Demo run",
+    );
+    const run = rawRun as DemoRun;
     const attempts = (json("attempts.json") as unknown[]).map((entry) => parseAttemptRecord(entry));
     assert.equal(run.schemaVersion, 1);
     assert.equal(run.caseId, CASE.id);
     assert.equal(run.repeatEach, 20);
     assert.equal(run.modelCalls, 0);
+    assert.equal(run.phase, "Finished; current evidence retained");
+    if (run.status === "completed") assert.equal(run.diagnostic, null);
+    else if (run.status === "cancelled")
+      assert.equal(run.diagnostic, "Cancelled by the user; unexecuted repetitions are not counted");
+    else if (run.status === "timeout")
+      assert.equal(run.diagnostic, "Run deadline reached; incomplete observations are retained");
+    else
+      assert.ok(
+        typeof run.diagnostic === "string" &&
+          run.diagnostic.length >= 1 &&
+          run.diagnostic.length <= 1_024 &&
+          !/[\r\n]/u.test(run.diagnostic),
+        "An incomplete run must have a bounded single-line diagnostic",
+      );
     assert.match(run.id, /^[a-zA-Z0-9-]+$/u);
-    assert.ok(
-      run.finishedAt &&
-        Number.isFinite(Date.parse(run.startedAt)) &&
-        Date.parse(run.finishedAt) >= Date.parse(run.startedAt),
-      "Run timing is invalid",
-    );
+    const runStartedAt = run.startedAt;
+    const runFinishedAt = run.finishedAt;
+    validTimestamp(runStartedAt, "Run start time");
+    validTimestamp(runFinishedAt, "Run finish time");
+    assert.ok(Date.parse(runFinishedAt) >= Date.parse(runStartedAt), "Run timing is invalid");
     assert.ok(Number.isInteger(run.timeoutMs) && run.timeoutMs >= 1 && run.timeoutMs <= 1_500_000);
+    if (run.status === "timeout")
+      assert.ok(
+        Date.parse(runFinishedAt) - Date.parse(runStartedAt) >= run.timeoutMs,
+        "Timed-out run ended before its configured deadline",
+      );
+    assert.ok(Array.isArray(run.executions) && run.executions.length <= 2);
     assert.equal(digest(bundle.files["safe-unfollow-163.spec.ts"] ?? ""), CASE.specSha256);
     assert.equal(digest(bundle.files["playwright.config.ts"] ?? ""), CASE.configSha256);
+    exactKeys(
+      record(run.sourceHashes, "Demo source hashes"),
+      [
+        "generated/safe-unfollow-163.spec.ts",
+        "generated/playwright.config.ts",
+        "demo/run.ts",
+        "demo/reporter.ts",
+        "demo/evidence.ts",
+        "demo/process.ts",
+      ],
+      "Demo source hashes",
+    );
+    assert.ok(
+      Object.values(run.sourceHashes).every(
+        (value) => typeof value === "string" && sha256.test(value),
+      ),
+      "Demo source hashes must be SHA-256 values",
+    );
     assert.equal(run.sourceHashes["generated/safe-unfollow-163.spec.ts"], CASE.specSha256);
     assert.equal(run.sourceHashes["generated/playwright.config.ts"], CASE.configSha256);
     const required = new Set([
@@ -206,6 +473,7 @@ export function verifyDemoExport(value: unknown): DemoVerification {
     ]);
     const derived: AttemptRecord[] = [];
     const sides = new Set<Side>();
+    let previousFinishedAt: string | null = null;
     for (const execution of run.executions) {
       assert.deepEqual(
         Object.keys(execution).sort(),
@@ -224,14 +492,50 @@ export function verifyDemoExport(value: unknown): DemoVerification {
         ].sort(),
       );
       assert.ok(execution.side === "pre-fix" || execution.side === "post-fix");
+      assert.equal(
+        execution.side,
+        sides.size === 0 ? "pre-fix" : "post-fix",
+        "Executions must be an ordered prefix of the differential run",
+      );
       assert.ok(!sides.has(execution.side), "Duplicate revision execution");
       sides.add(execution.side);
       assert.equal(execution.revision, CASE.revisions[execution.side]);
       assert.equal(execution.lockSha256, CASE.lockSha256);
       assert.equal(execution.cleanBefore, true);
       assert.equal(typeof execution.cleanAfter, "boolean");
-      assert.ok(execution.exitCode === null || Number.isSafeInteger(execution.exitCode));
+      assert.ok(
+        execution.exitCode === null ||
+          (Number.isSafeInteger(execution.exitCode) && Number(execution.exitCode) >= 0),
+      );
+      assert.ok(
+        typeof execution.startedAt === "string" && Number.isFinite(Date.parse(execution.startedAt)),
+        "Execution start time is invalid",
+      );
+      assert.ok(
+        execution.finishedAt === null ||
+          (typeof execution.finishedAt === "string" &&
+            Number.isFinite(Date.parse(execution.finishedAt)) &&
+            Date.parse(execution.finishedAt) >= Date.parse(execution.startedAt)),
+        "Execution finish time is invalid",
+      );
+      assert.ok(
+        execution.reportSha256 === null ||
+          (typeof execution.reportSha256 === "string" && sha256.test(execution.reportSha256)),
+        "Report hash is invalid",
+      );
+      assert.ok(
+        execution.rawReportSha256 === null ||
+          (typeof execution.rawReportSha256 === "string" && sha256.test(execution.rawReportSha256)),
+        "Raw report hash is invalid",
+      );
       assert.ok(Array.isArray(execution.cleanup) && execution.cleanup.length <= 2);
+      assert.ok(execution.cleanup.length >= 1, "Finalized execution is missing target cleanup");
+      if (execution.reportSha256 !== null)
+        assert.equal(
+          execution.cleanup.length,
+          2,
+          "Browser evidence requires browser and target cleanup",
+        );
       for (const cleanup of execution.cleanup) {
         assert.deepEqual(Object.keys(cleanup).sort(), ["observed", "survivors", "verified"]);
         assert.equal(typeof cleanup.verified, "boolean");
@@ -239,6 +543,7 @@ export function verifyDemoExport(value: unknown): DemoVerification {
         assert.ok(Number.isSafeInteger(cleanup.survivors) && cleanup.survivors >= -1);
         if (cleanup.verified) assert.ok(cleanup.observed > 0 && cleanup.survivors === 0);
       }
+      let reportTiming: PortableReportTiming | null = null;
       if (execution.reportSha256 !== null) {
         const path = `reports/${execution.side}.json`;
         required.add(path);
@@ -248,6 +553,7 @@ export function verifyDemoExport(value: unknown): DemoVerification {
           "Report binding differs",
         );
         const report = json(path);
+        reportTiming = strictPortableReport(report);
         assert.equal(
           (report as { rawReportSha256: unknown }).rawReportSha256,
           execution.rawReportSha256,
@@ -279,9 +585,49 @@ export function verifyDemoExport(value: unknown): DemoVerification {
           (report as { completion: unknown }).completion,
         );
         assert.equal(
-          serializeCanonicalJson((report as { suites: unknown }).suites),
-          serializeCanonicalJson((projection as { suites: unknown }).suites),
+          serializeCanonicalJson(report),
+          serializeCanonicalJson({
+            ...(projection as object),
+            rawReportSha256: execution.rawReportSha256,
+          }),
+          "Portable report differs from its observation-derived projection",
         );
+        assert.ok(
+          Date.parse(reportTiming.startedAt) >= Date.parse(execution.startedAt) &&
+            Date.parse(reportTiming.startedAt) <= Date.parse(execution.finishedAt ?? ""),
+          "Report start falls outside the execution window",
+        );
+        if (reportTiming.completion !== null) {
+          const completion = reportTiming.completion;
+          assert.ok(
+            Date.parse(completion.finishedAt) >= Date.parse(execution.startedAt) &&
+              Date.parse(completion.finishedAt) <= Date.parse(execution.finishedAt ?? ""),
+            "Report completion falls outside the execution window",
+          );
+          if (completion.status === "passed" || completion.status === "failed")
+            assert.equal(
+              execution.exitCode,
+              completion.status === "passed" ? 0 : 1,
+              "Execution exit contradicts report completion",
+            );
+          else if (run.status === "cancelled")
+            assert.equal(
+              execution.exitCode,
+              130,
+              "Interrupted cancelled execution must use the cancellation exit",
+            );
+          else if (run.status === "timeout")
+            assert.equal(
+              execution.exitCode,
+              124,
+              "Interrupted timed-out execution must use the timeout exit",
+            );
+          else
+            assert.ok(
+              execution.exitCode !== null && execution.exitCode !== 0,
+              "Interrupted execution cannot report a successful exit",
+            );
+        }
         if (run.status === "completed") {
           validateGeneratedDemoReport(report, execution.side);
           assert.match(execution.rawReportSha256 ?? "", /^[a-f0-9]{64}$/u);
@@ -291,6 +637,28 @@ export function verifyDemoExport(value: unknown): DemoVerification {
           );
         }
       } else assert.equal(run.status === "completed", false, "Completed run is missing a report");
+      if (reportTiming?.completion == null && run.status === "cancelled")
+        assert.ok(
+          execution.exitCode === null || execution.exitCode === 130,
+          "Incomplete cancelled execution must use the cancellation exit",
+        );
+      if (reportTiming?.completion == null && run.status === "timeout")
+        assert.ok(
+          execution.exitCode === null || execution.exitCode === 124,
+          "Incomplete timed-out execution must use the timeout exit",
+        );
+      assert.ok(
+        execution.finishedAt !== null &&
+          Date.parse(execution.startedAt) >= Date.parse(runStartedAt) &&
+          Date.parse(execution.finishedAt) <= Date.parse(runFinishedAt),
+        "Execution falls outside the finalized run window",
+      );
+      if (previousFinishedAt !== null)
+        assert.ok(
+          Date.parse(execution.startedAt) >= Date.parse(previousFinishedAt),
+          "Differential executions must not overlap",
+        );
+      previousFinishedAt = execution.finishedAt;
       if (run.status === "completed") {
         assert.equal(
           execution.exitCode,
@@ -304,10 +672,6 @@ export function verifyDemoExport(value: unknown): DemoVerification {
             cleanup.verified === true && cleanup.observed > 0 && cleanup.survivors === 0,
             "Cleanup is not verified",
           );
-        assert.ok(
-          Date.parse(execution.startedAt) >= Date.parse(run.startedAt) &&
-            Date.parse(execution.finishedAt ?? "") <= Date.parse(run.finishedAt),
-        );
       }
     }
     assert.deepEqual(Object.keys(bundle.files).sort(), [...required].sort());
@@ -326,6 +690,19 @@ export function verifyDemoExport(value: unknown): DemoVerification {
         "cleanup-error",
       ].includes(run.status),
       "Run is not finalized",
+    );
+    if (run.status === "startup-error")
+      assert.ok(
+        run.executions.length === 0 || run.executions.at(-1)?.reportSha256 === null,
+        "Startup error contradicts completed browser evidence",
+      );
+    const hasUnverifiedCleanup = run.executions.some((execution) =>
+      execution.cleanup.some((cleanup) => cleanup.verified !== true),
+    );
+    assert.equal(
+      run.status === "cleanup-error",
+      hasUnverifiedCleanup,
+      "Final status contradicts cleanup observations",
     );
     consistent = true;
     if (run.status === "completed") {
@@ -355,9 +732,15 @@ export function verifyDemoExport(value: unknown): DemoVerification {
 
 if (process.argv[1] && pathToFileURL(resolve(process.argv[1])).href === import.meta.url) {
   if (process.argv.length !== 3) throw new Error("Usage: pnpm demo:verify path/to/export.json");
-  const result = verifyDemoExport(
-    JSON.parse(await readFile(resolve(process.argv[2] ?? ""), "utf8")),
+  const path = resolve(process.argv[2] ?? "");
+  const input = await lstat(path);
+  assert.ok(
+    input.isFile() && !input.isSymbolicLink() && input.size <= 8_388_608,
+    "Demo export must be a regular non-symlink file at most 8 MiB",
   );
+  const bytes = await readFile(path);
+  assert.ok(bytes.length <= 8_388_608, "Demo export changed or exceeds 8 MiB");
+  const result = verifyDemoExport(JSON.parse(bytes.toString("utf8")));
   console.log(JSON.stringify(result));
   process.exitCode = result.integrity && result.consistent ? 0 : 1;
 }

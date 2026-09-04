@@ -20,9 +20,10 @@ publishing private communications without permission are unacceptable.
 
 ## Scope and enforcement
 
-This policy applies in project spaces and when representing the project in public. Report conduct
-concerns privately to the project maintainers through the repository host or an official private
-AlvenX channel. Do not post identifying or sensitive details publicly.
+This policy applies in project spaces and when representing the project in public. For platform
+abuse or a sensitive conduct concern, use [GitHub's private abuse report](https://support.github.com/contact/report-abuse).
+For a concern that is safe to discuss publicly, open a proposal issue and omit identifying or
+sensitive details. The repository's private vulnerability process is reserved for security reports.
 
 Maintainers will protect reporter privacy as far as practical, avoid conflicts of interest, and may
 correct, warn, temporarily restrict, or permanently exclude participants according to the severity

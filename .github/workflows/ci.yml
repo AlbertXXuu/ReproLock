@@ -37,21 +37,7 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Install the pinned Chromium browser
         run: pnpm exec playwright install --with-deps chromium
-      - name: Check formatting
-        run: pnpm format:check
-      - name: Lint
-        run: pnpm lint
-      - name: Verify standalone AlvenX resources and README
-        run: pnpm brand:verify
-      - name: Typecheck
-        run: pnpm typecheck
-      - name: Typecheck standalone Playwright output
-        run: pnpm typecheck:standalone
-      - name: Verify the checked-in evidence bundle
-        run: pnpm evidence:verify
-      - name: Verify recorded Demo success and interruption evidence
-        run: pnpm demo:verify:recorded
-      - name: Test
-        run: pnpm test
+      - name: Run the complete quality and recorded-evidence gate
+        run: pnpm check
       - name: Smoke-test the package archive
         run: pnpm package:smoke

@@ -1,0 +1,46 @@
+name: ReproLock bug
+description: Report a reproducible problem in the CLI, verifier, evidence checks, or reference UI.
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not post credentials, private repository content, raw traces, or personal data. Use a
+        private vulnerability report for security issues.
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Observed behavior
+      description: What happened, and what user-visible result did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: Provide synthetic steps and the exact ReproLock command. Redact local paths.
+      render: shell
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, Node version, pnpm version, and commit SHA.
+    validations:
+      required: true
+  - type: dropdown
+    id: stage
+    attributes:
+      label: Failing stage
+      options: [init, check, run, verify, reference Demo, repository checks]
+    validations:
+      required: true
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacy check
+      options:
+        - label: I removed credentials, private source, personal data, raw traces, and machine-specific paths.
+          required: true

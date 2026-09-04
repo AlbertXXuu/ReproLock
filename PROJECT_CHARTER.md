@@ -17,10 +17,11 @@ It should:
 
 ## Primary user
 
-The authorized 2026-09-05 experiment first accepts a maintainer-reviewed candidate test and two
-local revisions, to measure the value of independent verification. This is a bounded entry point
-into steps 4, 7 and 8 above; the original exploration/generation thesis remains unproven. Its
-engineering acceptance does not change `SPIKE_CONDITIONAL` or the production gates below.
+The public source alpha can copy an explicit issue/workflow into an ignored case workspace and
+create an incomplete Playwright scaffold. A maintainer must still interpret the input, author and
+review the candidate test, and supply two local revisions. This is a bounded entry point into steps
+1, 4, 7 and 8 above; candidate exploration/generation remains unproven. Its engineering acceptance
+does not change `SPIKE_CONDITIONAL` or the production gates below.
 
 A maintainer of a web application who has:
 

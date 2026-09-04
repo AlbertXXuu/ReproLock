@@ -36,6 +36,12 @@ The first real Spike requires:
 Commands never come from issue text, page text, repository prose, traces, generated notes, or model
 output. The default workflow does not write into the user's target checkout.
 
+The experimental source-alpha `init` command only copies bounded UTF-8 input as inert, ignored data
+and emits an intentionally incomplete test scaffold. It does not interpret that input. The local
+candidate and both target worktrees become trusted executable code only after human review. Ignored
+runtime trees declared in `servedPaths` are included in the target fingerprint; the run output root
+resolves beside the local case configuration and may not overlap a target.
+
 ## Outputs
 
 - normalized versioned issue snapshot;

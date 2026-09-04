@@ -1,32 +1,32 @@
 # Contributing to ReproLock
 
-ReproLock accepts changes that solve a recorded local-functional-QA problem or test a registered
-hypothesis with inspectable evidence.
+ReproLock accepts focused changes that solve a recorded local functional QA problem or test a
+specific hypothesis with inspectable evidence. It is an experimental source project rather than a
+supported package or service.
 
 ## Before editing
 
-1. Read `AGENTS.md`, `PROJECT_CHARTER.md`,
-   `reference/ARCHITECTURE_AND_ACCEPTANCE_BASELINE.md`, and the applicable phase context.
-2. Run `git status --short --branch` and confirm the assigned branch and exclusive checkout ownership.
-   Work sequentially in the saved checkout; add a worktree only for a concrete parallel need.
-3. Create or update an ExecPlan under `plans/` for multi-step work.
-4. Record the observed problem, writable-path allowlist, minimum acceptance condition, and explicit
-   non-goals.
-5. Preserve unrelated work, old worktrees, branches, stashes, failed attempts, and historical
-   evidence.
+1. Read `PROJECT_CHARTER.md`, `SECURITY.md` and the relevant source or evidence documentation.
+   Repository automation and agents must also follow `AGENTS.md`.
+2. Search existing issues, then open one before a large change. A real-case trial must use a target
+   you are authorized to test and must not upload private source, credentials or raw user data.
+3. Run `git status --short --branch`, create one focused branch and preserve unrelated work and
+   historical evidence.
+4. For a multi-step architecture or evidence change, add an ExecPlan under `plans/`. Small fixes do
+   not need ceremonial planning.
 
 ## Development baseline
 
 ```sh
-pnpm install --frozen-lockfile
-pnpm exec playwright install chromium
-pnpm check
-pnpm package:smoke
+corepack pnpm install --frozen-lockfile
+corepack pnpm exec playwright install chromium
+corepack pnpm check
+corepack pnpm package:smoke
 git diff --check
 ```
 
-Run additional focused checks for the changed behavior. Record commands that actually ran and
-their results in `harness/context/<phase>.md`; expected results are not evidence.
+Run focused checks for the changed behavior. Maintainer-led phases record their actual commands and
+results in `harness/context/<phase>.md`; expected results are not evidence.
 
 ## Change design
 

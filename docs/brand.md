@@ -10,10 +10,11 @@ translation changed to center its artwork; paths, colors, scale and the 330×100
 
 `docs/assets/provenance.json` records source paths and SHA-256 of the exact controlled copies.
 It is an inventory, not a second token source. Runtime, standalone export and CI use only the
-committed copies. Instrument Sans and its SIL Open Font License are included. The README uses
-the subtitle-free 330×100 master, centered at 320px, followed by `<br>` and the separate
-`<sub>FUNCTIONAL REGRESSION EVIDENCE</sub>` line before the H1. The Demo reuses that SVG at
-160px inside `.ax-product-header`.
+committed copies. Instrument Sans and its SIL Open Font License are included; public attribution
+and brand-use boundaries are in [Third-Party Notices](../THIRD_PARTY_NOTICES.md) and
+[Trademarks](../TRADEMARKS.md). The README uses the subtitle-free 330×100 master, centered at
+320px, followed by `<br>` and the separate `<sub>FUNCTIONAL REGRESSION EVIDENCE</sub>` line before
+the H1. The Demo reuses that SVG at 160px inside `.ax-product-header`.
 
 Header activation follows home-navigation revision **2026-09-04.1**: wrap the wordmark in a
 native `type="button"` with `data-alvenx-home` and the accessible name `AlvenX — Back to top`.
@@ -36,8 +37,8 @@ Run `pnpm brand:verify` and `pnpm check` in a standalone checkout. In AlvenX als
 Check actual asset/font loading and browser layout at 390, 900 and 1440px, compare computed desktop
 header styles against an accepted Studio, and inspect GitHub's actual README rendering.
 
-AlvenX is a non-Git workspace. The parent already registers ReproLock's controlled assets.
-`docs/brand-registration.patch` is the unchanged historical snapshot of that first registration;
-its earlier README assertion is not the current contract. Do not replay the historical patch.
-Later cross-project changes update the current parent tokens, release manifest and validator
-directly; the parent contract and this repository's standalone check govern the current header.
+The parent AlvenX workspace already registers ReproLock's controlled assets. Parent validation
+commands are maintainer checks; a standalone contributor needs only the committed assets and
+`pnpm brand:verify`. Later cross-project changes update the current parent tokens, release manifest
+and validator directly. The parent contract and this repository's standalone check govern the
+current header.

@@ -48,6 +48,12 @@ test("the required verification entry points remain available", async () => {
     "test:browser",
     "test",
     "package:smoke",
+    "reprolock",
+    "quickstart",
+    "brand:verify",
+    "evidence:verify",
+    "demo:verify:recorded",
+    "drawdb:verify:recorded",
   ];
 
   for (const scriptName of requiredScripts) {
@@ -55,4 +61,10 @@ test("the required verification entry points remain available", async () => {
   }
 
   assert.equal(manifest.devDependencies["@playwright/test"], "1.62.1");
+});
+
+test("CI invokes the complete package quality gate", async () => {
+  const workflow = await readFile(new URL(".github/workflows/ci.yml", repositoryRoot), "utf8");
+  assert.match(workflow, /^\s*run: pnpm check\s*$/mu);
+  assert.doesNotMatch(workflow, /pull_request_target/u);
 });

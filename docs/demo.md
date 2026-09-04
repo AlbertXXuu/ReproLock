@@ -51,7 +51,7 @@ The unchanged test independently resets and verifies origin storage before every
 pnpm demo --config demo.local.json
 ```
 
-Open **http://127.0.0.1:4317**. `--port 4318` changes only the Demo's UI port; target execution stays
+Open **http://127.0.0.1:7872**. `--port 7873` changes only the Demo's UI port; target execution stays
 on 4173. Click **Check prerequisites**, then **Run 20 + 20 checks**. The same frozen test executes sequentially
 on both revisions, with one worker, zero retries and no model calls. Expected pre-fix failure is
 `processing-cleared`: “Analyzing locally...” stays visible. Post-fix must pass every outcome check.
@@ -110,7 +110,9 @@ target to test honest startup failure and concurrent-control rejection; it does 
 the supplied external target. Exact local 20+20/lifecycle results, screenshots, same-viewport header
 comparison and independent-export checks are recorded in `harness/context/03-brand-verifiable-demo.md`.
 
-Only the newest 30 run directories are listed in the UI; older files remain preserved on disk.
+Only the newest 30 run directories are listed in the UI; older files remain preserved on disk. The
+history scan refuses more than 10,000 directory entries so an unbounded archive cannot stall the UI;
+move old retained runs to reviewed archival storage before that limit.
 There is no automatic retention deletion, recovery of a process killed outside the controlled
 shutdown path, general generator, second case or public deployment. Abrupt host/process failure can
 leave only `started.json` and atomic observations; such a run has no verified success/export.
