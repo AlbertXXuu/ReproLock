@@ -14,6 +14,21 @@ pnpm install --frozen-lockfile
 pnpm exec playwright install chromium
 ```
 
+On Windows, if `pnpm` is not found or enabling shims needs administrator access, use
+`corepack pnpm install --frozen-lockfile` and `corepack pnpm exec playwright install chromium`.
+The start command also works as `corepack pnpm demo --config demo.local.json`.
+
+To prepare fresh targets, run the following from ReproLock in a directory where these sibling
+names are unused. These are disposable local worktrees of the already registered example:
+
+```sh
+git clone https://github.com/ignromanov/safe-unfollow.git ../safe-unfollow
+git -C ../safe-unfollow worktree add --detach ../safe-unfollow-pre 64c8a1d0f4c1a9a4ffbab2ea319d89bcab21ad47
+git -C ../safe-unfollow worktree add --detach ../safe-unfollow-post ab55329e354dfb121486d7ff1f7daa2fa2e2e5fa
+npm --prefix ../safe-unfollow-pre ci
+npm --prefix ../safe-unfollow-post ci
+```
+
 Copy `demo.example.json` to ignored `demo.local.json` and set both paths to the **supplied local**
 Safe Unfollow worktrees. Paths resolve relative to the shell's working directory. The required
 origin is `https://github.com/ignromanov/safe-unfollow.git`; exact clean revisions are:
@@ -23,7 +38,10 @@ origin is `https://github.com/ignromanov/safe-unfollow.git`; exact clean revisio
 | pre-fix | `64c8a1d0f4c1a9a4ffbab2ea319d89bcab21ad47` |
 | post-fix | `ab55329e354dfb121486d7ff1f7daa2fa2e2e5fa` |
 
-Run `npm ci` in each supplied target before starting. The Demo checks the committed lockfile,
+For the fresh setup above, set `targets.pre-fix` to `../safe-unfollow-pre` and `targets.post-fix`
+to `../safe-unfollow-post`. Existing prepared targets can be reused after prerequisite checks pass.
+
+Each target needs `npm ci` once, as shown in the fresh setup above. The Demo checks the committed lockfile,
 clean Git state, Vite installation and frozen test/config hashes. It starts the target's existing
 `vite` development script through its installed Node entry point with the fixed arguments
 `--host 127.0.0.1 --port 4173 --strictPort`. Keep 4173 free; it never kills another port owner.

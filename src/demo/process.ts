@@ -6,8 +6,8 @@ const execute = promisify(execFile);
 type ProcessIdentity = { pid: number; parent: number; started: string };
 
 /** Windows environment names are case insensitive, including in nested package-manager shells. */
-export function childEnvironment(extra: NodeJS.ProcessEnv = {}): NodeJS.ProcessEnv {
-  const entries = Object.entries({ ...process.env, ...extra });
+export function childEnvironment(extra: NodeJS.ProcessEnv = {}, inherit = true): NodeJS.ProcessEnv {
+  const entries = Object.entries({ ...(inherit ? process.env : {}), ...extra });
   return Object.fromEntries(
     entries.map(([key, value]) => [process.platform === "win32" ? key.toUpperCase() : key, value]),
   );
@@ -54,10 +54,16 @@ export class OwnedProcess {
   private observing: Promise<void> | null = null;
   private readonly timer: NodeJS.Timeout;
 
-  constructor(command: string, args: string[], cwd: string, extra: NodeJS.ProcessEnv = {}) {
+  constructor(
+    command: string,
+    args: string[],
+    cwd: string,
+    extra: NodeJS.ProcessEnv = {},
+    inherit = true,
+  ) {
     this.child = spawn(command, args, {
       cwd,
-      env: childEnvironment(extra),
+      env: childEnvironment(extra, inherit),
       shell: false,
       windowsHide: true,
       detached: process.platform !== "win32",
