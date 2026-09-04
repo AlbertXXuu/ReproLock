@@ -45,6 +45,20 @@ async function control(action) {
   return value;
 }
 
+function updateControls() {
+  const unavailable = active || pendingControl;
+  byId("start").disabled = unavailable;
+  byId("cancel").disabled = !active;
+  byId("check").disabled = unavailable;
+  for (const link of byId("retained-runs").querySelectorAll("a")) {
+    link.setAttribute("aria-disabled", String(unavailable));
+    link.tabIndex = unavailable ? -1 : 0;
+    link.title = unavailable
+      ? "Available when the active operation finishes"
+      : "Inspect saved execution";
+  }
+}
+
 function display(current, stored = false) {
   if (!current) return;
   const { run, attempts, verification } = current;
@@ -110,9 +124,6 @@ async function refresh() {
     active = state.active;
     byId("pre-revision").textContent = state.case.revisions["pre-fix"];
     byId("post-revision").textContent = state.case.revisions["post-fix"];
-    byId("start").disabled = state.active || pendingControl;
-    byId("cancel").disabled = !state.active;
-    byId("check").disabled = state.active;
     if (!showingStored) display(state.current);
     byId("history-verification").textContent = state.historical.verification.ok
       ? "Stored bundle: consistency and frozen inputs verified"
@@ -145,6 +156,7 @@ async function refresh() {
         }),
       );
     }
+    updateControls();
   } catch (error) {
     byId("phase").textContent =
       `${error.message}. Run state is unknown; success has not been established.`;
@@ -155,7 +167,7 @@ async function refresh() {
 
 byId("start").addEventListener("click", async () => {
   pendingControl = true;
-  byId("start").disabled = true;
+  updateControls();
   showingStored = false;
   viewGeneration += 1;
   try {
@@ -163,9 +175,9 @@ byId("start").addEventListener("click", async () => {
     await refresh();
   } catch (error) {
     byId("phase").textContent = error.message;
-    byId("start").disabled = false;
   } finally {
     pendingControl = false;
+    updateControls();
   }
 });
 byId("cancel").addEventListener("click", async () => {
