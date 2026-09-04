@@ -1,57 +1,57 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="en">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="demo-token" content="DEMO_CONTROL_TOKEN">
-    <title>ReproLock · 可查验的本地回归</title>
+    <title>ReproLock · AlvenX</title>
     <link rel="icon" href="/assets/alvenx-monogram.svg" type="image/svg+xml">
     <link rel="stylesheet" href="/assets/alvenx-ui.css">
     <link rel="stylesheet" href="/app.css">
     <script src="/app.js" defer></script>
   </head>
   <body class="ax-canvas">
-    <a class="skip-link" href="#main">跳到验证工作区</a>
+    <a class="skip-link" href="#main">Skip to verification workspace</a>
     <header class="ax-product-header">
       <img class="ax-product-header__wordmark" src="/assets/alvenx-wordmark.svg" width="330" height="100" alt="AlvenX">
-      <nav aria-label="产品"><a href="#main">ReproLock</a><span class="local-tag">LOCAL</span></nav>
+      <nav aria-label="Product"><a href="#main">ReproLock</a><span class="local-tag">LOCAL</span></nav>
     </header>
     <main id="main">
       <section class="intro" aria-labelledby="title">
-        <div><p class="eyebrow">FUNCTIONAL REGRESSION · SINGLE CASE</p><h1 id="title" class="ax-display">让修复，<br>有据可查。</h1></div>
-        <div class="intro-note"><span class="stage">SPIKE_CONDITIONAL</span><p class="ax-reading">同一份 Playwright 测试，在修复前后各执行 20 次。<br>用真实界面结果、独立校验和保留的证据，检查一次修复。</p><p class="muted">这是 Safe Unfollow #163 的技术演示。人工基线也能达到稳定差分；节省时间和维护成本尚未证明。</p></div>
+        <div><p class="eyebrow">FUNCTIONAL REGRESSION · SINGLE CASE</p><h1 id="title" class="ax-display">Make fixes<br>verifiable.</h1></div>
+        <div class="intro-note"><span class="stage">SPIKE_CONDITIONAL</span><p class="ax-reading">Run the same Playwright test 20 times on each revision.<br>Check the fix with actual UI outcomes, independent verification and retained evidence.</p><p class="muted">A technical Demo of Safe Unfollow #163. The manual baseline also achieves a stable differential; time and maintenance savings remain unproven.</p></div>
       </section>
       <div class="workspace">
         <section class="case-panel panel" aria-labelledby="case-heading">
-          <div class="section-top"><span class="eyebrow">01 / 案例</span><span class="pill">用户提供的本地目标</span></div>
+          <div class="section-top"><span class="eyebrow">01 / CASE</span><span class="pill">User-supplied local target</span></div>
           <h2 id="case-heading">Safe Unfollow <span class="muted">#163</span></h2>
-          <p class="case-description">中断分析后，上传页应恢复可用。</p>
-          <p class="muted">重开上传页时，残留的加载状态不应阻止下一次上传。每次测试先清空并验证同源状态，再注入固定的中断场景。</p>
-          <div class="revisions"><div><span>修复前</span><code id="pre-revision"></code></div><div><span>修复后</span><code id="post-revision"></code></div></div>
-          <dl class="facts"><div><dt>目标地址</dt><dd>127.0.0.1:4173</dd></div><div><dt>执行方式</dt><dd>Chromium · 1 worker · 0 retries</dd></div><div><dt>独立检查点</dt><dd>处理提示消失、输入可用、空闲提示可见</dd></div><div><dt>模型调用</dt><dd>0 · 重放无需模型</dd></div></dl>
-          <details class="source-detail"><summary>查看实际冻结测试</summary><p class="muted">普通 Playwright 源码，独立运行不依赖 ReproLock。</p><div class="link-row"><a href="/test/safe-unfollow-163.spec.ts" download="safe-unfollow-163.spec.ts">下载测试</a><a href="/test/playwright.config.ts" download="playwright.config.ts">下载配置</a></div><pre id="test-source">加载源码…</pre></details>
+          <p class="case-description">The upload page should recover after interrupted analysis.</p>
+          <p class="muted">A stale loading state should not block the next upload. Each attempt clears and verifies origin state, then injects the same interruption scenario.</p>
+          <div class="revisions"><div><span>Pre-fix</span><code id="pre-revision"></code></div><div><span>Post-fix</span><code id="post-revision"></code></div></div>
+          <dl class="facts"><div><dt>Target</dt><dd>127.0.0.1:4173</dd></div><div><dt>Execution</dt><dd>Chromium · 1 worker · 0 retries</dd></div><div><dt>Independent checkpoints</dt><dd>Processing cleared, input enabled, idle message visible</dd></div><div><dt>Model calls</dt><dd>0 · Model-free replay</dd></div></dl>
+          <details class="source-detail"><summary>Inspect the frozen test</summary><p class="muted">Plain Playwright source. Runs independently without ReproLock.</p><div class="link-row"><a href="/test/safe-unfollow-163.spec.ts" download="safe-unfollow-163.spec.ts">Download test</a><a href="/test/playwright.config.ts" download="playwright.config.ts">Download config</a></div><pre id="test-source">Loading source…</pre></details>
         </section>
         <section class="run-panel panel" aria-labelledby="run-heading">
-          <div class="section-top"><span class="eyebrow">02 / 本次运行</span><span id="state-badge" class="pill">尚未执行</span></div>
-          <h2 id="run-heading">验证这次差分</h2>
-          <p class="muted">先检查明确配置的两个本地版本，顺序启动、执行、清理。新运行会创建独立证据目录。</p>
-          <div class="actions"><button id="start" class="ax-liquid-control primary" type="button">运行 20 + 20 次验证 <span aria-hidden="true">↗</span></button><button id="cancel" class="secondary" type="button" disabled>取消运行</button></div>
-          <div class="preflight"><button id="check" class="text-button" type="button">检查运行条件</button><span id="prerequisites">需要配置目标路径并安装本地依赖</span></div>
-          <div id="run-status" class="run-status" role="status" aria-live="polite"><strong id="phase">等待开始</strong><span id="timing">已存实验显示在下方，不计入本次结果。</span></div>
-          <div class="side-progress"><div><span>修复前 <strong id="pre-count">0 / 20</strong></span><progress id="pre-progress" max="20" value="0" aria-label="修复前完成次数"></progress></div><div><span>修复后 <strong id="post-count">0 / 20</strong></span><progress id="post-progress" max="20" value="0" aria-label="修复后完成次数"></progress></div></div>
-          <div class="metrics"><div><strong id="passes">0</strong><span>通过</span></div><div><strong id="failures">0</strong><span>功能失败</span></div><div><strong id="inconclusive">0</strong><span>无法判定</span></div><div><strong id="errors">0</strong><span>执行错误</span></div></div>
-          <p id="checkpoint" class="checkpoint">首个失败检查点：尚无观察</p>
-          <div id="verification" class="verification">执行、报告和清理完成后，再独立校验本次结论。</div>
-          <div class="link-row"><a id="export" href="/api/state" hidden>导出本次证据</a><span id="run-id" class="muted"></span></div>
-          <details id="attempt-detail"><summary>检查逐次结果 <span id="observed-count">0 次已完成</span></summary><div class="table-scroll"><table><thead><tr><th>版本 / 次数</th><th>结果</th><th>首个失败位置</th></tr></thead><tbody id="attempts"></tbody></table></div></details>
+          <div class="section-top"><span class="eyebrow">02 / RUN</span><span id="state-badge" class="pill">Not run</span></div>
+          <h2 id="run-heading">Verify the differential</h2>
+          <p class="muted">Check the two configured local revisions, then start, test and clean up each in sequence. Every run creates a separate evidence directory.</p>
+          <div class="actions"><button id="start" class="ax-liquid-control primary" type="button">Run 20 + 20 checks <span aria-hidden="true">↗</span></button><button id="cancel" class="secondary" type="button" disabled>Cancel run</button></div>
+          <div class="preflight"><button id="check" class="text-button" type="button">Check prerequisites</button><span id="prerequisites">Configure target paths and install local dependencies</span></div>
+          <div id="run-status" class="run-status" role="status" aria-live="polite"><strong id="phase">Waiting to start</strong><span id="timing">Stored experiments are shown below and do not count toward this run.</span></div>
+          <div class="side-progress"><div><span>Pre-fix <strong id="pre-count">0 / 20</strong></span><progress id="pre-progress" max="20" value="0" aria-label="Completed pre-fix attempts"></progress></div><div><span>Post-fix <strong id="post-count">0 / 20</strong></span><progress id="post-progress" max="20" value="0" aria-label="Completed post-fix attempts"></progress></div></div>
+          <div class="metrics"><div><strong id="passes">0</strong><span>Passed</span></div><div><strong id="failures">0</strong><span>Functional failures</span></div><div><strong id="inconclusive">0</strong><span>Inconclusive</span></div><div><strong id="errors">0</strong><span>Execution errors</span></div></div>
+          <p id="checkpoint" class="checkpoint">First failed checkpoint: none observed</p>
+          <div id="verification" class="verification">Independent verification follows execution, reporting and cleanup.</div>
+          <div class="link-row"><a id="export" href="/api/state" hidden>Export run evidence</a><span id="run-id" class="muted"></span></div>
+          <details id="attempt-detail"><summary>Inspect individual attempts <span id="observed-count">0 completed</span></summary><div class="table-scroll"><table><thead><tr><th>Version / attempt</th><th>Result</th><th>First failed checkpoint</th></tr></thead><tbody id="attempts"></tbody></table></div></details>
         </section>
       </div>
       <section class="history panel ax-scroll-target" aria-labelledby="history-heading">
-        <div class="history-copy"><span class="eyebrow">03 / 已存实验 · 非本次运行</span><h2 id="history-heading">保留结论，也保留边界。</h2><p class="muted">2026-09-01 盲测；2026-09-04 独立复验。生成测试与诚实的人工基线都得到 20/20 预期失败、20/20 通过。</p></div>
-        <div><p id="history-verification" class="history-verdict">正在校验已存证据…</p><p class="muted source-path">来源：<code>revalidation/2026-09-04/execution.json</code></p><details><summary>查看已存实验摘要与校验</summary><pre id="history-json"></pre></details></div>
+        <div class="history-copy"><span class="eyebrow">03 / STORED EXPERIMENTS</span><h2 id="history-heading">Keep the evidence and its limits.</h2><p class="muted">Stored experiments, not this run. Blind test: 2026-09-01. Independent revalidation: 2026-09-04. Both the generated test and manual baseline recorded 20/20 expected pre-fix failures and 20/20 post-fix passes.</p></div>
+        <div><p id="history-verification" class="history-verdict">Verifying stored evidence…</p><p class="muted source-path">Source: <code>revalidation/2026-09-04/execution.json</code></p><details><summary>Inspect stored summaries and verification</summary><pre id="history-json"></pre></details></div>
       </section>
-      <section class="retained" aria-labelledby="retained-heading"><h2 id="retained-heading">本机保留的运行</h2><p class="muted">包含成功、失败和取消记录。重新打开旧记录不会重新执行测试。</p><div id="retained-runs" class="link-row"></div></section>
-      <footer><span>ReproLock / AlvenX</span><span>单案例技术验证 · 无公开部署 · 产品价值仍待验证</span><a href="/assets/InstrumentSans-OFL.txt">字体许可</a></footer>
+      <section class="retained" aria-labelledby="retained-heading"><h2 id="retained-heading">Saved local runs</h2><p class="muted">Includes completed, failed and cancelled runs. Opening a saved record does not execute the test again.</p><div id="retained-runs" class="link-row"></div></section>
+      <footer><span>ReproLock / AlvenX</span><span>Single-case technical validation · No public deployment · Product value unproven</span><a href="/assets/InstrumentSans-OFL.txt">Font license</a></footer>
     </main>
   </body>
 </html>

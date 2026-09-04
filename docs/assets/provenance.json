@@ -7,7 +7,7 @@
     {
       "path": "docs/assets/alvenx-wordmark.svg",
       "source": "foundation/brand/assets/alvenx-wordmark.svg",
-      "sha256": "8ae10e02c27091e29e0191a7934506118f144aae11898b20222d7f9d587e2662"
+      "sha256": "6cc422fb2ed289bee723f1c6e6d19baec63c18d988616eb5b90d8332a30b7b1e"
     },
     {
       "path": "docs/assets/alvenx-monogram.svg",
@@ -29,5 +29,6 @@
       "source": "projects/BrowserAgentRegression/src/browser_agent_regression/assets/fonts/InstrumentSans-OFL.txt",
       "sha256": "bc29b497c4e8316b2d248322a9cea670c2f0afc24ae0eb7bbaa54e02e00eebab"
     }
-  ]
+  ],
+  "wordmarkAlignmentRevision": "2026-09-04.1"
 }

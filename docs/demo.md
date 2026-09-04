@@ -34,7 +34,7 @@ pnpm demo --config demo.local.json
 ```
 
 Open **http://127.0.0.1:4317**. `--port 4318` changes only the Demo's UI port; target execution stays
-on 4173. Click **检查运行条件**, then **运行 20 + 20 次验证**. The same frozen test executes sequentially
+on 4173. Click **Check prerequisites**, then **Run 20 + 20 checks**. The same frozen test executes sequentially
 on both revisions, with one worker, zero retries and no model calls. Expected pre-fix failure is
 `processing-cleared`: “Analyzing locally...” stays visible. Post-fix must pass every outcome check.
 
@@ -72,7 +72,7 @@ derived attempts, repetition identities, assertion diagnostics, and verified cle
 cross-checks streaming observations against the actual Playwright report before completion.
 Hashes establish integrity and internal consistency, not authenticated proof of who ran the test.
 
-Download **测试** and **配置** to a separate directory to replay without ReproLock. Install only
+Download **Download test** and **Download config** to a separate directory to replay without ReproLock. Install only
 `@playwright/test@1.62.1` and its Chromium, start the chosen supplied target as above, then run:
 
 ```sh

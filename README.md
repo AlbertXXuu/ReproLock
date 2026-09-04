@@ -1,5 +1,7 @@
 <p align="center">
   <img src="docs/assets/alvenx-wordmark.svg" width="320" alt="AlvenX">
+  <br>
+  <sub>FUNCTIONAL REGRESSION EVIDENCE</sub>
 </p>
 
 # ReproLock
@@ -48,7 +50,9 @@ This demonstrates one supplied case. It does not establish incremental value ove
 baseline or implement a general “issue → test” flow. See the [brand contract](docs/brand.md) and
 [actual acceptance record](harness/context/03-brand-verifiable-demo.md).
 
-![A real 20+20 local differential, with independent verification](docs/demo-evidence/demo-1440.png)
+![English Demo showing a saved, independently verified 20+20 differential](docs/demo-evidence/demo-1440.png)
+
+The screenshot shows the saved 2026-09-04 run in the current English interface; it is not a new execution.
 
 ## Development
 

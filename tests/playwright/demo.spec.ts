@@ -32,7 +32,8 @@ test("Demo loads standalone brand resources and preserves canonical responsive h
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto(demo.address);
-  await expect(page.locator("#history-verification")).toContainText("校验通过");
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await expect(page.locator("#history-verification")).toContainText("frozen inputs verified");
   for (const width of [390, 900, 1440]) {
     await page.setViewportSize({ width, height: 1000 });
     await page.evaluate(() => document.fonts.ready);
@@ -88,15 +89,15 @@ test("startup failure has zero current observations and can be reopened without 
   page,
 }) => {
   await page.goto(demo.address);
-  await page.getByRole("button", { name: "运行 20 + 20 次验证" }).click();
-  await expect(page.locator("#state-badge")).toHaveText("启动失败");
-  await expect(page.locator("#observed-count")).toContainText("0 次已完成");
-  await expect(page.locator("#verification")).toContainText("20 + 20 差分：未确认");
-  await expect(page.locator("#history-verification")).toContainText("已存完整证据包");
+  await page.getByRole("button", { name: "Run 20 + 20 checks" }).click();
+  await expect(page.locator("#state-badge")).toHaveText("Startup failed");
+  await expect(page.locator("#observed-count")).toContainText("0 completed");
+  await expect(page.locator("#verification")).toContainText("20 + 20 differential: Unconfirmed");
+  await expect(page.locator("#history-verification")).toContainText("Stored bundle:");
   const id = (await page.locator("#run-id").innerText()).replace("output/demo/", "");
   await page.locator("#retained-runs").getByText(id, { exact: true }).click();
-  await expect(page.locator("#state-badge")).toHaveText("已存记录 · 启动失败");
-  await expect(page.locator("#timing")).toContainText("未重新执行");
+  await expect(page.locator("#state-badge")).toHaveText("Saved run · Startup failed");
+  await expect(page.locator("#timing")).toContainText("Not re-executed");
   const exported = await page.request.get(`${demo.address}/api/export/${id}`);
   expect((await exported.json()).schemaVersion).toBe(1);
 });
@@ -126,5 +127,5 @@ test("concurrent controls admit exactly one configured run and reject foreign co
     headers: { Origin: "https://example.invalid" },
   });
   expect(rejected.status()).toBe(403);
-  await expect(page.locator("#state-badge")).toHaveText("启动失败");
+  await expect(page.locator("#state-badge")).toHaveText("Startup failed");
 });
