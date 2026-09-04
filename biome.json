@@ -39,6 +39,12 @@
       "formatter": {
         "enabled": false
       }
+    },
+    {
+      "includes": ["spikes/local-candidate-verification/drawdb-687/evidence/*.json"],
+      "formatter": {
+        "enabled": false
+      }
     }
   ]
 }

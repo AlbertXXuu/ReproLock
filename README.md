@@ -31,6 +31,13 @@ but this unusually detailed case has not demonstrated enough incremental effort 
 value to authorize production implementation. Source hosting and passing CI do not grant product GO.
 There is no published package, general explorer/compiler, or released GitHub Action.
 
+A second local case now exercises official DrawDB Issue #687 with an independently checked, frozen
+test. ReproLock confirmed **20/20 pre-fix functional failures and 20/20 post-fix passes**; ordinary
+Playwright achieved the same 20/20 + 20/20 differential. Both arms bind the exact revisions and all
+28 served build files per revision. This supports cross-case engineering behavior, while the equal
+baseline result and known PR hints still do not establish saved authoring or maintenance effort. See
+the [DrawDB #687 execution report](spikes/local-candidate-verification/drawdb-687/REPORT.md).
+
 ## Verifiable local Demo
 
 Install the dependencies below, then copy `demo.example.json` to `demo.local.json` and point it at
@@ -90,9 +97,9 @@ corepack pnpm demo --config demo.local.json
 This invokes the pinned package manager directly without requiring a global pnpm shim. A Node
 installation with Corepack is required; reopen your terminal after installing the runtime.
 
-`pnpm check` runs format, lint, brand/README validation, root and both standalone typechecks,
+`pnpm check` runs format, lint, brand/README validation, root and standalone typechecks,
 unit/process tests, Chromium fixture and Demo browser tests, and verification of the checked-in
-Spike bundle. CI repeats those checks on
+Spike, Demo and DrawDB evidence. CI repeats those checks on
 Node 22.23.2 and 24.20.0. The package smoke inspects archive paths, content and private metadata;
 it does not claim an installable published product. No target checkout or model credential is
 required for these engineering checks.
@@ -154,4 +161,4 @@ The current increment tests whether independent candidate verification is useful
 local cases. Removing the conditional status requires a less-structured real case, measured effort
 or maintenance benefit against an honest baseline, and an explicit scope/value decision. Fixture
 checks establish engineering behavior; real maintainer adoption and saved human time remain open
-questions. See the [current plan](plans/04-local-differential-verifier.md).
+questions. See the [current experiment plan](plans/06-drawdb-value-validation.md).

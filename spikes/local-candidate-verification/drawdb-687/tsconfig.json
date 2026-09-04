@@ -1,0 +1,5 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "compilerOptions": { "lib": ["ES2024", "DOM"] },
+  "include": ["candidate.spec.ts", "playwright.config.ts"]
+}
