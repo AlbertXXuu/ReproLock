@@ -132,12 +132,13 @@ export async function startDemo(options: {
         } catch (error) {
           if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
         }
+        const current = await runner.refresh();
         send(200, {
           case: CASE,
           stage: "SPIKE_CONDITIONAL",
           historical,
           active: runner.active,
-          current: await runner.refresh(),
+          current,
           runs,
           timeoutMs: runner.config.timeoutMs,
         });

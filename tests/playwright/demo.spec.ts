@@ -140,6 +140,42 @@ test("saved startup failure survives header home activation without navigation o
   }
 });
 
+test("saved run controls reflect a start request still pending after execution finishes", async ({
+  page,
+}) => {
+  const release = Promise.withResolvers<void>();
+  const received = Promise.withResolvers<void>();
+  await page.route("**/api/start", async (route) => {
+    const response = await route.fetch();
+    received.resolve();
+    await release.promise;
+    await route.fulfill({ response });
+  });
+  try {
+    await page.goto(demo.address);
+    await page.getByRole("button", { name: "Run 20 + 20 checks" }).click();
+    await received.promise;
+    await expect(page.locator("#state-badge")).toHaveText("Startup failed");
+    const id = (await page.locator("#run-id").innerText()).replace("output/demo/", "");
+    const saved = page.locator("#retained-runs").getByText(id, { exact: true });
+    await expect(saved).toHaveAttribute("aria-disabled", "true");
+    let savedRequests = 0;
+    page.on("request", (request) => {
+      if (request.url().includes(`/api/run/${id}`)) savedRequests++;
+    });
+    await saved.dispatchEvent("click");
+    expect(savedRequests).toBe(0);
+    release.resolve();
+    await expect(saved).toHaveAttribute("aria-disabled", "false");
+    await saved.click();
+    await expect(page.locator("#state-badge")).toHaveText("Saved run · Startup failed");
+    await page.waitForResponse((response) => response.url() === `${demo.address}/api/state`);
+    await expect(page.locator("#state-badge")).toHaveText("Saved run · Startup failed");
+  } finally {
+    release.resolve();
+  }
+});
+
 test("concurrent controls admit exactly one configured run and reject foreign control requests", async ({
   page,
 }) => {
