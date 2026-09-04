@@ -30,6 +30,10 @@ Add a worktree only for a concrete parallel need. See the
 [ownership and cleanup policy](docs/foundation/branch-and-worktree-policy.md).
 
 Node.js 24.20.0 is the pinned primary runtime; 22.23.2 is the minimum. pnpm is pinned to 11.19.0.
+The workspace fixes `enableGlobalVirtualStore: false` for both CI and ordinary terminals.
+`verifyDepsBeforeRun: error` reports dependency drift before a script runs, without automatically
+replacing `node_modules`. Run the explicit frozen install below when dependencies need updating;
+no machine-specific store path or per-session environment override is required.
 
 ```bash
 corepack enable
@@ -62,12 +66,21 @@ responsibility. Windows process cleanup was exercised with the real target; othe
 their own process-tree evidence beyond the CI fixture tests.
 
 The verifier checks canonical bytes, hashes, frozen inputs, attempts, outcome/minimization
-contracts and summary consistency. A manifest is an integrity check, not an authenticated proof
+contracts and summary consistency. It requires all five registered 2026-09-04 revalidation files
+and applies the same attempt/summary gates there, including execution identity, exit codes,
+revision/report/source bindings, timing and cleanup consistency. The current case-specific verifier
+checks the complete registered Spike bundle; materializing an isolated run alone does not satisfy
+that full-bundle gate. A manifest is an integrity check, not an authenticated proof
 of which source ran. The uncommitted run-envelope proposal was removed because computing current
 hashes when importing a historical report cannot establish past execution provenance. Historical
 v1 summaries and attempts remain byte-identical. Raw reports stay in ignored local output; their
 hashes and normalized results are portable. Materialization refuses to replace a differing run:
 use a new evidence root for each new experiment.
+
+Captured tool hashes are checked against their independently inspected historical source commit
+`bfc2d521631b1bb69a0bf83a1a512a213cf97211`; the four spec/config hashes also match current bundle bytes.
+Updating the verifier does not rewrite historical execution records. These checks establish
+internal consistency, and do not authenticate who executed the experiment.
 
 ## Repository map
 

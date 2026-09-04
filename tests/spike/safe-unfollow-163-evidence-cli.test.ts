@@ -94,6 +94,11 @@ async function createFixture(root: string, invalidBaseline = false): Promise<Fix
     "minimization-log.json",
     "outcome-contract.json",
     "reset-protocol.json",
+    "revalidation/2026-09-04/attempts.jsonl",
+    "revalidation/2026-09-04/baseline/recorder-comparison.json",
+    "revalidation/2026-09-04/differential-summary.json",
+    "revalidation/2026-09-04/execution.json",
+    "revalidation/2026-09-04/replay-summary.json",
     "scope.json",
     "target-provenance.json",
     "tools/evidence-cli.ts",
@@ -439,4 +444,136 @@ test("CLI missing-file diagnostics do not reveal local paths", async () => {
     assert.equal(output.includes(root), false);
     assert.equal(output.includes(root.replaceAll("\\", "\\\\")), false);
   });
+});
+
+test("verify rejects dated execution contradictions after manifest refresh", async (t) => {
+  await withTemporaryRoot(async (root) => {
+    const fixture = await createFixture(root);
+    await materialize(fixture);
+    const path = "revalidation/2026-09-04/execution.json";
+    const original = await readFile(join(fixture.bundleRoot, path), "utf8");
+    for (const variant of [
+      "generated-post-exit",
+      "baseline-post-exit",
+      "generated-pre-exit",
+      "baseline-pre-exit",
+      "duplicate-run",
+      "missing-run",
+      "unknown-kind",
+      "unknown-side",
+      "revision",
+      "report-hash",
+      "dirty-target",
+      "lockfile",
+      "source-hash",
+      "missing-source",
+      "unknown-source",
+      "time-range",
+      "cleanup-survivor",
+      "cleanup-exit",
+      "missing-cleanup",
+    ]) {
+      await t.test(variant, async () => {
+        const capture = JSON.parse(original) as {
+          runs: Record<string, unknown>[];
+          sourceHashes: Record<string, unknown>;
+          cleanup: Record<string, unknown>[];
+          finishedAt: string;
+        };
+        const post = capture.runs[2];
+        const baselinePost = capture.runs[3];
+        const pre = capture.runs[0];
+        const baselinePre = capture.runs[1];
+        const cleanup = capture.cleanup[0];
+        assert.ok(post && baselinePost && pre && baselinePre && cleanup);
+        if (variant === "generated-post-exit") post.exitCode = 1;
+        if (variant === "baseline-post-exit") baselinePost.exitCode = 1;
+        if (variant === "generated-pre-exit") pre.exitCode = 0;
+        if (variant === "baseline-pre-exit") baselinePre.exitCode = 0;
+        if (variant === "duplicate-run") capture.runs[3] = { ...post };
+        if (variant === "missing-run") capture.runs.pop();
+        if (variant === "unknown-kind") post.kind = "other";
+        if (variant === "unknown-side") post.side = "other";
+        if (variant === "revision") post.revision = pre.revision;
+        if (variant === "report-hash") post.rawReportSha256 = "0".repeat(64);
+        if (variant === "dirty-target") post.cleanAfter = false;
+        if (variant === "lockfile") post.lockfileSha256 = "0".repeat(64);
+        if (variant === "source-hash")
+          capture.sourceHashes["tools/evidence-cli.ts"] = "0".repeat(64);
+        if (variant === "missing-source")
+          delete capture.sourceHashes["generated/playwright.config.ts"];
+        if (variant === "unknown-source") capture.sourceHashes["other.ts"] = "0".repeat(64);
+        if (variant === "time-range") post.finishedAt = "2026-09-04T10:00:00.000Z";
+        if (variant === "cleanup-survivor") cleanup.survivingOwnedProcesses = 1;
+        if (variant === "cleanup-exit") cleanup.result = { status: "cancelled", exitCode: 0 };
+        if (variant === "missing-cleanup") capture.cleanup.pop();
+        await write(fixture.bundleRoot, path, serializeCanonicalJson(capture));
+        await writeEvidenceManifest(fixture.bundleRoot);
+        const result = await verifyEvidenceBundle(fixture.bundleRoot);
+        assert.equal(result.ok, false, variant);
+        assert.ok(
+          result.issues.some(
+            (issue) => issue.code === "revalidation-execution" && issue.subject === path,
+          ),
+        );
+      });
+    }
+  });
+});
+
+test("dated attempts, summaries, and required records retain semantic gates", async (t) => {
+  for (const variant of [
+    "attempt",
+    "differential",
+    "replay",
+    "baseline",
+    "missing-execution",
+    "missing-group",
+  ]) {
+    await t.test(variant, async () => {
+      await withTemporaryRoot(async (root) => {
+        const fixture = await createFixture(root);
+        await materialize(fixture);
+        const prefix = "revalidation/2026-09-04/";
+        if (variant === "attempt") {
+          const path = join(fixture.bundleRoot, prefix, "attempts.jsonl");
+          const records = (await readFile(path, "utf8"))
+            .split("\n")
+            .map((line) => JSON.parse(line));
+          records[20].retry = 1;
+          await writeFile(
+            path,
+            records.map((record) => serializeCanonicalJson(record).trimEnd()).join("\n"),
+          );
+        } else if (variant === "missing-execution" || variant === "missing-group") {
+          const paths =
+            variant === "missing-execution"
+              ? ["execution.json"]
+              : [
+                  "attempts.jsonl",
+                  "baseline/recorder-comparison.json",
+                  "differential-summary.json",
+                  "execution.json",
+                  "replay-summary.json",
+                ];
+          for (const path of paths) await rm(join(fixture.bundleRoot, prefix, path));
+        } else {
+          const filename =
+            variant === "baseline"
+              ? "baseline/recorder-comparison.json"
+              : `${variant}-summary.json`;
+          const path = join(fixture.bundleRoot, prefix, filename);
+          const summary = JSON.parse(await readFile(path, "utf8"));
+          if (variant === "differential") summary.postFix.passes = 19;
+          if (variant === "replay") summary.rawReports.generatedPost.sha256 = "0".repeat(64);
+          if (variant === "baseline") summary.baseline.postFixPasses = 19;
+          await writeFile(path, serializeCanonicalJson(summary));
+        }
+        await writeEvidenceManifest(fixture.bundleRoot);
+        const result = await verifyEvidenceBundle(fixture.bundleRoot);
+        assert.equal(result.ok, false, variant);
+        assert.ok(result.issues.some((issue) => issue.subject.startsWith(prefix)));
+      });
+    });
+  }
 });

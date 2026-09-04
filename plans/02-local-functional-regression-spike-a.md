@@ -219,3 +219,38 @@ covered by the backups, or a non-fast-forward main. Preserve the checkout on cle
 Rollback is a reviewed revert or recreation from the retained refs/bundle; never overwrite a
 checkout. Actual post-merge results and the final SHA belong to the local handoff audit and delivery
 report, avoiding a documentation commit that claims its own unobserved merge or CI result.
+
+## Revalidation consistency correction — 2026-09-04
+
+Owner: the same task, sole writer in the saved D-drive checkout on
+`codex/fix-revalidation-consistency`, base d4b864c0d92b940f2f3d14071bc19438413ecec3.
+The user supplied an independent P2 reproduction: changing the dated generated/post-fix exitCode
+to 1 and refreshing the manifest still passes verification. This was reproduced before editing;
+the correct current bundle passes and the changed bytes fail only until the manifest is refreshed.
+The original recovery/integration is complete; this section owns its follow-up correction.
+
+Allowed paths: evidence-cli.ts, its existing regression test, the current manifest,
+pnpm-workspace.yaml, README, this plan and context02. Historical execution records, attempts,
+summaries, frozen inputs/specs, replay code, target checkouts, branches/stash and backups remain
+unchanged. The previous source submission/CI/merge authorization applies to this correction.
+
+- [x] Reproduce the P2 in an isolated copy and confirm exclusive D-drive ownership.
+- [x] Reuse the repetition and summary checks for all five registered dated artifacts; reject
+      missing records, contradictory execution identity/status/revision/report/source bindings.
+- [x] Bind historical tool hashes to their independently verified bfc2d52 Git blobs; do not
+      rewrite old capture hashes to match this verifier update or claim execution authentication.
+- [x] Fix repository-local pnpm installation-layout policy without machine paths/global changes.
+- [x] Run meaningful negative regressions after manifest refresh, the Node 22/24 check matrix,
+      archive smoke and historical-byte preservation checks; obtain independent diff reviews.
+- [ ] Commit, push, verify exact-head CI, merge, and return the clean D-drive checkout to main.
+
+Stop on a changed historical artifact, failed original/correct evidence check, unreviewed scope
+growth, failing required CI or another writer. Rollback is a reviewed revert. The fix changes
+verification only, so another 80 target executions are unnecessary unless replay/reset/oracle
+code changes. Product remains SPIKE_CONDITIONAL; a second case/value decision is separate.
+
+Pre-submit verification passed: the original P2 is rejected after manifest refresh, 25 new
+negative subcases pass, both runtime checks and archive smoke pass, 31 historical files are
+byte-identical, and independent review found no remaining required correction. The exact commands
+and process-environment limitations are recorded in context02. Actual PR/CI/merge results will
+be appended to the local consistency-fix audit after execution, with the final commit in delivery.

@@ -343,3 +343,77 @@ required corrections; `pnpm check` exited 0 (28/28 unit, 1/1 browser, both stand
 zero evidence issues), `pnpm package:smoke` exited 0 (78 files, 105913 bytes before this entry),
 and `git diff --check` exited 0. Lint reported three informational template-style suggestions,
 with no warnings or errors. No executable source or evidence file changed.
+
+## P2 dated-evidence correction baseline — 2026-09-04
+
+The user independently found a gap in the delivered d4b864c verifier. The previous clean review
+was not a proof that no defect remained. This task reproduced the report before editing:
+system Node 22.23.2 ran the supplied local audit reproducer in an isolated temporary copy;
+the correct bundle returned ok=true, a generated/post-fix exitCode change from 0 to 1 returned
+ok=false before manifest refresh, and ok=true after writeEvidenceManifest. The temporary copy
+was removed and source status remained clean. Original reports and current summaries remain
+consistent; this is an automated cross-check gap, not evidence of a false experiment.
+
+Base HEAD/main/origin-main: d4b864c0d92b940f2f3d14071bc19438413ecec3. One current ReproLock task
+was active; the other workspace task was idle. The existing D-drive checkout now owns
+codex/fix-revalidation-consistency. The independent review and original reproducer remain in
+the workspace quality-review audit directory; they are not modified by this correction.
+
+Read-only pnpm diagnosis: verifyDepsBeforeRun=error alone detects an enableGlobalVirtualStore
+layout mismatch. Adding only enableGlobalVirtualStore=false makes pinned pnpm exec node --version
+succeed, without a storeDir override or reinstall. This narrows the necessary repository fix to
+explicit layout and fail-fast dependency verification, keeping machine-specific store paths out
+of source. Final CI/non-CI verification is pending.
+
+## P2 correction implementation and verification — 2026-09-04
+
+The verifier now requires all five registered dated files, so removing execution.json or the
+whole set and regenerating the manifest cannot bypass the check. The existing repetition and
+summary functions accept an evidence-path prefix while continuing to read frozen metadata and
+specs from the bundle root. Root historical checks remain active. This is a case-specific full
+bundle verifier; an isolated materialized run alone does not meet the registered full-bundle gate.
+
+The dated execution check validates exactly four kind/side identities, expected pre-fix exit 1
+and post-fix exit 0, immutable target revisions, clean state, lockfile/report hashes, timestamps,
+and cleanup observations. Seven captured source hashes were independently recomputed from raw
+Git blob bytes at bfc2d521631b1bb69a0bf83a1a512a213cf97211 using execFileSync(git show) and
+createHash(sha256). They all match the unchanged capture. Four spec/config entries also match
+current bundle bytes; three historical tool hashes remain bound to that registered source version.
+No historical hash was changed to match the new verifier. Runtime verification needs neither Git
+nor a model; it checks internal consistency, not execution authentication.
+
+| Actual command/check | Result |
+| --- | --- |
+| original supplied single-field reproducer, before edits | correct bundle passed; mutated post-fix exit 1 passed after manifest refresh (P2 reproduced) |
+| node --test --test-name-pattern "dated execution contradictions" tests/spike/safe-unfollow-163-evidence-cli.test.ts before implementation | all 19 negative subcases failed as expected because the old verifier accepted them |
+| node --test tests/spike/safe-unfollow-163-evidence-cli.test.ts after implementation | 35 test entries passed, including 25 new negative subcases with refreshed manifests |
+| recheck of the original single-field mutation | correct bundle ok=true; mutated bundle ok=false before and after manifest refresh, with revalidation-execution issue |
+| pnpm check, ordinary non-CI terminal, Node 22.23.2 / pnpm 11.19.0 | exit 0; 55 entries including 25 negative subcases, zero skipped; Chromium 1/1; all type/format/lint/evidence checks passed |
+| pnpm check, CI=true, Node 24.20.0 / pnpm 11.19.0 | exit 0; same 55 entries and 1/1 browser passed |
+| pnpm package:smoke, each runtime/mode | exit 0; 78 files / 111123 bytes before this documentation entry |
+| pnpm exec node --version with forced enableGlobalVirtualStore=true | rejected with ERR_PNPM_VERIFY_DEPS_BEFORE_RUN, no automatic reinstall |
+| .modules.yaml and pnpm-lock.yaml SHA-256 before/after both full checks and drift rejection | unchanged |
+| 31 historical bundle files SHA-256 before/after correction | identical, including all dated records, attempts, summaries, frozen inputs, specs and replay code |
+| independent evidence diff review, pnpm diagnosis and git diff --check | no required P1/P2 correction; whitespace check exit 0 |
+
+The two repository settings are enableGlobalVirtualStore=false and verifyDepsBeforeRun=error.
+The first removes pnpm's CI/non-CI layout default difference; the second reports drift before
+execution instead of initiating an automatic install. No storeDir override, global configuration,
+dependency/lockfile change or reinstall was needed. Store-path differences in the earlier review
+were environment/permission dependent, not proven to be caused by CI: read-only checks observed
+the same current store path with CI both enabled and disabled.
+
+This Windows tool session also inherited both PATH and Path keys. pnpm exec failed to find Biome
+while normal pnpm scripts succeeded. A read-only probe with a single case-insensitive path key
+made exec succeed. Formatting used the trusted installed Biome entry point directly; the Node 24
+check used a child environment with duplicate keys collapsed and the selected Node first on PATH.
+No compatibility wrapper or global PATH edit was added. Typecheck passed; the initial formatter
+reported the expected two unformatted edited files, then both were formatted. Lint retains only
+the three pre-existing informational suggestions. The browser emitted the same harmless color-env
+warning. These limitations did not alter retries, checks, source evidence or dependency layout.
+
+Logs, the preserved-file hash list and the corrected reproducer are in the local
+reprolock-consistency-fix-20260904 audit directory. The user's original quality-review files are
+unchanged. No target replay/reset/oracle code changed, so this correction did not rerun the 80
+real-target executions or claim a new experiment. Product status remains SPIKE_CONDITIONAL.
+Source PR, exact-head CI and post-merge main results are recorded there after they actually occur.

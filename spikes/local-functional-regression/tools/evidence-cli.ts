@@ -36,6 +36,23 @@ const expectedPreFixRevision = "64c8a1d0f4c1a9a4ffbab2ea319d89bcab21ad47";
 const expectedPostFixRevision = "ab55329e354dfb121486d7ff1f7daa2fa2e2e5fa";
 const expectedRepository = "https://github.com/ignromanov/safe-unfollow.git";
 const expectedReadinessUrl = "http://127.0.0.1:4173/upload";
+const revalidationPrefix = "revalidation/2026-09-04/";
+// Captured bytes independently checked against Git blobs in bfc2d521631b1bb69a0bf83a1a512a213cf97211.
+// Tool code can evolve; historical capture hashes must not be rewritten to describe this verifier.
+const revalidationSourceHashes = {
+  "baseline/playwright.config.ts":
+    "757796e65e88d6fca221e7d5db2c8000fd26d643305dac0d8427f765b4f9ddcb",
+  "baseline/safe-unfollow-163-recorder.spec.ts":
+    "260e7f5faf25c20b9820c3a8f8db0ee676fc16825cedd02290e92a4df7a848db",
+  "generated/playwright.config.ts":
+    "ba18efccbebf686f9db870e8951e948cd99be8f0a74f22bc4963eb8f6f04e488",
+  "generated/replay-safe-unfollow-163.mjs":
+    "b7bb5fd0e61827d12e9f54cd712c5426878f6dae4b1850edc2ce116d08bb7830",
+  "generated/safe-unfollow-163.spec.ts":
+    "d750b422a2452e1fe299ee893f65e673831e4b51085d9e4a8590772c830280ad",
+  "tools/evidence-cli.ts": "afff847034745ee825d786c3f5aad3f86c58e6de6808763f3aca3b4b9046ff79",
+  "tools/evidence.ts": "a97d835e88c456a1deee8fd610213ffde07f1dea68dfe0798291bb36da172bb4",
+} as const;
 const expectedFrozenFiles = [
   "candidate-trace.json",
   "generated/playwright.config.ts",
@@ -71,6 +88,11 @@ const requiredBundleFiles = [
   "outcome-contract.json",
   "replay-summary.json",
   "reset-protocol.json",
+  `${revalidationPrefix}attempts.jsonl`,
+  `${revalidationPrefix}baseline/recorder-comparison.json`,
+  `${revalidationPrefix}differential-summary.json`,
+  `${revalidationPrefix}execution.json`,
+  `${revalidationPrefix}replay-summary.json`,
   "scope.json",
   "target-provenance.json",
   "tools/evidence-cli.ts",
@@ -1792,9 +1814,11 @@ async function verifyCoreEvidence(root: string, issues: VerificationIssue[]): Pr
 async function parseCommittedAttempts(
   root: string,
   issues: VerificationIssue[],
+  prefix = "",
 ): Promise<readonly AttemptRecord[]> {
+  const path = `${prefix}${attemptsPath}`;
   try {
-    const contents = await readBundleText(root, attemptsPath);
+    const contents = await readBundleText(root, path);
     if (contents.length === 0 || contents.endsWith("\n")) {
       throw new EvidenceCliError("attempts.jsonl must be non-empty without a trailing blank line");
     }
@@ -1815,7 +1839,7 @@ async function parseCommittedAttempts(
       issues.push(
         verificationIssue(
           "attempts-canonical",
-          attemptsPath,
+          path,
           "Attempt records are not canonically ordered and serialized",
         ),
       );
@@ -1823,11 +1847,7 @@ async function parseCommittedAttempts(
     return records;
   } catch (error) {
     issues.push(
-      verificationIssue(
-        "attempts-invalid",
-        attemptsPath,
-        diagnostic(error, "Attempt parsing failed"),
-      ),
+      verificationIssue("attempts-invalid", path, diagnostic(error, "Attempt parsing failed")),
     );
     return [];
   }
@@ -1836,8 +1856,9 @@ async function parseCommittedAttempts(
 async function verifyAttemptGate(
   root: string,
   issues: VerificationIssue[],
+  prefix = "",
 ): Promise<readonly AttemptRecord[]> {
-  const attempts = await parseCommittedAttempts(root, issues);
+  const attempts = await parseCommittedAttempts(root, issues, prefix);
   if (attempts.length === 0) return attempts;
   try {
     const metadata = await loadCaseMetadata(root);
@@ -1848,11 +1869,17 @@ async function verifyAttemptGate(
       specSha256: metadata.testSha256,
     });
     for (const entry of result.issues) {
-      issues.push(verificationIssue(`gate-${entry.code}`, entry.subject, entry.message));
+      issues.push(
+        verificationIssue(`gate-${entry.code}`, `${prefix}${entry.subject}`, entry.message),
+      );
     }
   } catch (error) {
     issues.push(
-      verificationIssue("gate-invalid", attemptsPath, diagnostic(error, "Attempt gate failed")),
+      verificationIssue(
+        "gate-invalid",
+        `${prefix}${attemptsPath}`,
+        diagnostic(error, "Attempt gate failed"),
+      ),
     );
   }
   return attempts;
@@ -1862,11 +1889,12 @@ async function verifyMaterializedSummaries(
   root: string,
   attempts: readonly AttemptRecord[],
   issues: VerificationIssue[],
+  prefix = "",
 ): Promise<void> {
   try {
-    const differential = await readBundleJson(root, "differential-summary.json");
-    const replay = await readBundleJson(root, "replay-summary.json");
-    const recorder = await readBundleJson(root, "baseline/recorder-comparison.json");
+    const differential = await readBundleJson(root, `${prefix}differential-summary.json`);
+    const replay = await readBundleJson(root, `${prefix}replay-summary.json`);
+    const recorder = await readBundleJson(root, `${prefix}baseline/recorder-comparison.json`);
     const differentialObject = asObject(differential, "differential-summary.json");
     const rawReports = parseRawReportEvidence(
       differentialObject.rawReports,
@@ -1891,7 +1919,7 @@ async function verifyMaterializedSummaries(
         issues.push(
           verificationIssue(
             "summary-cross-check",
-            path,
+            `${prefix}${path}`,
             "Summary does not match attempts, frozen metadata, or source evidence",
           ),
         );
@@ -1908,7 +1936,7 @@ async function verifyMaterializedSummaries(
       issues.push(
         verificationIssue(
           "summary-attempt-cross-check",
-          attemptsPath,
+          `${prefix}${attemptsPath}`,
           "Attempt counts or test hashes do not match materialized summaries",
         ),
       );
@@ -1917,8 +1945,198 @@ async function verifyMaterializedSummaries(
     issues.push(
       verificationIssue(
         "summary-invalid",
-        "differential-summary.json",
+        `${prefix}differential-summary.json`,
         diagnostic(error, "Summary verification failed"),
+      ),
+    );
+  }
+}
+
+function revalidationTime(value: unknown, path: string): number {
+  const text = asString(value, path);
+  const time = Date.parse(text);
+  if (
+    !Number.isFinite(time) ||
+    new Date(time).toISOString() !== text ||
+    !text.startsWith("2026-09-04T")
+  ) {
+    throw new EvidenceCliError(
+      `${path}: expected an ISO timestamp for the registered revalidation date`,
+    );
+  }
+  return time;
+}
+
+async function verifyRevalidationExecution(
+  root: string,
+  issues: VerificationIssue[],
+): Promise<void> {
+  const path = `${revalidationPrefix}execution.json`;
+  try {
+    const capture = asObject(await readBundleJson(root, path), path);
+    assertExactKeys(
+      capture,
+      [
+        "cleanup",
+        "finishedAt",
+        "materializedBundleVerified",
+        "platform",
+        "purpose",
+        "reprolockBase",
+        "runs",
+        "runtime",
+        "schemaVersion",
+        "sourceHashes",
+        "startedAt",
+      ],
+      path,
+    );
+    asSchemaVersion(capture, path);
+    const environment = asObject(
+      await readBundleJson(root, "environment.json"),
+      "environment.json",
+    );
+    const platform = asObject(environment.platform, "environment.platform");
+    const runtime = asObject(environment.runtime, "environment.runtime");
+    const target = asObject(environment.target, "environment.target");
+    if (
+      capture.platform !== platform.os ||
+      capture.runtime !== `v${runtime.node}` ||
+      capture.reprolockBase !== "83daeeed3b9947fff89cfd7942c3dd0b32fc5475" ||
+      capture.materializedBundleVerified !== true ||
+      asString(capture.purpose, `${path}.purpose`).trim() === ""
+    ) {
+      throw new EvidenceCliError(
+        "Registered execution identity or verification status does not match",
+      );
+    }
+    expectEqual(capture.sourceHashes, revalidationSourceHashes, `${path}.sourceHashes`);
+    for (const source of [
+      "baseline/playwright.config.ts",
+      "baseline/safe-unfollow-163-recorder.spec.ts",
+      "generated/playwright.config.ts",
+      "generated/safe-unfollow-163.spec.ts",
+    ] as const) {
+      if (sha256(await readBundleBytes(root, source)) !== revalidationSourceHashes[source]) {
+        throw new EvidenceCliError(
+          `${source}: current spec/config differs from the registered execution source`,
+        );
+      }
+    }
+    const started = revalidationTime(capture.startedAt, `${path}.startedAt`);
+    const finished = revalidationTime(capture.finishedAt, `${path}.finishedAt`);
+    if (finished < started) throw new EvidenceCliError("Execution finishes before it starts");
+    const differential = asObject(
+      await readBundleJson(root, `${revalidationPrefix}differential-summary.json`),
+      "dated differential",
+    );
+    const reports = parseRawReportEvidence(
+      differential.rawReports,
+      "dated differential.rawReports",
+    );
+    const runs = asArray(capture.runs, `${path}.runs`);
+    if (runs.length !== 4) throw new EvidenceCliError("Expected exactly four revalidation runs");
+    const seen = new Set<string>();
+    for (const [index, value] of runs.entries()) {
+      const subject = `${path}.runs[${index}]`;
+      const run = asObject(value, subject);
+      assertExactKeys(
+        run,
+        [
+          "cleanAfter",
+          "cleanBefore",
+          "exitCode",
+          "finishedAt",
+          "kind",
+          "lockfileSha256",
+          "rawReportSha256",
+          "revision",
+          "side",
+          "startedAt",
+        ],
+        subject,
+      );
+      if (
+        (run.kind !== "generated" && run.kind !== "baseline") ||
+        (run.side !== "pre-fix" && run.side !== "post-fix")
+      ) {
+        throw new EvidenceCliError(`${subject}: unknown run kind or side`);
+      }
+      const key = `${run.kind}/${run.side}`;
+      if (seen.has(key)) throw new EvidenceCliError(`${subject}: duplicate run identity`);
+      seen.add(key);
+      const preFix = run.side === "pre-fix";
+      const report =
+        run.kind === "generated"
+          ? preFix
+            ? reports.generatedPre
+            : reports.generatedPost
+          : preFix
+            ? reports.baselinePre
+            : reports.baselinePost;
+      if (
+        run.exitCode !== (preFix ? 1 : 0) ||
+        run.revision !== (preFix ? expectedPreFixRevision : expectedPostFixRevision) ||
+        run.cleanBefore !== true ||
+        run.cleanAfter !== true ||
+        run.lockfileSha256 !== target.lockfileSha256 ||
+        run.rawReportSha256 !== report.sha256
+      ) {
+        throw new EvidenceCliError(
+          `${subject}: exit code, revision, clean state, lockfile or report binding contradicts the differential`,
+        );
+      }
+      const runStart = revalidationTime(run.startedAt, `${subject}.startedAt`);
+      const runFinish = revalidationTime(run.finishedAt, `${subject}.finishedAt`);
+      if (runStart < started || runFinish > finished || runFinish < runStart) {
+        throw new EvidenceCliError(`${subject}: run falls outside the execution time range`);
+      }
+    }
+    const cleanup = asArray(capture.cleanup, `${path}.cleanup`);
+    const modes = new Set([
+      "cancelled",
+      "timeout",
+      "pre-fix-server",
+      "post-fix-server",
+      "normal-replay",
+    ]);
+    if (cleanup.length !== modes.size)
+      throw new EvidenceCliError("Expected all five cleanup/replay observations");
+    for (const value of cleanup) {
+      const entry = asObject(value, `${path}.cleanup`);
+      const mode = asString(entry.mode, "cleanup.mode");
+      if (!modes.delete(mode)) throw new EvidenceCliError("Unknown or duplicate cleanup mode");
+      if (mode === "normal-replay") {
+        expectEqual(entry, { mode, exitCode: 0 }, "cleanup.normal-replay");
+        continue;
+      }
+      const cancelled = mode === "cancelled" || mode === "timeout";
+      assertExactKeys(
+        entry,
+        cancelled
+          ? ["mode", "observedOwnedProcesses", "result", "survivingOwnedProcesses"]
+          : ["mode", "observedOwnedProcesses", "survivingOwnedProcesses"],
+        `cleanup.${mode}`,
+      );
+      const observed = asNumber(entry.observedOwnedProcesses, "cleanup.observedOwnedProcesses");
+      if (!Number.isInteger(observed) || observed <= 0 || entry.survivingOwnedProcesses !== 0) {
+        throw new EvidenceCliError(
+          `cleanup.${mode}: process cleanup is unobserved or has survivors`,
+        );
+      }
+      if (cancelled)
+        expectEqual(
+          entry.result,
+          { exitCode: mode === "cancelled" ? 130 : 124, status: mode },
+          `cleanup.${mode}.result`,
+        );
+    }
+  } catch (error) {
+    issues.push(
+      verificationIssue(
+        "revalidation-execution",
+        path,
+        diagnostic(error, "Revalidation execution cross-check failed"),
       ),
     );
   }
@@ -2033,6 +2251,9 @@ export async function verifyEvidenceBundle(bundleRoot: string): Promise<VerifySu
   await verifyCoreEvidence(root, issues);
   const attempts = await verifyAttemptGate(root, issues);
   await verifyMaterializedSummaries(root, attempts, issues);
+  const revalidationAttempts = await verifyAttemptGate(root, issues, revalidationPrefix);
+  await verifyMaterializedSummaries(root, revalidationAttempts, issues, revalidationPrefix);
+  await verifyRevalidationExecution(root, issues);
   await verifyMachineSchemaVersions(root, issues);
   await verifyPortableText(root, issues);
   const sortedIssues = sortIssues(issues);
