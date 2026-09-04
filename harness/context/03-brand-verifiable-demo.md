@@ -175,6 +175,11 @@ English UI. The earlier Chinese screenshot remains in Git history and its origin
 Of 250 protected files, 247 are byte-identical; only the newly approved wordmark, its provenance
 and this current screenshot changed. Frozen tests, raw reports, exports and runner code remain exact.
 
-Independent read-only review found no remaining blocker. Independent export/archive checks and
-the exact PR/main integration receipts are completed during handoff and retained in
-`.workspace/audits/reprolock-english-demo-20260904/` in the parent AlvenX workspace and the PR.
+Independent read-only review found no remaining blocker. `pnpm package:smoke` passed with 108
+entries / 369,157 bytes before this receipt update. A `git archive` of
+`0e02daca5b4aab4c6a5b02e876aa10480f243849` was extracted into a new directory outside AlvenX;
+`pnpm install --frozen-lockfile`, `pnpm brand:verify` and `pnpm test:browser` passed (4/4).
+Ten current computed header properties match the preserved accepted Studio reference; canonical
+CSS is unchanged. Exact PR/main integration receipts are retained in
+`.workspace/audits/reprolock-english-demo-20260904/` in the parent AlvenX workspace and the PR,
+so recording the final merge does not change the tested source tree.

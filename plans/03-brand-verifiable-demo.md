@@ -103,5 +103,5 @@ merge receipts are retained in the PR and local audit without changing the teste
 
 - [x] Inspect baseline, preserve incoming changes and obtain exclusive ownership.
 - [x] English copy, documentation and current screenshot.
-- [ ] Browser/resource/layout, independent-export and configured engineering checks.
-- [ ] Independent review and PR integration receipt.
+- [x] Browser/resource/layout, independent-export and configured engineering checks.
+- [x] Independent review; exact-head PR/merge receipts close integration in the PR/local audit.
