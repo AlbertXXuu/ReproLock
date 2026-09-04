@@ -63,10 +63,22 @@ button:disabled {
   min-width: 0;
 }
 .ax-product-header nav a {
+  padding: 8px 12px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent;
   color: var(--ax-ink-primary);
   text-decoration: none;
   font-size: 15px;
   font-weight: 650;
+  transition:
+    background-color 220ms var(--ax-ease-fluid),
+    border-color 220ms var(--ax-ease-fluid);
+}
+.ax-product-header nav a:hover,
+.ax-product-header nav a:focus-visible {
+  border-color: rgb(255 255 255 / 82%);
+  background: rgb(255 255 255 / 35%);
 }
 .local-tag {
   font-size: 10px;
@@ -515,6 +527,9 @@ footer {
   *::after {
     scroll-behavior: auto;
     animation: none;
+    transition: none;
+  }
+  .ax-product-header nav a {
     transition: none;
   }
 }
