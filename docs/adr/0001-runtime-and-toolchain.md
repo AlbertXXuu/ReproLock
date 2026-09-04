@@ -130,6 +130,15 @@ An upgrade PR records the official pages and access date, updates all pins atomi
 the lockfile with the selected pnpm version, and runs install, formatting, lint, typecheck, tests,
 package smoke, and the supported runtime matrix.
 
+## 2026-09-01 v2 scope amendment
+
+The exact Node.js, pnpm, TypeScript, Biome, frozen-lockfile, and runtime-matrix decisions remain
+accepted. References in this historical ADR to a multi-package workspace, old parallel Spikes, or
+an eventual package topology are superseded by the current local-functional-QA architecture.
+ReproLock remains one root application until a real independent consumer or release cycle proves a
+physical package boundary. Playwright is admitted only for the executable loopback foundation and
+future user-supplied local regression flow.
+
 ## Sources
 
 All sources were accessed on **2026-09-01**.

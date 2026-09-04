@@ -1,52 +1,36 @@
 # Security Policy
 
-ReproLock handles hostile issue text, repositories, web pages, traces, generated data, and browser
-state. Security and privacy failures can invalidate its evidence even when functional tests pass.
+ReproLock handles untrusted issue text, repositories, page content, traces, generated data, and
+browser state. Functional success is invalid if command, path, privacy, cleanup, or evidence
+boundaries fail.
 
 ## Supported versions
 
-ReproLock has no supported public release yet. During the pre-release phase, security fixes are
-made only on the current development line. No historical build or unpublished artifact carries a
-support guarantee.
+There is no supported public release. The current development line carries no production support
+guarantee.
 
 ## Report a vulnerability
 
-Do not open a public issue or include exploit details in a public discussion. Use the repository
-host's private security-advisory channel. If that channel is unavailable, contact the maintainers
-through an official private AlvenX channel and share only enough information to establish a secure
-follow-up path.
+Use the repository host's private security-advisory channel or an official private AlvenX contact.
+Do not include credentials, session data, private repositories, raw sensitive traces, or personal
+data. Prefer a synthetic, redacted reproduction.
 
-Include, when safe:
+## Current testing boundary
 
-- affected commit, version, and operating environment;
-- a minimal reproduction and expected impact;
-- whether secrets or third-party data may have been exposed;
-- suggested mitigation, if known.
+Test only repositories and disposable applications explicitly supplied by the user. Start targets
+locally on loopback or in an explicitly disposable local environment. Do not access external
+accounts, hosted third-party instances, production systems, or real user data through this
+workflow, even if broader authorization might exist elsewhere.
 
-Do not send live credentials, session data, private repositories, raw HAR files, or personal data.
-Use synthetic or redacted fixtures. Maintainers should acknowledge a report privately, reproduce it
-in an isolated environment, agree on disclosure timing, and credit the reporter if requested.
+High-priority failures include:
 
-## In-scope risk areas
+- commands derived from issue, page, trace, or model content;
+- absolute-path, traversal, symlink, or output-root escape;
+- cookie, token, authorization, storage, environment, screenshot, or trace leakage;
+- model self-report or hidden retries being treated as success;
+- evidence tampering, non-canonical hashes, or incomplete manifests;
+- missing timeout, cancellation, child-process, browser-context, server, or temporary-file cleanup;
+- destructive actions outside a fixture explicitly created for the current test.
 
-High-priority reports include:
-
-- command or generated-code execution from issue, page, trace, or model content;
-- path traversal, symlink escape, or writes outside an approved root;
-- token, cookie, authorization header, storage, trace, screenshot, or environment leakage;
-- privilege escalation in CI, especially unsafe fork or `pull_request_target` behavior;
-- false confirmed reproductions caused by agent self-report, hidden retries, or evidence tampering;
-- evidence hash or manifest integrity failures;
-- missing timeout, cancellation, child-process, or browser-context cleanup;
-- destructive browser actions outside an explicit disposable-environment policy.
-
-## Safe research expectations
-
-Test only systems and accounts you own or are authorized to use. Prefer local disposable fixtures,
-minimize access and retention, stop when real user data could be affected, and do not perform
-destructive actions or persistence. Security testing does not authorize access to third-party
-systems or bypass applicable law.
-
-Security fixes require focused regression coverage, an evidence-backed impact assessment, and a
-review for adjacent data exposure. Never publish a sanitized-looking bundle before verifying that
-all derivative artifacts are also redacted.
+Security fixes require focused regression coverage and review of derivative artifacts. A redacted
+summary is not safe until every included artifact is independently inspected.

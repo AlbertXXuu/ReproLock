@@ -1,5 +1,9 @@
 # Phase Context 00 — Repository Foundation
 
+> **Historical pre-v2 evidence.** The observations and command results below remain auditable.
+> Scope, package topology, and next-phase claims were superseded by the scoped clean-start baseline
+> and are not completion evidence for the current local-functional-QA route.
+
 - Status: `complete`
 - Date: `2026-09-01`
 - Branch: `chore/repository-foundation`

@@ -1,36 +1,55 @@
-# ReproLock ExecPlans
+# ReproLock ExecPlan Template
 
-For complex features, cross-package changes, significant refactors, security work, or
-release work, create a living ExecPlan under `plans/<phase>.md`.
+## Goal
 
-An ExecPlan must be executable by a developer who has only the repository and the plan.
-It contains:
+State the one observable user outcome this phase must produce.
 
-1. Goal and user-visible behavior.
-2. Current repository state and relevant files.
-3. Non-goals.
-4. Product and architecture invariants affected.
-5. Proposed design and alternatives rejected.
-6. Security and privacy analysis.
-7. Exact files allowed to change.
-8. Milestones in dependency order.
-9. Verification commands and expected observable behavior.
-10. Failure, blocked, and inconclusive conditions.
-11. Rollback and cleanup.
-12. Decision log.
-13. Progress log with timestamps and actual evidence.
+## Scope
 
-Rules:
+### Allowed paths
 
-- Keep the plan current while implementing.
-- Never mark a milestone complete merely because code exists.
-- Record actual command-output summaries and link durable evidence.
-- If evidence contradicts the design, update the plan before continuing.
-- Prefer a smaller working vertical slice over broad scaffolding.
-- Continue through approved milestones without asking for routine next steps.
-- Stop only when acceptance criteria pass or a documented hard blocker makes the phase
-  blocked or inconclusive.
-- Keep task-specific evidence in `harness/context/<phase>.md`; do not turn the plan into a
-  second build log.
+- ...
 
-See `plans/README.md` for naming and lifecycle conventions.
+### Explicitly excluded
+
+- ...
+
+## Inputs supplied by the user
+
+- target repository/path:
+- issue snapshot:
+- pre-fix revision:
+- post-fix revision:
+- start command:
+- reset command:
+- operating system / runtime:
+
+## Baseline
+
+Record exact commands and results before changes.
+
+## Milestones
+
+For each milestone include:
+
+- output;
+- implementation steps;
+- verification command;
+- expected result;
+- rollback or stop condition.
+
+## Decisions
+
+Record non-obvious choices, alternatives, and why the selected choice is reversible.
+
+## Evidence
+
+- command output;
+- test reports;
+- generated files;
+- replay summaries;
+- remaining limitations.
+
+## Completion gate
+
+Define exact pass/fail/inconclusive criteria. Do not substitute documentation volume for product evidence.

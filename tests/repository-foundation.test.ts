@@ -40,9 +40,19 @@ test("the supported runtime and toolchain are pinned", async () => {
 
 test("the required verification entry points remain available", async () => {
   const manifest = await readPackageManifest();
-  const requiredScripts = ["format:check", "lint", "typecheck", "test", "package:smoke"];
+  const requiredScripts = [
+    "format:check",
+    "lint",
+    "typecheck",
+    "test:unit",
+    "test:browser",
+    "test",
+    "package:smoke",
+  ];
 
   for (const scriptName of requiredScripts) {
     assert.equal(typeof manifest.scripts[scriptName], "string", `missing script: ${scriptName}`);
   }
+
+  assert.equal(manifest.devDependencies["@playwright/test"], "1.62.1");
 });

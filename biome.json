@@ -23,5 +23,13 @@
       "semicolons": "always",
       "trailingCommas": "all"
     }
-  }
+  },
+  "overrides": [
+    {
+      "includes": ["spikes/local-functional-regression/**/*.json"],
+      "formatter": {
+        "enabled": false
+      }
+    }
+  ]
 }
