@@ -290,8 +290,10 @@ acceptance condition and does not open production implementation.
 
 ## Current decision and open assumptions
 
-Foundation and architecture are `CONDITIONAL GO` when their executable checks pass. Product `GO`
-is blocked on the user-supplied local Spike. Remaining assumptions include availability of a
-resettable real target, a reviewable business oracle, trusted local start/reset commands, and
-platform-specific process cleanup evidence. The checked-in CI configuration is reviewable, but a
-remote GitHub-hosted run remains unobserved in this local phase.
+Foundation and architecture remain `CONDITIONAL GO`. As of 2026-09-04 the supplied Safe Unfollow
+#163 case has repeated 20/20 pre-fix failure and post-fix success, including a separate recovery
+revalidation and Windows cancellation/cleanup checks. The honest manual baseline reaches the same
+differential, so the case remains `SPIKE_CONDITIONAL` and product GO is not granted. A less-structured
+user-supplied case and explicit effort/maintenance-value decision are required before broader
+implementation. See the phase 02 context for the exact local runtime matrix and source PR/CI
+status. Other-platform process-tree behavior is not established by the Windows result.

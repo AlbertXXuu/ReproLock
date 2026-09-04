@@ -19,7 +19,9 @@
     "test:browser": "playwright test",
     "test": "pnpm test:unit && pnpm test:browser",
     "package:smoke": "node scripts/package-smoke.mjs",
-    "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test"
+    "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm typecheck:standalone && pnpm test && pnpm evidence:verify",
+    "typecheck:standalone": "tsc --project spikes/local-functional-regression/generated/tsconfig.json --noEmit && tsc --project spikes/local-functional-regression/baseline/tsconfig.json --noEmit",
+    "evidence:verify": "node spikes/local-functional-regression/tools/evidence-cli.ts verify --bundle-root spikes/local-functional-regression"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.11",

@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { spawn } from "node:child_process";
+import { execFileSync, spawn } from "node:child_process";
 import { mkdtemp, readdir, rm, stat } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
@@ -23,7 +23,42 @@ try {
   assert.ok(archiveStats.isFile(), "the packed artifact must be a file");
   assert.ok(archiveStats.size > 0, "the packed artifact must not be empty");
 
-  console.log(`package smoke passed (${archiveStats.size} bytes)`);
+  const entries = execFileSync("tar", ["-tzf", archivePath], {
+    encoding: "utf8",
+    timeout: 10_000,
+    maxBuffer: 1_048_576,
+  })
+    .trim()
+    .split(/\r?\n/u);
+  assert.ok(entries.includes("package/package.json"));
+  assert.ok(entries.includes("package/src/domain/verdict.ts"));
+  assert.ok(
+    entries.includes(
+      "package/spikes/local-functional-regression/generated/safe-unfollow-163.spec.ts",
+    ),
+  );
+  for (const path of entries) {
+    assert.ok(
+      path.startsWith("package/") && !path.split("/").includes(".."),
+      "archive paths must be relative",
+    );
+    assert.ok(
+      !/(?:^|\/)(?:node_modules|output|targets|\.git|\.env)(?:\/|$|\.)/u.test(path),
+      "archive must exclude local state",
+    );
+  }
+  const packed = JSON.parse(
+    execFileSync("tar", ["-xOf", archivePath, "package/package.json"], {
+      encoding: "utf8",
+      timeout: 10_000,
+      maxBuffer: 1_048_576,
+    }),
+  );
+  assert.equal(packed.private, true);
+  assert.equal(packed.version, "0.0.0");
+  console.log(
+    `archive content smoke passed (${entries.length} files, ${archiveStats.size} bytes); installability/publication not claimed`,
+  );
 } finally {
   await rm(temporaryDirectory, { force: true, recursive: true });
 }
@@ -36,6 +71,7 @@ async function runPnpm(arguments_) {
       shell: false,
       stdio: ["ignore", "pipe", "pipe"],
       windowsHide: true,
+      timeout: 60_000,
     });
 
     let stdout = "";
@@ -44,9 +80,19 @@ async function runPnpm(arguments_) {
     child.stdout.setEncoding("utf8");
     child.stderr.setEncoding("utf8");
     child.stdout.on("data", (chunk) => {
+      if (stdout.length + chunk.length > 1_048_576) {
+        child.kill();
+        reject(new Error("pack output limit exceeded"));
+        return;
+      }
       stdout += chunk;
     });
     child.stderr.on("data", (chunk) => {
+      if (stderr.length + chunk.length > 1_048_576) {
+        child.kill();
+        reject(new Error("pack output limit exceeded"));
+        return;
+      }
       stderr += chunk;
     });
     child.once("error", reject);

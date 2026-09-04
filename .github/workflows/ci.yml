@@ -43,6 +43,10 @@ jobs:
         run: pnpm lint
       - name: Typecheck
         run: pnpm typecheck
+      - name: Typecheck standalone Playwright output
+        run: pnpm typecheck:standalone
+      - name: Verify the checked-in evidence bundle
+        run: pnpm evidence:verify
       - name: Test
         run: pnpm test
       - name: Smoke-test the package archive
