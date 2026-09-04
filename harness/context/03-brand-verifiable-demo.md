@@ -183,3 +183,31 @@ Ten current computed header properties match the preserved accepted Studio refer
 CSS is unchanged. Exact PR/main integration receipts are retained in
 `.workspace/audits/reprolock-english-demo-20260904/` in the parent AlvenX workspace and the PR,
 so recording the final merge does not change the tested source tree.
+
+## AlvenX header activation follow-up — 2026-09-04
+
+English PR #4 merged as `5b16d22`; both its PR and main Node 22/24 CI jobs passed and the
+fixed D checkout was clean before the owner added uniform logo activation through the brand
+coordinating task. Branch `codex/alvenx-header-home` implements that scoped request with one writer.
+Baseline `pnpm brand:verify` and `pnpm test:browser` passed (4/4) before editing.
+
+The native `AlvenX — Back to top` button wraps the unchanged wordmark. Its click handler returns
+immediately at scrollY zero, otherwise scrolls the current document to top zero while preserving
+scrollX; reduced motion uses `instant`, otherwise `smooth`. No navigation or execution state is
+changed. The exact approved canonical CSS now includes the button reset and visible focus rules;
+its SHA-256 is `b4bc3051213c2d9a1a37af80233d0b4978941d73c5945f6a792b84271e1d5c0c`.
+Provenance records independent home-navigation revision `2026-09-04.1`.
+
+Actual `pnpm check` passed 80/80 unit/process and 4/4 browser tests. Existing browser coverage now
+checks pointer, Enter and Space under normal and reduced motion, true document top, activation
+at the top, and preservation of the selected saved result, export, expanded source, URL/hash,
+history and document lifetime. The three widths retain the canonical geometry and 160px wordmark;
+the button has visible keyboard focus. All historical and recorded evidence verifiers passed.
+`pnpm package:smoke` passed (108 files / 370,413 bytes before this receipt update).
+Shared brand validation passed 22 assets, five README headers and five header-navigation contracts;
+workspace validation passed five independent repositories. Independent read-only review passed.
+
+The independent source export and exact PR/main CI integration receipts are recorded after the
+source commit in `.workspace/audits/reprolock-header-home-20260904/` in the parent workspace and
+the PR. This follow-up preserves all raw experiments and screenshots and does not repeat or
+reclassify the historical 20+20 experiment. Product stage remains `SPIKE_CONDITIONAL`.

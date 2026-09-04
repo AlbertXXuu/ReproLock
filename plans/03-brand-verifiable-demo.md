@@ -105,3 +105,18 @@ merge receipts are retained in the PR and local audit without changing the teste
 - [x] English copy, documentation and current screenshot.
 - [x] Browser/resource/layout, independent-export and configured engineering checks.
 - [x] Independent review; exact-head PR/merge receipts close integration in the PR/local audit.
+
+## AlvenX header activation — 2026-09-04
+
+After English PR #4 merged as `5b16d22`, the owner requested the same header-logo activation
+across all AlvenX interfaces through the coordinating brand task. ReproLock remains under one
+writer in the fixed D checkout, branch `codex/alvenx-header-home`. Baseline `pnpm brand:verify`
+and `pnpm test:browser` passed (4/4) before editing.
+
+Use the canonical native `data-alvenx-home` button and shared CSS revision 2026-09-04.1.
+Activation returns the document to its true top, does nothing at the top, respects reduced
+motion and preserves the URL/history, current view, results and running work. Keep the existing
+160px wordmark and header geometry. Update the existing browser coverage for pointer/keyboard
+activation and retained state, verify the canonical assets and independent export, then review,
+submit, follow both Node CI jobs, merge and synchronize D main. Preserve the English delivery
+and all historical evidence; this changes interface behavior only.

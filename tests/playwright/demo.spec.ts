@@ -33,6 +33,9 @@ test("Demo loads standalone brand resources and preserves canonical responsive h
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto(demo.address);
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  const home = page.getByRole("button", { name: "AlvenX — Back to top", exact: true });
+  await expect(home).toHaveAttribute("type", "button");
+  await expect(home).toHaveAttribute("data-alvenx-home", "");
   await expect(page.locator("#history-verification")).toContainText("frozen inputs verified");
   for (const width of [390, 900, 1440]) {
     await page.setViewportSize({ width, height: 1000 });
@@ -70,6 +73,8 @@ test("Demo loads standalone brand resources and preserves canonical responsive h
   expect(
     await page.locator("#start").evaluate((element) => getComputedStyle(element).outlineStyle),
   ).toBe("solid");
+  await home.focus();
+  expect(await home.evaluate((element) => getComputedStyle(element).outlineStyle)).toBe("solid");
   await page.emulateMedia({ reducedMotion: "reduce" });
   expect(await page.evaluate(() => getComputedStyle(document.documentElement).scrollBehavior)).toBe(
     "auto",
@@ -85,7 +90,7 @@ test("Demo loads standalone brand resources and preserves canonical responsive h
   expect(errors).toEqual([]);
 });
 
-test("startup failure has zero current observations and can be reopened without reloading", async ({
+test("saved startup failure survives header home activation without navigation or reloading", async ({
   page,
 }) => {
   await page.goto(demo.address);
@@ -100,6 +105,39 @@ test("startup failure has zero current observations and can be reopened without 
   await expect(page.locator("#timing")).toContainText("Not re-executed");
   const exported = await page.request.get(`${demo.address}/api/export/${id}`);
   expect((await exported.json()).schemaVersion).toBe(1);
+
+  await page.getByRole("link", { name: "ReproLock", exact: true }).click();
+  await page.getByText("Inspect the frozen test", { exact: true }).click();
+  const retainedState = () =>
+    page.evaluate(() => ({
+      url: location.href,
+      historyLength: history.length,
+      historyState: history.state,
+      documentStarted: performance.timeOrigin,
+      run: document.querySelector(".run-panel")?.textContent,
+      export: document.querySelector("#export")?.getAttribute("href"),
+      sourceOpen: document.querySelector(".source-detail")?.hasAttribute("open"),
+    }));
+  const before = await retainedState();
+  expect(before.url).toContain("#main");
+  expect(before.sourceOpen).toBe(true);
+  const home = page.getByRole("button", { name: "AlvenX — Back to top", exact: true });
+  for (const reducedMotion of ["no-preference", "reduce"] as const) {
+    await page.emulateMedia({ reducedMotion });
+    for (const activation of ["click", "Enter", "Space"]) {
+      await page.evaluate(() =>
+        window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "instant" }),
+      );
+      await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
+      if (activation === "click") await home.click();
+      else await home.press(activation);
+      await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
+      expect(await retainedState()).toEqual(before);
+    }
+    await home.click();
+    expect(await page.evaluate(() => window.scrollY)).toBe(0);
+    expect(await retainedState()).toEqual(before);
+  }
 });
 
 test("concurrent controls admit exactly one configured run and reject foreign control requests", async ({

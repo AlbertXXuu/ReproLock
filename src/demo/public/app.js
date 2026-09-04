@@ -25,6 +25,15 @@ const results = {
   "browser-runtime-error": "Browser runtime error",
 };
 
+document.querySelector("[data-alvenx-home]").addEventListener("click", () => {
+  if (window.scrollY === 0) return;
+  window.scrollTo({
+    top: 0,
+    left: window.scrollX,
+    behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth",
+  });
+});
+
 async function control(action) {
   const response = await fetch(`/api/${action}`, {
     method: "POST",
