@@ -98,6 +98,11 @@ Run `pnpm brand:verify` (included in `pnpm check`/CI). In the AlvenX workspace a
 Visual changes require actual 390/900/1440px browser and resource-loading checks, comparison of
 computed header geometry to an accepted Studio, and independent checkout verification.
 
+The AlvenX wordmark is a native `data-alvenx-home` button with an accessible Back to top name.
+Apply home-navigation revision 2026-09-04.1 from the shared interface contract: true document top,
+no action when already at the top, preserved URL/history and product state, native keyboard
+activation, visible focus and immediate scrolling under reduced motion.
+
 ## Testing standards
 
 Use the layers needed by the phase:

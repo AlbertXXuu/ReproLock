@@ -17,7 +17,7 @@
     {
       "path": "docs/assets/alvenx-ui.css",
       "source": "foundation/brand/interface/alvenx-ui.css",
-      "sha256": "7b94510cfa9fe9eebe452481f967a9482809c5158a326842971e1d457f86daf6"
+      "sha256": "b4bc3051213c2d9a1a37af80233d0b4978941d73c5945f6a792b84271e1d5c0c"
     },
     {
       "path": "docs/assets/InstrumentSans-wdth-wght.woff2",
@@ -30,5 +30,6 @@
       "sha256": "bc29b497c4e8316b2d248322a9cea670c2f0afc24ae0eb7bbaa54e02e00eebab"
     }
   ],
-  "wordmarkAlignmentRevision": "2026-09-04.1"
+  "wordmarkAlignmentRevision": "2026-09-04.1",
+  "homeNavigationRevision": "2026-09-04.1"
 }

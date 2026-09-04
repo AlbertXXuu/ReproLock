@@ -115,6 +115,25 @@
   height: auto;
 }
 
+/* Header home-navigation revision: 2026-09-04.1 */
+.ax-product-header [data-alvenx-home] {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  width: var(--ax-product-header-wordmark-width);
+  min-height: var(--ax-control-height);
+  padding: 0;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.ax-product-header [data-alvenx-home]:focus-visible {
+  outline: 3px solid rgb(37 99 235 / 45%);
+  outline-offset: 4px;
+}
+
 .ax-metric-frame {
   border: 1px solid var(--ax-rule);
 }

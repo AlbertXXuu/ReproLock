@@ -10,6 +10,7 @@ export async function verifyBrand(root) {
   assert.equal(provenance.schemaVersion, 1);
   assert.equal(provenance.brandRevision, "2026-08-24.1");
   assert.equal(provenance.interfaceRevision, "2026-08-25.2");
+  assert.equal(provenance.homeNavigationRevision, "2026-09-04.1");
   const names = [
     "alvenx-wordmark.svg",
     "alvenx-monogram.svg",
@@ -43,6 +44,7 @@ export async function verifyBrand(root) {
     readmes: readmes.length,
     brandRevision: provenance.brandRevision,
     interfaceRevision: provenance.interfaceRevision,
+    homeNavigationRevision: provenance.homeNavigationRevision,
   };
 }
 
