@@ -89,7 +89,8 @@ Before visual implementation, read the canonical AlvenX parent `AGENTS.md`,
 `foundation/brand/brand-tokens.json`, `assets/README.md`, `interface/alvenx-ui.css`,
 `interface/README.md` and `INTERFACE_DESIGN_SYSTEM.md`. The shared master is the design source;
 use exact committed copies for standalone runtime and CI. README: centered 320px subtitle-free
-wordmark before H1. UI: canonical `.ax-product-header` with 160px wordmark, approved Instrument
+wordmark, then `<br>` and `<sub>FUNCTIONAL REGRESSION EVIDENCE</sub>` before H1.
+UI: canonical `.ax-product-header` with 160px wordmark, approved Instrument
 Sans/fallbacks, static canvas, glass controls, focus and reduced-motion behavior.
 
 Run `pnpm brand:verify` (included in `pnpm check`/CI). In the AlvenX workspace also run

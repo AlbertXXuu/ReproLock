@@ -33,8 +33,8 @@ export async function verifyBrand(root) {
     const source = await readFile(join(root, name), "utf8");
     assert.match(
       source,
-      /^<p align="center">\s*<img src="docs\/assets\/alvenx-wordmark\.svg" width="320" alt="AlvenX"\s*\/?>(?:\s*)<\/p>\s*# ReproLock\b/u,
-      `${name}: centered 320px canonical wordmark must precede the title`,
+      /^<p align="center">\s*<img src="docs\/assets\/alvenx-wordmark\.svg" width="320" alt="AlvenX"\s*\/?>\s*<br\s*\/?>\s*<sub>FUNCTIONAL REGRESSION EVIDENCE<\/sub>\s*<\/p>\s*# ReproLock\b/u,
+      `${name}: centered 320px canonical wordmark and separate signal must precede the title`,
     );
   }
   return {

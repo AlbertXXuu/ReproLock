@@ -118,3 +118,26 @@ gates; their exact remote receipts will be retained in the local audit and PR. H
 experimental results have not been relabeled as current execution.
 Product decision remains **SPIKE_CONDITIONAL**: one unusually detailed case, equivalent manual
 baseline, no measured effort/maintenance advantage, no general issue-to-test flow, no public release.
+
+## README signal alignment — 2026-09-04
+
+The owner requested the same pure 320px AlvenX wordmark across project READMEs with a separate
+small signal. ReproLock now places `<br>` and `<sub>FUNCTIONAL REGRESSION EVIDENCE</sub>` below
+the existing SVG, before the unchanged H1 and body. The standalone brand assertion and active
+brand instructions use this format. The historical registration patch remains unchanged; the
+current AlvenX parent contract owns later shared changes.
+
+Checks on this bounded update:
+
+- `node scripts/verify-brand.mjs`: PASS, five controlled assets and one README.
+- `node_modules/.bin/biome.cmd format scripts/verify-brand.mjs`: PASS, one file, no fixes.
+- `node_modules/.bin/biome.cmd lint scripts/verify-brand.mjs`: PASS, one file, no fixes.
+- `git diff --check`: PASS.
+- Independent source comparison: exact requested header; README body unchanged from HEAD;
+  SVG byte-identical to the canonical master, SHA-256
+  `8ae10e02c27091e29e0191a7934506118f144aae11898b20222d7f9d587e2662`;
+  no diff in `docs/brand-registration.patch`.
+
+The coordinating task verifies the parent brand/workspace contract and shared README rendering.
+This update does not rerun the real target or change Demo UI/logic, versions, frozen evidence,
+dependencies or Git references. GitHub rendering is not revalidated by these local source checks.

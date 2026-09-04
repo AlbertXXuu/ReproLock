@@ -69,3 +69,16 @@ preserve the failure record. Do not silently repair or terminate another task's 
 
 Actual commands, observations, screenshots and limits belong in
 `harness/context/03-brand-verifiable-demo.md`. Product GO is not a source-merge condition.
+
+## README signal alignment — 2026-09-04
+
+Owner request: every project README uses the same pure AlvenX wordmark followed by a separate
+small signal line. ReproLock's signal is `FUNCTIONAL REGRESSION EVIDENCE`. The existing SVG
+already matches the canonical master. Change only the README header and its brand instructions,
+standalone assertion and registration reference; preserve the title, research state and Demo.
+
+Baseline: clean working tree; `node scripts/verify-brand.mjs` passed for five assets and one
+README; the local and canonical SVG SHA-256 values both begin `8ae10e02c27091e29`.
+Acceptance: exact requested header, byte-identical README body/SVG, standalone brand validation,
+targeted script format/lint and diff checks. Parent brand/workspace verification is owned by the
+coordinating task. No real target replay, dependency/version change, commit or push is required.
