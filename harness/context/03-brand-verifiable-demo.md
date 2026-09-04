@@ -111,11 +111,13 @@ The recorded-run CI gate explicitly requires the three expected final statuses a
 differential only for the complete run. A valid cancelled/partial export cannot silently replace
 the checked-in complete demonstration.
 
-## Remaining handoff gates and limits
+## Original delivery integration and limits
 
-Final GitHub README rendering, PR CI and merge/main synchronization are the remaining integration
-gates; their exact remote receipts will be retained in the local audit and PR. Historical
-experimental results have not been relabeled as current execution.
+Original delivery completed in [PR #3](https://github.com/AlbertXXuu/ReproLock/pull/3), main
+`a83195f22f01aedfd3595b1890a39c5d14dac66b`. [PR CI](https://github.com/AlbertXXuu/ReproLock/actions/runs/33884213031)
+and [main CI](https://github.com/AlbertXXuu/ReproLock/actions/runs/33885702203) passed both Node jobs.
+The local integration receipt records the actual GitHub rendering and clean D-main synchronization.
+Historical experimental results have not been relabeled as current execution.
 Product decision remains **SPIKE_CONDITIONAL**: one unusually detailed case, equivalent manual
 baseline, no measured effort/maintenance advantage, no general issue-to-test flow, no public release.
 
@@ -141,3 +143,38 @@ Checks on this bounded update:
 The coordinating task verifies the parent brand/workspace contract and shared README rendering.
 This update does not rerun the real target or change Demo UI/logic, versions, frozen evidence,
 dependencies or Git references. GitHub rendering is not revalidated by these local source checks.
+
+## English interface alignment — 2026-09-04
+
+The owner requested English throughout the Demo, consistent with the other AlvenX products.
+The cross-project brand task explicitly transferred its six finished files and stopped writing
+ReproLock; the preserved changes became `28c17d3`. Its subsequent owner-approved centered
+wordmark became `273d75f`. The wordmark changes only its master translation; the shared header
+geometry and product CSS remain unchanged.
+
+Changed static copy, `lang="en"`, accessible labels, dynamic statuses/errors, matching setup
+instructions and the current README screenshot. No language selector, new dependency or execution
+logic was introduced. `Execution finished`, `Inconclusive` and `Unconfirmed` preserve the original
+meaning; saved results explicitly say `Not re-executed`.
+
+Actual baseline: `pnpm brand:verify` and `pnpm test:browser` passed (4/4). After translation:
+`pnpm check` passed 80/80 unit/process tests and 4/4 browser tests, historical evidence and all three
+recorded Demo checks. The first full check found two formatter wraps; the scoped formatter fixed
+those, then the complete check passed. Both logs are retained. Shared `validate_brand.py` passed
+22 resources / 5 unified README headers; `validate_workspace.py` passed five independent repos.
+
+Manual browser inspection confirmed actual English content at 390/900/1440px, no Han characters
+in the rendered owned UI, no horizontal overflow and the canonical header/font. Reopened actual
+complete, cancelled (8/8), timed-out (3 starts / 2 completed) and startup-failed (0/0) records;
+all are explicitly saved results. Partial states retain an unconfirmed differential. No new
+20+20 experiment was needed because the runner and evidence sources are unchanged.
+
+Current screenshots and observed checks: `output/playwright/english-demo-20260904/`.
+`docs/demo-evidence/demo-1440.png` shows saved run `20260904T134401616Z-abed6b50` in the current
+English UI. The earlier Chinese screenshot remains in Git history and its original local output.
+Of 250 protected files, 247 are byte-identical; only the newly approved wordmark, its provenance
+and this current screenshot changed. Frozen tests, raw reports, exports and runner code remain exact.
+
+Independent read-only review found no remaining blocker. Independent export/archive checks and
+the exact PR/main integration receipts are completed during handoff and retained in
+`.workspace/audits/reprolock-english-demo-20260904/` in the parent AlvenX workspace and the PR.

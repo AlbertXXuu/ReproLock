@@ -65,7 +65,7 @@ preserve the failure record. Do not silently repair or terminate another task's 
 - [x] Brand commit `0ed04d9`, independent asset validation and parent checks.
 - [x] Runnable Demo, meaningful regression tests and current evidence verification.
 - [x] Real differential, lifecycle tests, standalone install and browser acceptance.
-- [ ] Review, PR/CI/merge, D main sync and exact delivery record.
+- [x] Review, PR #3/CI/merge, D main sync and exact delivery record (main `a83195f`).
 
 Actual commands, observations, screenshots and limits belong in
 `harness/context/03-brand-verifiable-demo.md`. Product GO is not a source-merge condition.
@@ -82,3 +82,26 @@ README; the local and canonical SVG SHA-256 values both begin `8ae10e02c27091e29
 Acceptance: exact requested header, byte-identical README body/SVG, standalone brand validation,
 targeted script format/lint and diff checks. Parent brand/workspace verification is owned by the
 coordinating task. No real target replay, dependency/version change, commit or push is required.
+
+## English Demo alignment — 2026-09-04
+
+The owner requested an English Demo consistent with the other AlvenX products. This includes
+static copy, dynamic statuses and errors, accessible labels, document language, matching setup
+instructions and a current README screenshot. Use English only; no language switch or new dependency.
+Keep the existing brand geometry, runner behavior, classifications, frozen sources and all original
+experiment evidence unchanged. A new screenshot may display a saved run only if it says so explicitly.
+
+Baseline: main `a83195f`; `pnpm brand:verify` and `pnpm test:browser` passed (4/4). The parallel
+brand task explicitly transferred its six completed changes and stopped writing this repository;
+those changes were backed up and committed separately as `28c17d3` before Demo editing.
+
+One writer in the fixed D checkout, branch `codex/english-demo`. Translate the existing public
+files and affected assertions/docs, inspect actual 390/900/1440px layout and all retained terminal
+states, run the configured checks, verify an independent export and review the focused diff.
+After required CI passes, merge under the existing authorization and synchronize D main. Remote
+merge receipts are retained in the PR and local audit without changing the tested source tree.
+
+- [x] Inspect baseline, preserve incoming changes and obtain exclusive ownership.
+- [x] English copy, documentation and current screenshot.
+- [ ] Browser/resource/layout, independent-export and configured engineering checks.
+- [ ] Independent review and PR integration receipt.
