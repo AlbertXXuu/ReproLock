@@ -15,6 +15,7 @@ test-results/
 .env.*
 !.env.example
 *.log
+demo.local.json
 
 # Editors and operating systems
 .idea/

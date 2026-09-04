@@ -1,0 +1,7 @@
+{
+  "targets": {
+    "pre-fix": "./targets/safe-unfollow-163/pre-fix",
+    "post-fix": "./targets/safe-unfollow-163/post-fix"
+  },
+  "timeoutMs": 1200000
+}

@@ -32,6 +32,17 @@ try {
     .split(/\r?\n/u);
   assert.ok(entries.includes("package/package.json"));
   assert.ok(entries.includes("package/src/domain/verdict.ts"));
+  for (const path of [
+    "src/demo/server.ts",
+    "src/demo/public/index.html",
+    "src/demo/public/app.js",
+    "src/demo/public/app.css",
+    "docs/assets/alvenx-wordmark.svg",
+    "docs/assets/alvenx-ui.css",
+    "docs/assets/InstrumentSans-wdth-wght.woff2",
+    "docs/assets/InstrumentSans-OFL.txt",
+  ])
+    assert.ok(entries.includes(`package/${path}`), `standalone Demo archive must contain ${path}`);
   assert.ok(
     entries.includes(
       "package/spikes/local-functional-regression/generated/safe-unfollow-163.spec.ts",

@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "brandRevision": "2026-08-24.1",
+  "interfaceRevision": "2026-08-25.2",
+  "source": "AlvenX/foundation/brand; approved canonical values, no product-local redesign",
+  "assets": [
+    {
+      "path": "docs/assets/alvenx-wordmark.svg",
+      "source": "foundation/brand/assets/alvenx-wordmark.svg",
+      "sha256": "8ae10e02c27091e29e0191a7934506118f144aae11898b20222d7f9d587e2662"
+    },
+    {
+      "path": "docs/assets/alvenx-monogram.svg",
+      "source": "foundation/brand/assets/alvenx-monogram.svg",
+      "sha256": "45367ec933c2ed8565cdf9e683fd4b856057d375435b46c62acb4fbb2cbeef16"
+    },
+    {
+      "path": "docs/assets/alvenx-ui.css",
+      "source": "foundation/brand/interface/alvenx-ui.css",
+      "sha256": "7b94510cfa9fe9eebe452481f967a9482809c5158a326842971e1d457f86daf6"
+    },
+    {
+      "path": "docs/assets/InstrumentSans-wdth-wght.woff2",
+      "source": "projects/BrowserAgentRegression/src/browser_agent_regression/assets/fonts/InstrumentSans-wdth-wght.woff2",
+      "sha256": "aa72922aafcc0dc18f36ec1d805b0212057dabe8b9d5b8b57f67035aea1b826d"
+    },
+    {
+      "path": "docs/assets/InstrumentSans-OFL.txt",
+      "source": "projects/BrowserAgentRegression/src/browser_agent_regression/assets/fonts/InstrumentSans-OFL.txt",
+      "sha256": "bc29b497c4e8316b2d248322a9cea670c2f0afc24ae0eb7bbaa54e02e00eebab"
+    }
+  ]
+}

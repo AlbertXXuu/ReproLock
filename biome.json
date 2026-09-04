@@ -26,6 +26,15 @@
   },
   "overrides": [
     {
+      "includes": ["docs/demo-evidence/**/*.json"],
+      "formatter": { "enabled": false }
+    },
+    {
+      "includes": ["docs/assets/alvenx-ui.css"],
+      "formatter": { "enabled": false },
+      "linter": { "enabled": false }
+    },
+    {
       "includes": ["spikes/local-functional-regression/**/*.json"],
       "formatter": {
         "enabled": false

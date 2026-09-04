@@ -1,0 +1,32 @@
+{
+  "viewport": 1440,
+  "demo": {
+    "backdropFilter": "blur(18px) saturate(1.48)",
+    "backgroundColor": "rgba(255, 255, 255, 0.26)",
+    "border": "1px solid rgba(255, 255, 255, 0.68)",
+    "borderRadius": "26px",
+    "boxShadow": "rgba(255, 255, 255, 0.72) 0px 1px 0px 0px inset, rgba(79, 70, 229, 0.06) 0px -1px 0px 0px inset, rgba(71, 105, 148, 0.12) 0px 24px 72px 0px",
+    "gap": "28px",
+    "height": "74.4844px",
+    "minHeight": "70px",
+    "padding": "12px 18px 12px 22px",
+    "position": "fixed",
+    "top": "14px",
+    "width": "1281px"
+  },
+  "reference": {
+    "backdropFilter": "blur(18px) saturate(1.48)",
+    "backgroundColor": "rgba(255, 255, 255, 0.26)",
+    "border": "1px solid rgba(255, 255, 255, 0.68)",
+    "borderRadius": "26px",
+    "boxShadow": "rgba(255, 255, 255, 0.72) 0px 1px 0px 0px inset, rgba(79, 70, 229, 0.06) 0px -1px 0px 0px inset, rgba(71, 105, 148, 0.12) 0px 24px 72px 0px",
+    "gap": "28px",
+    "height": "74.4844px",
+    "minHeight": "70px",
+    "padding": "12px 18px 12px 22px",
+    "position": "fixed",
+    "top": "14px",
+    "width": "1281px"
+  },
+  "differences": []
+}

@@ -82,6 +82,21 @@ This repository is for local functional QA and regression engineering.
 - Stable output ordering is required.
 - Generated code must pass formatter, typecheck, and execution validation.
 
+## AlvenX brand acceptance
+
+Every README and UI is governed by `docs/brand.md` and `docs/assets/provenance.json`.
+Before visual implementation, read the canonical AlvenX parent `AGENTS.md`,
+`foundation/brand/brand-tokens.json`, `assets/README.md`, `interface/alvenx-ui.css`,
+`interface/README.md` and `INTERFACE_DESIGN_SYSTEM.md`. The shared master is the design source;
+use exact committed copies for standalone runtime and CI. README: centered 320px subtitle-free
+wordmark before H1. UI: canonical `.ax-product-header` with 160px wordmark, approved Instrument
+Sans/fallbacks, static canvas, glass controls, focus and reduced-motion behavior.
+
+Run `pnpm brand:verify` (included in `pnpm check`/CI). In the AlvenX workspace also run
+`python foundation/brand/validate_brand.py` and `python operations/tools/validate_workspace.py`.
+Visual changes require actual 390/900/1440px browser and resource-loading checks, comparison of
+computed header geometry to an accepted Studio, and independent checkout verification.
+
 ## Testing standards
 
 Use the layers needed by the phase:
@@ -119,6 +134,7 @@ A task is done only when:
 - required checks actually ran and passed;
 - cleanup behavior was exercised;
 - generated artifacts were inspected;
+- applicable brand checks and real browser/resource acceptance passed;
 - limitations and unresolved risks are recorded;
 - the phase context contains exact commands and evidence paths;
 - no unrelated files changed.
