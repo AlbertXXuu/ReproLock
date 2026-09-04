@@ -40,6 +40,7 @@ try {
     "scripts/verify-drawdb-recording.mjs",
     "spikes/local-candidate-verification/drawdb-687/candidate.spec.ts",
     "spikes/local-candidate-verification/drawdb-687/playwright.config.ts",
+    "spikes/local-candidate-verification/drawdb-687/tsconfig.json",
     "spikes/local-candidate-verification/drawdb-687/REPORT.md",
     "spikes/local-candidate-verification/drawdb-687/evidence/comparison.json",
     "spikes/local-candidate-verification/drawdb-687/evidence/reprolock.json",

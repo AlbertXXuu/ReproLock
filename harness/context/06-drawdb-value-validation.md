@@ -11,9 +11,9 @@
 - Known limitation: official issue/PR prose and a code excerpt were read before freeze. The candidate
   is not strict blind-discovery or independent-human evidence.
 
-The local target worktrees are retained at
-`D:/.Development/AlvenX/.workspace/experiments/reprolock-drawdb-687-20260905/pre-target`
-and `post-target`. The experiment used only loopback and synthetic browser-local diagram data.
+The local target worktrees are retained at `<ignored-experiment-root>/pre-target` and
+`<ignored-experiment-root>/post-target`. Their machine-specific parent path remains only in local
+records. The experiment used only loopback and synthetic browser-local diagram data.
 
 ## Preparation evidence
 
