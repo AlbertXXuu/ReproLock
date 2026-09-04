@@ -295,3 +295,51 @@ The working tree was clean after the source commit. The D-drive main checkout re
 historical entry point until a separately reviewed integration; current work is on the task branch.
 No PR merge, package/Release publication, public-visibility change, website deployment, second target
 or production stage was performed. The remaining product decision is still SPIKE_CONDITIONAL.
+
+## Integration authorization and preservation — 2026-09-04
+
+The owner's follow-up authorizes PR merge only after review and successful CI, synchronization of
+the saved D-drive project to main, and audited worktree retirement. Sequential development in that
+checkout is now the default; an extra worktree requires an actual parallel need. This supersedes
+the former per-phase-worktree default and the previous delivery's no-merge stopping point. Product
+SPIKE_CONDITIONAL and the missing N003 scope/value inputs are unchanged.
+
+Observed before this documentation update:
+
+| Command/check | Actual result |
+| --- | --- |
+| git status --short --branch in C task checkout and D main | both clean; no pending source edits |
+| git rev-parse HEAD | task 3142ffe2850964faca7def2b0956b65ed2c8e5f9; main 18b83c0b2892c7d93caaa863f26fbc9c861ae4ac |
+| gh pr view 1 --json headRefOid,mergeStateStatus,mergeable,statusCheckRollup | exact task head; CLEAN/MERGEABLE; both Node jobs SUCCESS |
+| git worktree list --porcelain plus independent read-only audits | 8 checkouts; no other active ReproLock writer |
+| git diff --binary and git diff --cached --binary in C | both empty; original pre-recovery patches separately retained |
+| tar archive verification against per-file SHA-256 manifests | C: 196 files including all raw output; original recovery backups: 30 files; all match |
+| git bundle create <handoff-audit>/all-refs.bundle --all; git bundle verify <bundle> | complete refs/stash bundle verified |
+| git ls-files --others --ignored --exclude-standard -z in legacy checkouts | 27 non-cache local evidence files preserved; archive additionally contains 610 browser-cache files |
+
+Local-only archives and hash manifests are in the workspace audit directory
+`reprolock-main-handoff-20260904`. Machine paths and original raw reports are not committed.
+The earlier recovery directory remains intact. C checkout archive SHA-256:
+884e7cfbb2ab31da341e506d74f1416d55ada5074270a30002807caa9622ded7.
+Recovery backup archive SHA-256:
+28de85e758f28703cb91fe3b7a32a7c43fdeb76a4794ca90ec500cc6acf658d1.
+Legacy local evidence archive SHA-256:
+bb0ae5bcc4e2be501d195184cd83c0bc6aeb7b913e27eaaaae8c7384c38e3514.
+
+The five legacy checkouts selected for retirement are foundation-architecture-v2,
+product-architecture, ui-mutation, wave1-integration and webmcp-parity. Their commits remain
+reachable through the existing named branches; integration/wave1 retains its nine commits absent
+from the current task. Shared stash 37728ffac164b4084601b8ac844da0e7018b4eb6 remains unchanged.
+Retain issue-to-repro with its nested drawdb repository and local historical evidence, plus both
+Safe Unfollow target revision checkouts. The C task checkout can retire only after its source is
+merged, D main is synchronized/checked, and any new local output is preserved.
+
+The only source-branch changes in this follow-up are documentation. Its exact-head CI and actual
+post-merge synchronization/cleanup results will be recorded in the local handoff audit and final
+delivery report after they occur. Nothing here claims that a pending merge or cleanup has passed.
+
+Pre-commit verification of the five documentation files: independent read-only review found no
+required corrections; `pnpm check` exited 0 (28/28 unit, 1/1 browser, both standalone typechecks,
+zero evidence issues), `pnpm package:smoke` exited 0 (78 files, 105913 bytes before this entry),
+and `git diff --check` exited 0. Lint reported three informational template-style suggestions,
+with no warnings or errors. No executable source or evidence file changed.

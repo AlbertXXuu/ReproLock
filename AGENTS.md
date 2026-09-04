@@ -31,6 +31,9 @@ This repository is for local functional QA and regression engineering.
 ## Work protocol
 
 - Start with `git status --short --branch`.
+- Default to sequential work in the saved D-drive project checkout, using one task branch
+  and one writer at a time. Add an exclusive worktree only for a concrete parallel need;
+  follow `docs/foundation/branch-and-worktree-policy.md` for integration and cleanup.
 - Read only the files relevant to the assigned phase.
 - For multi-step work, create or update an ExecPlan under `plans/`.
 - Record baseline commands and their actual results before editing.

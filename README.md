@@ -24,6 +24,11 @@ The recovered source and current engineering checks are available in
 
 ## Development
 
+Use the saved D-drive ReproLock project as the fixed entry point. Work sequentially on a task
+branch in that checkout, then return it to the verified `main` after an authorized merge.
+Add a worktree only for a concrete parallel need. See the
+[ownership and cleanup policy](docs/foundation/branch-and-worktree-policy.md).
+
 Node.js 24.20.0 is the pinned primary runtime; 22.23.2 is the minimum. pnpm is pinned to 11.19.0.
 
 ```bash

@@ -1,16 +1,21 @@
 # Branch and Worktree Policy
 
-- **Status:** Current v2 collaboration policy
-- **Applies from:** 2026-09-01
+- **Status:** Current serial development policy
+- **Applies from:** 2026-09-04
 
-Each active implementation phase owns one named branch and one exclusive worktree. Worktrees have
-independent checkouts but share repository commits, refs, and stash metadata, so old refs and stash
-objects remain read-only unless a separate task explicitly owns them.
+The saved D-drive project checkout is the fixed development entry point. Work sequentially there
+by default: one task branch and one writer at a time. After an authorized PR merge, return this
+checkout to `main` and fast-forward it to the verified remote commit. Create an additional
+exclusive worktree only when a concrete parallel task needs a separate checkout.
+
+This owner instruction supersedes the former worktree-per-phase default. Worktrees share
+repository commits, refs, and stash metadata; old refs and stash objects remain read-only
+unless a separate task explicitly owns them. Source integration never grants product GO.
 
 ## Required start and finish
 
 1. Run `git status --short --branch` and `git rev-parse HEAD`.
-2. Confirm the expected base commit, assigned branch, exclusive worktree, and clean status.
+2. Confirm the expected base commit, assigned branch, exclusive ownership of the checkout, and clean status.
 3. Read current root instructions, charter, architecture baseline, plan, and predecessor handoff.
 4. Record a writable-path allowlist and exclusions.
 5. Run and record the pre-edit baseline.
@@ -48,6 +53,18 @@ An integration owner verifies immutable source commits, gate evidence, overlap r
 checks, and remaining conditions. Merging code never implies product `GO`, package publication, or
 release authorization. Historical branches are not merged wholesale; useful ideas are revalidated
 against current local scope and implemented only when a current caller needs them.
+
+## Worktree retirement
+
+Before retiring a checkout, confirm no task is writing there and inspect staged, unstaged,
+untracked and ignored files, nested repositories, unique commits, branch refs and shared stash.
+Archive local-only evidence and recovery patches outside the checkout and verify file hashes;
+preserve unique history through named refs and a verified Git bundle. Retain a checkout when
+its nested repository or local evidence still needs a separate disposition.
+
+Use `git worktree remove <audited-path>` or supported Codex management after these checks.
+Do not delete or copy over directories, use broad reset/clean commands, or remove history refs
+as part of checkout cleanup. A retired historical checkout is not a current product baseline.
 
 ## Handoff
 

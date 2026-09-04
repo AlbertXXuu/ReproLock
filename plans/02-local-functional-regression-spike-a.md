@@ -192,3 +192,30 @@ Exact commands, errors, local results, immutable source SHA and successful CI li
 The containing documentation commit is checked again through PR #1 before delivery. No executable
 source or evidence bytes changed in this follow-up. Product SPIKE_CONDITIONAL and N003 scope/value
 inputs remain unresolved; source submission does not open the next product gate.
+
+## Authorized integration and fixed entry point — 2026-09-04
+
+The owner subsequently authorized merging this task PR after review and all required CI, updating
+the D-drive main checkout, and retiring only audited redundant worktrees through Git/Codex.
+This overrides the earlier no-merge/legacy-checkout exclusions for this cleanup only. Historical
+refs, stash, target worktrees, original experiment bytes and product gates remain preserved.
+Additional documentation ownership covers AGENTS.md and docs/foundation/branch-and-worktree-policy.md.
+
+- [x] Confirm source head 3142ffe2850964faca7def2b0956b65ed2c8e5f9, clean C and D checkouts,
+      successful PR CI, and no other active ReproLock writer.
+- [x] Archive the complete C checkout except dependencies/Git metadata, all ignored run output,
+      original recovery backups, and all Git refs; verify archive hashes and Git bundle.
+- [x] Audit all six legacy checkouts and preserve their ignored evidence. Retain issue-to-repro
+      because its nested drawdb experiment repository requires separate disposition.
+- [x] Record sequential development in the saved D-drive checkout as the default policy.
+- [ ] Review this documentation change and wait for both CI jobs on its exact pushed head.
+- [ ] Merge PR #1 with an expected-head guard; fast-forward the clean D-drive main to the merge SHA.
+- [ ] Run the normal engineering checks in the D-drive checkout and confirm main CI.
+- [ ] Retire the five other audited legacy checkouts and the merged C task checkout with
+      git worktree remove; preserve branch refs/stash, and record final inventory locally.
+
+Stop on a changed PR head, unsuccessful required check, competing writer, local-only content not
+covered by the backups, or a non-fast-forward main. Preserve the checkout on cleanup failure.
+Rollback is a reviewed revert or recreation from the retained refs/bundle; never overwrite a
+checkout. Actual post-merge results and the final SHA belong to the local handoff audit and delivery
+report, avoiding a documentation commit that claims its own unobserved merge or CI result.
