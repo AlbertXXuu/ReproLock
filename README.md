@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/assets/alvenx-wordmark.svg" width="320" alt="AlvenX">
+</p>
+
 # ReproLock
 
 ReproLock investigates turning a user-supplied functional bug description or recorded browser

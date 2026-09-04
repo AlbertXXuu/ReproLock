@@ -1,0 +1,140 @@
+--- a/foundation/brand/brand-tokens.json
++++ b/foundation/brand/brand-tokens.json
+@@ -648,6 +648,21 @@
+     },
+     "projects/AlvenXWebsite/public/apple-touch-icon.png": {
+       "sha256": "d1934fe668342a387dfebe456204683a3c0f55dbe0b8be155b219254cab05727"
++    },
++    "projects/ReproLock/docs/assets/alvenx-wordmark.svg": {
++      "sha256": "8ae10e02c27091e29e0191a7934506118f144aae11898b20222d7f9d587e2662"
++    },
++    "projects/ReproLock/docs/assets/alvenx-monogram.svg": {
++      "sha256": "45367ec933c2ed8565cdf9e683fd4b856057d375435b46c62acb4fbb2cbeef16"
++    },
++    "projects/ReproLock/docs/assets/alvenx-ui.css": {
++      "sha256": "7b94510cfa9fe9eebe452481f967a9482809c5158a326842971e1d457f86daf6"
++    },
++    "projects/ReproLock/docs/assets/InstrumentSans-wdth-wght.woff2": {
++      "sha256": "aa72922aafcc0dc18f36ec1d805b0212057dabe8b9d5b8b57f67035aea1b826d"
++    },
++    "projects/ReproLock/docs/assets/InstrumentSans-OFL.txt": {
++      "sha256": "bc29b497c4e8316b2d248322a9cea670c2f0afc24ae0eb7bbaa54e02e00eebab"
+     }
+   }
+ }
+--- a/foundation/brand/BRAND_RELEASE_MANIFEST.json
++++ b/foundation/brand/BRAND_RELEASE_MANIFEST.json
+@@ -14,7 +14,7 @@
+   ],
+   "generator": {
+     "path": "foundation/brand/sources/production-assets/generate.py",
+-    "sha256": "75fbd7f2ec5dc823f7e53c9931747a00bb97edd1dd58d5ba65aa5096b2800197",
++    "sha256": "d7bf30fe841e14a8e31992c35939a23c7d3cc7837c96fa8a8a9e5e1fed3ed53e",
+     "renderer": "Playwright Chromium 151.0.7922.34",
+     "python": "3.11.0"
+   },
+@@ -206,6 +206,31 @@
+       "path": "projects/PhysGauge/src/physgauge/assets/brand/alvenx-monogram.svg",
+       "brand_revision": "2026-08-24.1",
+       "sha256": "45367ec933c2ed8565cdf9e683fd4b856057d375435b46c62acb4fbb2cbeef16"
++    },
++    {
++      "path": "projects/ReproLock/docs/assets/alvenx-wordmark.svg",
++      "brand_revision": "2026-08-24.1",
++      "sha256": "8ae10e02c27091e29e0191a7934506118f144aae11898b20222d7f9d587e2662"
++    },
++    {
++      "path": "projects/ReproLock/docs/assets/alvenx-monogram.svg",
++      "brand_revision": "2026-08-24.1",
++      "sha256": "45367ec933c2ed8565cdf9e683fd4b856057d375435b46c62acb4fbb2cbeef16"
++    },
++    {
++      "path": "projects/ReproLock/docs/assets/alvenx-ui.css",
++      "brand_revision": "2026-08-24.1",
++      "sha256": "7b94510cfa9fe9eebe452481f967a9482809c5158a326842971e1d457f86daf6"
++    },
++    {
++      "path": "projects/ReproLock/docs/assets/InstrumentSans-wdth-wght.woff2",
++      "brand_revision": "2026-08-24.1",
++      "sha256": "aa72922aafcc0dc18f36ec1d805b0212057dabe8b9d5b8b57f67035aea1b826d"
++    },
++    {
++      "path": "projects/ReproLock/docs/assets/InstrumentSans-OFL.txt",
++      "brand_revision": "2026-08-24.1",
++      "sha256": "bc29b497c4e8316b2d248322a9cea670c2f0afc24ae0eb7bbaa54e02e00eebab"
+     }
+   ],
+   "invariants": {
+--- a/foundation/brand/sources/production-assets/generate.py
++++ b/foundation/brand/sources/production-assets/generate.py
+@@ -221,6 +221,11 @@
+         asset_entry(WEBSITE_PUBLIC / "og.png", "website-open-graph", surface="light"),
+     ]
+     consumer_paths = [
++        ROOT / "projects/ReproLock/docs/assets/alvenx-wordmark.svg",
++        ROOT / "projects/ReproLock/docs/assets/alvenx-monogram.svg",
++        ROOT / "projects/ReproLock/docs/assets/alvenx-ui.css",
++        ROOT / "projects/ReproLock/docs/assets/InstrumentSans-wdth-wght.woff2",
++        ROOT / "projects/ReproLock/docs/assets/InstrumentSans-OFL.txt",
+         WEBSITE_PUBLIC / "alvenx-wordmark.svg",
+         WEBSITE_PUBLIC / "alvenx-monogram.svg",
+         ROOT / "projects" / "OpenMultimodalLab" / "docs" / "assets" / "alvenx-wordmark.svg",
+--- a/foundation/brand/validate_brand.py
++++ b/foundation/brand/validate_brand.py
+@@ -1030,6 +1030,42 @@
+         _require(source.casefold(), fragment.casefold(), "BRAND_FOUNDATION.md")
+ 
+ 
++def _validate_reprolock(tokens: dict[str, Any]) -> None:
++    """The subtitle-free consumer has the 330x100 master, not a legacy lockup."""
++    project = ROOT / "projects/ReproLock"
++    provenance = json.loads((project / "docs/assets/provenance.json").read_text(encoding="utf-8"))
++    if provenance.get("brandRevision") != tokens["brand_revision"] or provenance.get("interfaceRevision") != tokens["interface"]["revision"]:
++        raise SystemExit("ReproLock brand/interface revision drifted.")
++    expected_sources = {
++        "docs/assets/alvenx-wordmark.svg": "foundation/brand/assets/alvenx-wordmark.svg",
++        "docs/assets/alvenx-monogram.svg": "foundation/brand/assets/alvenx-monogram.svg",
++        "docs/assets/alvenx-ui.css": "foundation/brand/interface/alvenx-ui.css",
++        "docs/assets/InstrumentSans-wdth-wght.woff2": "projects/BrowserAgentRegression/src/browser_agent_regression/assets/fonts/InstrumentSans-wdth-wght.woff2",
++        "docs/assets/InstrumentSans-OFL.txt": "projects/BrowserAgentRegression/src/browser_agent_regression/assets/fonts/InstrumentSans-OFL.txt",
++    }
++    entries = provenance.get("assets", [])
++    if len(entries) != len(expected_sources) or {e.get("path"): e.get("source") for e in entries} != expected_sources:
++        raise SystemExit("ReproLock controlled resource inventory drifted.")
++    manifest = json.loads(RELEASE_MANIFEST_PATH.read_text(encoding="utf-8"))
++    consumers = {e["path"] for e in manifest["consumers"]}
++    for entry in entries:
++        relative = f'projects/ReproLock/{entry["path"]}'
++        data = (project / entry["path"]).read_bytes()
++        if data != (ROOT / entry["source"]).read_bytes() or _sha256(data) != entry["sha256"]:
++            raise SystemExit(f"ReproLock copy differs from its approved source: {relative}")
++        if relative not in tokens["assets"] or relative not in consumers:
++            raise SystemExit(f"ReproLock consumer is not registered: {relative}")
++    svg = ET.fromstring((project / "docs/assets/alvenx-wordmark.svg").read_bytes())
++    if svg.get("viewBox") != "0 0 330 100":
++        raise SystemExit("ReproLock must use the subtitle-free 330x100 wordmark.")
++    readmes = list(project.glob("README*.md"))
++    if not readmes:
++        raise SystemExit("ReproLock README is missing.")
++    for readme in readmes:
++        if not re.match(r'^<p align="center">\s*<img src="docs/assets/alvenx-wordmark\.svg" width="320" alt="AlvenX"\s*/?>\s*</p>\s*# ReproLock\b', readme.read_text(encoding="utf-8")):
++            raise SystemExit(f"ReproLock centered 320px README header drifted: {readme.name}")
++
++
+ def main() -> None:
+     tokens = _load_tokens()
+     _validate_interface(tokens)
+@@ -1040,11 +1076,12 @@
+     _validate_packaged_wordmark(tokens, public_svg)
+     _validate_social_preview(tokens)
+     _validate_documented_summary(tokens)
++    _validate_reprolock(tokens)
+     print(
+         "AlvenX brand validation passed: "
+         f"revision {tokens['brand_revision']}, "
+         f"{len(tokens['assets'])} hashed assets, 2 canonical masters, "
+-        "3 wordmark lockups."
++        "3 wordmark lockups, ReproLock subtitle-free wordmark and UI resources."
+     )
+ 
+ 

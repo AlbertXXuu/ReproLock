@@ -1,0 +1,128 @@
+/*
+ * AlvenX cross-product UI primitives
+ * Interface revision: 2026-08-25.2
+ *
+ * This is the canonical value contract. Products may map the --ax-* names to a
+ * framework-specific prefix, but values and component behavior must remain
+ * equivalent and are checked by foundation/brand/validate_brand.py.
+ */
+:root {
+  color-scheme: light;
+  --ax-font-sans: "Instrument Sans", "Microsoft YaHei UI", "PingFang SC", Arial, sans-serif;
+  --ax-canvas: #eef6ff;
+  --ax-ink-primary: #0b1731;
+  --ax-ink-reading: #334155;
+  --ax-ink-muted: #52647a;
+  --ax-blue: #2563eb;
+  --ax-indigo: #4f46e5;
+  --ax-violet: #7c3aed;
+  --ax-canvas-background:
+    radial-gradient(circle at 12% 5%, rgb(147 197 253 / 42%), transparent 34%),
+    radial-gradient(circle at 84% 7%, rgb(167 139 250 / 28%), transparent 36%),
+    radial-gradient(circle at 68% 88%, rgb(79 70 229 / 14%), transparent 38%),
+    linear-gradient(145deg, #fbfdff 0%, #f1f7ff 49%, #e7f1ff 100%);
+  --ax-glass-fill: rgb(255 255 255 / 28%);
+  --ax-glass-fill-hover: rgb(255 255 255 / 35%);
+  --ax-glass-edge: rgb(255 255 255 / 68%);
+  --ax-glass-highlight: rgb(255 255 255 / 72%);
+  --ax-rule: rgb(71 105 148 / 18%);
+  --ax-display-line-height: 1.02;
+  --ax-heading-line-height: 1.08;
+  --ax-body-line-height: 1.62;
+  --ax-control-height: 44px;
+  --ax-primary-action-height: 58px;
+  --ax-radius-field: 14px;
+  --ax-radius-card: 22px;
+  --ax-radius-shell: 26px;
+  --ax-radius-pill: 999px;
+  --ax-ease-fluid: cubic-bezier(0.22, 1, 0.36, 1);
+  --ax-sticky-offset: 112px;
+  --ax-product-header-top: 14px;
+  --ax-product-header-width: calc(min(100%, 1480px) - 2 * clamp(18px, 5vw, 74px));
+  --ax-product-header-min-height: 70px;
+  --ax-product-header-padding: 12px 18px 12px 22px;
+  --ax-product-header-gap: 28px;
+  --ax-product-header-z-index: 100;
+  --ax-product-header-wordmark-width: 160px;
+  --ax-product-header-fill: rgb(255 255 255 / 26%);
+  --ax-product-header-blur: 18px;
+  --ax-product-header-saturation: 148%;
+}
+
+.ax-canvas {
+  background: var(--ax-canvas-background);
+  background-attachment: fixed;
+}
+
+.ax-display {
+  overflow: visible;
+  font-family: var(--ax-font-sans);
+  line-height: var(--ax-display-line-height);
+}
+
+.ax-reading {
+  max-width: 72ch;
+  color: var(--ax-ink-reading);
+  line-height: var(--ax-body-line-height);
+}
+
+.ax-field {
+  min-height: var(--ax-control-height);
+  border: 1px solid var(--ax-rule);
+  border-radius: var(--ax-radius-field);
+  background: rgb(255 255 255 / 76%);
+  color: var(--ax-ink-primary);
+  font: 400 0.875rem/1.55 var(--ax-font-sans);
+}
+
+.ax-liquid-control {
+  min-height: var(--ax-primary-action-height);
+  border: 1px solid var(--ax-glass-edge);
+  border-radius: var(--ax-radius-pill);
+  background-color: var(--ax-glass-fill);
+  box-shadow: inset 0 1px 0 var(--ax-glass-highlight), 0 24px 72px rgb(71 105 148 / 14%);
+  backdrop-filter: blur(24px) saturate(148%);
+  -webkit-backdrop-filter: blur(24px) saturate(148%);
+}
+
+.ax-product-header {
+  position: fixed;
+  z-index: var(--ax-product-header-z-index);
+  top: var(--ax-product-header-top);
+  left: 50%;
+  display: flex;
+  box-sizing: border-box;
+  width: var(--ax-product-header-width);
+  min-height: var(--ax-product-header-min-height);
+  align-items: center;
+  gap: var(--ax-product-header-gap);
+  padding: var(--ax-product-header-padding);
+  border: 1px solid var(--ax-glass-edge);
+  border-radius: var(--ax-radius-shell);
+  background: var(--ax-product-header-fill);
+  box-shadow:
+    inset 0 1px 0 var(--ax-glass-highlight),
+    inset 0 -1px 0 rgb(79 70 229 / 6%),
+    0 24px 72px rgb(71 105 148 / 12%);
+  backdrop-filter: blur(var(--ax-product-header-blur)) saturate(var(--ax-product-header-saturation));
+  -webkit-backdrop-filter: blur(var(--ax-product-header-blur)) saturate(var(--ax-product-header-saturation));
+  transform: translateX(-50%);
+}
+
+.ax-product-header__wordmark {
+  display: block;
+  width: var(--ax-product-header-wordmark-width);
+  height: auto;
+}
+
+.ax-metric-frame {
+  border: 1px solid var(--ax-rule);
+}
+
+.ax-scroll-target {
+  scroll-margin-top: var(--ax-sticky-offset);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}

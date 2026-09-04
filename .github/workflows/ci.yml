@@ -41,6 +41,8 @@ jobs:
         run: pnpm format:check
       - name: Lint
         run: pnpm lint
+      - name: Verify standalone AlvenX resources and README
+        run: pnpm brand:verify
       - name: Typecheck
         run: pnpm typecheck
       - name: Typecheck standalone Playwright output
