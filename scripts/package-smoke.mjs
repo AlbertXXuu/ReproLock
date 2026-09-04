@@ -33,6 +33,10 @@ try {
   assert.ok(entries.includes("package/package.json"));
   assert.ok(entries.includes("package/src/domain/verdict.ts"));
   for (const path of [
+    "src/verify/cli.ts",
+    "src/verify/evidence.ts",
+    "src/verify/reporter.ts",
+    "docs/local-verification.md",
     "src/demo/server.ts",
     "src/demo/public/index.html",
     "src/demo/public/app.js",
@@ -42,7 +46,10 @@ try {
     "docs/assets/InstrumentSans-wdth-wght.woff2",
     "docs/assets/InstrumentSans-OFL.txt",
   ])
-    assert.ok(entries.includes(`package/${path}`), `standalone Demo archive must contain ${path}`);
+    assert.ok(
+      entries.includes(`package/${path}`),
+      `standalone source archive must contain ${path}`,
+    );
   assert.ok(
     entries.includes(
       "package/spikes/local-functional-regression/generated/safe-unfollow-163.spec.ts",

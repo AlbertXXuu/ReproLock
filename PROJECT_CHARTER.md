@@ -17,6 +17,11 @@ It should:
 
 ## Primary user
 
+The authorized 2026-09-05 experiment first accepts a maintainer-reviewed candidate test and two
+local revisions, to measure the value of independent verification. This is a bounded entry point
+into steps 4, 7 and 8 above; the original exploration/generation thesis remains unproven. Its
+engineering acceptance does not change `SPIKE_CONDITIONAL` or the production gates below.
+
 A maintainer of a web application who has:
 
 - a reproducible functional regression;

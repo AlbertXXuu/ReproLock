@@ -7,7 +7,8 @@ hypothesis with inspectable evidence.
 
 1. Read `AGENTS.md`, `PROJECT_CHARTER.md`,
    `reference/ARCHITECTURE_AND_ACCEPTANCE_BASELINE.md`, and the applicable phase context.
-2. Run `git status --short --branch` and confirm the assigned branch and exclusive worktree.
+2. Run `git status --short --branch` and confirm the assigned branch and exclusive checkout ownership.
+   Work sequentially in the saved checkout; add a worktree only for a concrete parallel need.
 3. Create or update an ExecPlan under `plans/` for multi-step work.
 4. Record the observed problem, writable-path allowlist, minimum acceptance condition, and explicit
    non-goals.

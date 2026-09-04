@@ -9,11 +9,15 @@
 ReproLock investigates turning a user-supplied functional bug description or recorded browser
 workflow into an independently checked, maintainable, standalone Playwright regression test.
 
-## Status — 2026-09-04
+## Status — Experimental
 
-The current implementation is one private TypeScript root application with deterministic evidence
-utilities, a loopback fixture, one case-specific local functional-regression Spike, and an
-owner-authorized local Demo for that supplied case.
+The current implementation is one TypeScript root application with deterministic evidence
+utilities, a local candidate-test verifier, a loopback fixture and a verifiable case Demo.
+
+The new experimental entry point accepts a reviewed, self-contained Playwright test and two exact
+local Git worktrees. It runs the same test on both versions, checks observed reset and assertion
+steps, and exports evidence whose differential gate can be recomputed. See
+[verify a candidate test](docs/local-verification.md) for the supported contract and commands.
 
 Safe Unfollow #163 has an unchanged standalone test with **20/20 expected pre-fix failures and
 20/20 post-fix passes**. The honest manual/recorder baseline achieves the same differential and
@@ -26,8 +30,6 @@ The decision remains **SPIKE_CONDITIONAL**. Evidence structure and checkpoint di
 but this unusually detailed case has not demonstrated enough incremental effort or maintenance
 value to authorize production implementation. Source hosting and passing CI do not grant product GO.
 There is no published package, general explorer/compiler, or released GitHub Action.
-The recovered source and current engineering checks are available in
-[private PR #1](https://github.com/AlbertXXuu/ReproLock/pull/1).
 
 ## Verifiable local Demo
 
@@ -56,10 +58,9 @@ The screenshot shows the saved 2026-09-04 run in the current English interface; 
 
 ## Development
 
-Use the saved D-drive ReproLock project as the fixed entry point. Work sequentially on a task
-branch in that checkout, then return it to the verified `main` after an authorized merge.
-Add a worktree only for a concrete parallel need. See the
-[ownership and cleanup policy](docs/foundation/branch-and-worktree-policy.md).
+Clone the repository into your development directory, then install the pinned dependencies.
+Contribute sequentially on a task branch in your checkout. The maintainer's saved D-drive checkout
+follows the same [ownership and cleanup policy](docs/foundation/branch-and-worktree-policy.md).
 
 Node.js 24.20.0 is the pinned primary runtime; 22.23.2 is the minimum. pnpm is pinned to 11.19.0.
 The workspace fixes `enableGlobalVirtualStore: false` for both CI and ordinary terminals.
@@ -68,12 +69,26 @@ replacing `node_modules`. Run the explicit frozen install below when dependencie
 no machine-specific store path or per-session environment override is required.
 
 ```bash
+git clone https://github.com/AlbertXXuu/ReproLock.git
+cd ReproLock
 corepack enable
 pnpm install --frozen-lockfile
 pnpm exec playwright install chromium
 pnpm check
 pnpm package:smoke
 ```
+
+If PowerShell cannot find `pnpm`, or `corepack enable` cannot write into the Node installation,
+use `corepack pnpm` in place of `pnpm`. For example:
+
+```powershell
+corepack pnpm install --frozen-lockfile
+corepack pnpm exec playwright install chromium
+corepack pnpm demo --config demo.local.json
+```
+
+This invokes the pinned package manager directly without requiring a global pnpm shim. A Node
+installation with Corepack is required; reopen your terminal after installing the runtime.
 
 `pnpm check` runs format, lint, brand/README validation, root and both standalone typechecks,
 unit/process tests, Chromium fixture and Demo browser tests, and verification of the checked-in
@@ -119,6 +134,8 @@ internal consistency, and do not authenticate who executed the experiment.
 
 - `src/domain/` and `src/evidence/`: terminal contracts, canonical JSON and atomic evidence writing.
 - `src/demo/`: the bounded local Safe Unfollow Demo, runner, reporter and current-run verifier.
+- `src/verify/`: explicit local candidate execution, native assertion observations and a separate
+  versioned differential-evidence contract.
 - `fixtures/loopback/` and `tests/`: executable foundation and bounded Spike regression checks.
 - `spikes/local-functional-regression/`: frozen standalone output, case-specific evidence tools,
   historical records and separate dated revalidation.
@@ -133,8 +150,8 @@ Historical Wave 1 branches and stash objects remain preserved and are not curren
 
 ## Next gate
 
-The owner has separately authorized the branded local single-case Demo. Removing the conditional status
-requires a user-supplied, less-structured local functional case and an explicit scope/value decision.
-That case must retain a model-free stable differential and show measurable effort or maintenance
-benefit over an honest manual baseline. No second target, provider credentials, production packages,
-public release or website work is admitted by this Demo task.
+The current increment tests whether independent candidate verification is useful across supplied
+local cases. Removing the conditional status requires a less-structured real case, measured effort
+or maintenance benefit against an honest baseline, and an explicit scope/value decision. Fixture
+checks establish engineering behavior; real maintainer adoption and saved human time remain open
+questions. See the [current plan](plans/04-local-differential-verifier.md).
