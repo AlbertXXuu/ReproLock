@@ -66,9 +66,40 @@ status/report/cleanup contradictions are now rejected.
 - Local engineering and independent-checkout gates are complete. The product decision remains
   `SPIKE_CONDITIONAL`; no evidence establishes automatic generation, saved effort, lower
   maintenance cost, authenticated provenance or production support.
-- Remaining sequence: push `codex/public-readiness`, create a PR, pass both Node CI jobs, record the
-  immutable PR/CI links, enable available GitHub security/branch controls, merge, and fast-forward
-  the saved D-drive checkout to remote `main`.
+- The owner explicitly authorized the exact private origin. Authenticated checks outside the
+  restricted environment confirmed `AlbertXXuu` and private repository `AlbertXXuu/ReproLock`;
+  re-login was unnecessary. Both source and separate Gate commit `328cf13` were pushed unchanged.
+- [PR #10](https://github.com/AlbertXXuu/ReproLock/pull/10) passed the required
+  [Node 22.23.2](https://github.com/AlbertXXuu/ReproLock/actions/runs/33950828745/job/101265142364)
+  and [Node 24.20.0](https://github.com/AlbertXXuu/ReproLock/actions/runs/33950828745/job/101265142325)
+  checks. The jobs ran the complete check and package smoke, taking 2m27s and 2m32s respectively.
+  GitHub reported a clean, mergeable PR at the exact Gate head before the authorized merge.
+- `gh pr merge 10 --merge --match-head-commit 328cf137c1198bd774a040d4b486704fececa478`
+  merged at `2026-09-05T06:52:28Z`, producing `874a58f758a1e50de5c695364db64f0a55d26044`.
+  `git fetch origin`, `git switch main` and `git merge --ff-only origin/main` synchronized the
+  saved D-drive checkout with empty tracked/untracked status. Original source and Gate commits
+  remain separate ancestors. The [main workflow](https://github.com/AlbertXXuu/ReproLock/actions/runs/33951007338)
+  also passed both Node jobs. Remaining closeout: check the documentation PR/main workflows and
+  final remote logs, then record their results in the final receipt. Those later documentation-only
+  commits do not change the accepted runtime source.
+- Repository description and topics now identify the experimental local regression verifier.
+  Dependabot vulnerability alerts and automated security fixes are enabled. Main protection requires
+  the current-base `Node 22.23.2` and `Node 24.20.0` checks from GitHub Actions (app 15368), PRs and
+  resolved conversations, including administrators; force pushes and deletion are disabled.
+  The single-maintainer policy requires zero additional GitHub approving reviews; it does not
+  substitute for the recorded independent implementation reviews. Default Actions permission is
+  read-only and Actions cannot approve PRs.
+- Authenticated remote-surface review on 2026-09-05 inspected all 10 PR titles/bodies and 22
+  completed workflow logs. GitHub returned zero standalone issues, issue/PR comments, inline review
+  comments, reviews and downloadable artifacts. The bounded signature/known-owner scan found no
+  private-key blocks, GitHub/OpenAI/AWS credential forms, historical owner email or owner Windows
+  paths in that surface. It does not replace the separate Git-history disclosure below. Raw remote
+  content is not retained in the minimized local audit receipt.
+- GitHub's private-vulnerability-reporting GET/PUT returned 404 while private, and repository
+  `security_and_analysis` was not exposed. Private reporting, secret scanning and push protection
+  therefore remain unverified and must be rechecked at publication; no paid feature was enabled.
+- Historical `spike/issue-to-repro` worktree and shared recovery stash remain preserved. The
+  temporary independent-acceptance worktree was removed through Git after its content audit.
 - Repository visibility remains private. Every historical commit before this task exposes the
   owner's Outlook author email, and one superseded commit contains a local D-drive experiment path.
   No credential signature was found and this task uses the GitHub noreply identity. The final
