@@ -95,5 +95,11 @@ case and evidence viewer, not the general product surface.
 - [x] Public CLI/case-workspace contract implemented and targeted tests pass.
 - [x] Public documentation, security review and community surface complete.
 - [x] Full local and independent acceptance pass at source commit `24a67ec`.
-- [ ] PR and both CI jobs pass; merge and D-main sync complete.
-- [ ] Repository metadata/security settings complete; visibility decision recorded.
+- [x] [PR #10](https://github.com/AlbertXXuu/ReproLock/pull/10) passed both required Node CI jobs,
+  merged as `874a58f758a1e50de5c695364db64f0a55d26044`, and the saved D-drive main fast-forwarded
+  cleanly to that commit. The phase context records immutable remote acceptance links.
+- [x] Repository description/topics, Dependabot alerts/security updates and protected-main rules
+  configured and read back. Authenticated historical PR/log/artifact review completed.
+- [ ] Owner accepts historical metadata disclosure before any visibility change. Recheck private
+  vulnerability reporting, secret scanning and push protection when their public controls become
+  available; keep the repository private until that decision.
