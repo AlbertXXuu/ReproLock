@@ -6,8 +6,9 @@ Prepare ReproLock for an honest public-source alpha. A new maintainer must be ab
 the present capability, create a bounded local case workspace, review and complete an ordinary
 Playwright candidate, check two supplied worktrees, run the differential, and independently verify
 the portable result. The owner authorized the implementation, validation, commit, PR, CI, merge and
-D-drive main synchronization. Changing GitHub visibility remains the last publication action because
-the existing Git history exposes the owner's commit email and that consequence must be reviewable.
+D-drive main synchronization. On 2026-09-05, after reviewing the historical metadata disclosure,
+the owner explicitly authorized public visibility. The repository was made public and its public
+security controls were enabled and read back. The disclosure and evidence history remain preserved.
 
 Public alpha does not grant product `GO`. The issue/workflow-to-finished-test thesis, saved effort,
 maintenance benefit and external adoption remain unproven. The fixed Safe Unfollow UI is a reference
@@ -100,6 +101,17 @@ case and evidence viewer, not the general product surface.
   cleanly to that commit. The phase context records immutable remote acceptance links.
 - [x] Repository description/topics, Dependabot alerts/security updates and protected-main rules
   configured and read back. Authenticated historical PR/log/artifact review completed.
-- [ ] Owner accepts historical metadata disclosure before any visibility change. Recheck private
-  vulnerability reporting, secret scanning and push protection when their public controls become
-  available; keep the repository private until that decision.
+- [x] Owner accepted the historical metadata disclosure and explicitly authorized public visibility
+  on 2026-09-05. Anonymous repository/README access passed; private vulnerability reporting,
+  secret scanning and push protection were enabled and read back after publication.
+
+## Resumed record closeout — 2026-09-05
+
+After the usage interruption, the saved checkout was clean at published main
+`b3680f715f43da396084de4df62b60c81bdd98a3`, with no open PR or unfinished required CI. Publication
+was complete, but its result existed only in the ignored local receipt and these tracked records
+still described the prior private state. This task exclusively owns `codex/publication-record` and
+updates only this plan, `harness/context/07-public-alpha-readiness.md` and
+`docs/security-review-2026-09-05.md`. Runtime source, prior experiments and recovery material remain
+unchanged. The documentation PR uses the existing two required Node checks before merge and the
+saved checkout returns to synchronized main afterward.
