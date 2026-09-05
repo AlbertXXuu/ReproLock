@@ -100,8 +100,9 @@ status/report/cleanup contradictions are now rejected.
   therefore remain unverified and must be rechecked at publication; no paid feature was enabled.
 - Historical `spike/issue-to-repro` worktree and shared recovery stash remain preserved. The
   temporary independent-acceptance worktree was removed through Git after its content audit.
-- Repository visibility remains private. Every historical commit before this task exposes the
-  owner's Outlook author email, and one superseded commit contains a local D-drive experiment path.
-  No credential signature was found and this task uses the GitHub noreply identity. The final
-  visibility change requires an explicit decision to accept that historical metadata without
-  rewriting evidence-bound Git history.
+- Repository visibility remains private. Historical commits before this task and GitHub's
+  PR #10 merge commit expose the owner's Outlook author email; GitHub used the account's default
+  identity for that merge. One superseded commit contains a local D-drive experiment path.
+  No credential signature was found and locally authored task commits use the GitHub noreply
+  identity. The final visibility change requires an explicit decision to accept that historical
+  metadata without rewriting evidence-bound Git history.

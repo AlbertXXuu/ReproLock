@@ -49,8 +49,10 @@ human to complete and review the candidate and to trust both local target worktr
 A bounded custom scan inspected 410 text blobs among 465 objects reachable from all origin refs. It
 looked for common private-key blocks and GitHub, OpenAI and AWS credential signatures; none matched.
 One superseded commit contains a local AlvenX experiment path. Historical commits before this task
-expose the owner's Outlook author email; this task uses the GitHub noreply identity. This was not a
-full entropy scanner: gitleaks and trufflehog were not installed.
+expose the owner's Outlook author email; locally authored task commits use the GitHub noreply
+identity. GitHub's PR #10 merge commit also retained the account's default Outlook author email.
+That immutable merge is included in the same pending disclosure decision. This was not a full
+entropy scanner: gitleaks and trufflehog were not installed.
 
 Authenticated GitHub review on 2026-09-05 inspected all 10 PR titles/bodies and the 22 completed
 workflow logs then available. There were no standalone issues, issue/PR comments, inline review
