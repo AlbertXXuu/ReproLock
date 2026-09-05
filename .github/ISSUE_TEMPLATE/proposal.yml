@@ -1,0 +1,39 @@
+name: Focused proposal
+description: Propose a bounded change to the current experimental source alpha.
+title: "[Proposal]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Keep proposals within local functional QA. ReproLock has not proven automatic test
+        generation, saved authoring time, lower maintenance cost, or production support.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Concrete problem
+      description: What observed maintainer or contributor problem should this change solve?
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence and smallest useful change
+      description: Link public evidence and describe the smallest change that can test the claim.
+    validations:
+      required: true
+  - type: textarea
+    id: gate
+    attributes:
+      label: Acceptance and stop condition
+      description: State the observable pass condition and when this proposal should stop.
+    validations:
+      required: true
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope and privacy
+      options:
+        - label: This stays within authorized local functional QA.
+          required: true
+        - label: I removed credentials, private source, personal data, and machine-specific paths.
+          required: true

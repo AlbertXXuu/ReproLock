@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
 import { randomUUID } from "node:crypto";
-import { access, mkdir, readdir, readFile, realpath, writeFile } from "node:fs/promises";
+import { access, lstat, mkdir, opendir, readFile, realpath } from "node:fs/promises";
 import { createServer } from "node:net";
 import { isAbsolute, join, relative, resolve, sep } from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
@@ -11,6 +11,7 @@ import type { AttemptRecord } from "../../spikes/local-functional-regression/too
 import { validateGeneratedDemoReport } from "../../spikes/local-functional-regression/tools/evidence-cli.ts";
 import { serializeCanonicalJson } from "../evidence/canonical-json.ts";
 import { writeCanonicalJsonAtomically } from "../evidence/writer.ts";
+import { assertOrdinaryTrackedIndex } from "../verify/workspace.ts";
 import {
   attemptsFromReport,
   CASE,
@@ -25,7 +26,7 @@ import {
   type SideExecution,
   verifyDemoExport,
 } from "./evidence.ts";
-import { childEnvironment, OwnedProcess } from "./process.ts";
+import { OwnedProcess, restrictedChildEnvironment } from "./process.ts";
 
 const execute = promisify(execFile);
 const sides: Side[] = ["pre-fix", "post-fix"];
@@ -38,11 +39,37 @@ export type LiveRun = {
 };
 
 export async function readConfig(path: string): Promise<DemoConfig> {
-  const value: unknown = JSON.parse(await readFile(path, "utf8"));
-  if (!value || typeof value !== "object") throw new Error("Configuration must be an object");
+  const info = await lstat(path);
+  assert.ok(
+    info.isFile() && !info.isSymbolicLink() && info.size <= 262_144,
+    "Configuration must be a regular file at most 256 KiB",
+  );
+  const bytes = await readFile(path);
+  assert.ok(bytes.length <= 262_144, "Configuration changed or exceeds 256 KiB");
+  const value: unknown = JSON.parse(bytes.toString("utf8"));
+  if (!value || typeof value !== "object" || Array.isArray(value))
+    throw new Error("Configuration must be an object");
   const record = value as Record<string, unknown>;
-  const targets = record.targets as Record<string, unknown> | undefined;
-  if (!targets || typeof targets["pre-fix"] !== "string" || typeof targets["post-fix"] !== "string")
+  assert.deepEqual(
+    Object.keys(record).sort(),
+    record.timeoutMs === undefined ? ["targets"] : ["targets", "timeoutMs"],
+    "Configuration accepts only targets and timeoutMs",
+  );
+  const targets = record.targets;
+  if (!targets || typeof targets !== "object" || Array.isArray(targets))
+    throw new Error("Configure both supplied target paths");
+  const targetRecord = targets as Record<string, unknown>;
+  assert.deepEqual(
+    Object.keys(targetRecord).sort(),
+    ["post-fix", "pre-fix"],
+    "targets accepts only pre-fix and post-fix",
+  );
+  if (
+    typeof targetRecord["pre-fix"] !== "string" ||
+    targetRecord["pre-fix"].trim() === "" ||
+    typeof targetRecord["post-fix"] !== "string" ||
+    targetRecord["post-fix"].trim() === ""
+  )
     throw new Error("Configure both supplied target paths");
   const timeoutMs = record.timeoutMs ?? 1_200_000;
   if (
@@ -53,7 +80,10 @@ export async function readConfig(path: string): Promise<DemoConfig> {
   )
     throw new Error("timeoutMs must be 1..1500000");
   return {
-    targets: { "pre-fix": resolve(targets["pre-fix"]), "post-fix": resolve(targets["post-fix"]) },
+    targets: {
+      "pre-fix": resolve(targetRecord["pre-fix"]),
+      "post-fix": resolve(targetRecord["post-fix"]),
+    },
     timeoutMs,
   };
 }
@@ -64,17 +94,31 @@ async function git(path: string, args: string[]): Promise<string> {
       timeout: 10_000,
       maxBuffer: 1_048_576,
       windowsHide: true,
-      env: childEnvironment(),
+      env: restrictedChildEnvironment(),
     })
   ).stdout.trim();
+}
+
+export async function configuredOrigin(path: string): Promise<string> {
+  return git(path, ["config", "--local", "--get", "remote.origin.url"]);
 }
 
 async function validateTarget(path: string, side: Side): Promise<void> {
   if ((await git(path, ["rev-parse", "HEAD"])) !== CASE.revisions[side])
     throw new Error(`${side}: revision mismatch`);
-  if ((await git(path, ["status", "--porcelain"])) !== "")
+  assertOrdinaryTrackedIndex(await git(path, ["ls-files", "-v", "-z"]), `${side} target`);
+  if (
+    (await git(path, [
+      "-c",
+      "core.fsmonitor=false",
+      "status",
+      "--porcelain=v1",
+      "--untracked-files=all",
+      "--ignore-submodules=none",
+    ])) !== ""
+  )
     throw new Error(`${side}: target contains uncommitted changes`);
-  if ((await git(path, ["remote", "get-url", "origin"])) !== CASE.repository)
+  if ((await configuredOrigin(path)) !== CASE.repository)
     throw new Error(`${side}: repository mismatch`);
   if (digest(await readFile(join(path, "package-lock.json"))) !== CASE.lockSha256)
     throw new Error(`${side}: lockfile mismatch`);
@@ -140,11 +184,28 @@ export async function checkPrerequisites(
 
 async function jsonIfPresent(path: string): Promise<unknown | null> {
   try {
-    return JSON.parse(await readFile(path, "utf8"));
+    const info = await lstat(path);
+    assert.ok(
+      info.isFile() && !info.isSymbolicLink() && info.size <= 1_048_576,
+      "Observation JSON must be a regular file at most 1 MiB",
+    );
+    const bytes = await readFile(path);
+    assert.ok(bytes.length <= 1_048_576, "Observation JSON changed or exceeds 1 MiB");
+    return JSON.parse(bytes.toString("utf8"));
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === "ENOENT") return null;
     throw error;
   }
+}
+
+async function boundedNames(path: string): Promise<string[]> {
+  const names: string[] = [];
+  const directory = await opendir(path);
+  for await (const entry of directory) {
+    names.push(entry.name);
+    assert.ok(names.length <= 64, "Observation directory exceeds 64 entries");
+  }
+  return names;
 }
 
 /** One explicit local case; no queue, model, arbitrary command API or historical-success fallback. */
@@ -250,7 +311,7 @@ export class DemoRunner {
       const folder = join(this.directory, "observations", side);
       let names: string[];
       try {
-        names = await readdir(folder);
+        names = await boundedNames(folder);
       } catch (error) {
         if ((error as NodeJS.ErrnoException).code === "ENOENT") continue;
         throw error;
@@ -335,9 +396,9 @@ export class DemoRunner {
           this.config.targets[side],
         );
         processes.push(target);
-        await target.observe();
         let browser: OwnedProcess | null = null;
         try {
+          await target.observe();
           const readyBy = Date.now() + 30_000;
           let ready = false;
           while (Date.now() < readyBy && !target.exited) {
@@ -398,7 +459,13 @@ export class DemoRunner {
           stopped();
           if (browser.outputExceeded || target.outputExceeded)
             throw new Error("Owned process output exceeded its bounded limit");
+          const rawInfo = await lstat(rawReport);
+          assert.ok(
+            rawInfo.isFile() && !rawInfo.isSymbolicLink() && rawInfo.size <= 8_388_608,
+            "Playwright report must be a regular file at most 8 MiB",
+          );
           const raw = await readFile(rawReport);
+          assert.ok(raw.length <= 8_388_608, "Playwright report changed or exceeds 8 MiB");
           execution.rawReportSha256 = digest(raw);
           // Validate the actual Playwright JSON report before the portable projection can confirm success.
           const actual = validateGeneratedDemoReport(JSON.parse(raw.toString("utf8")), side);
@@ -426,15 +493,41 @@ export class DemoRunner {
           live.run.phase = `Cleaning up ${side} owned processes`;
           if (browser) execution.cleanup.push(await browser.stop());
           execution.cleanup.push(await target.stop());
-          await writeFile(join(directory, `target-${side}.log`), target.output, { flag: "wx" });
+          await writeCanonicalJsonAtomically({
+            outputRoot: directory,
+            relativePath: `target-${side}-output.json`,
+            value: {
+              bytes: Buffer.byteLength(target.output),
+              sha256: digest(target.output),
+              truncated: target.outputExceeded,
+            },
+          });
           if (browser)
-            await writeFile(join(directory, `browser-${side}.log`), browser.output, { flag: "wx" });
+            await writeCanonicalJsonAtomically({
+              outputRoot: directory,
+              relativePath: `browser-${side}-output.json`,
+              value: {
+                bytes: Buffer.byteLength(browser.output),
+                sha256: digest(browser.output),
+                truncated: browser.outputExceeded,
+              },
+            });
           execution.finishedAt = new Date().toISOString();
-          execution.cleanAfter = await git(this.config.targets[side], [
-            "status",
-            "--porcelain",
+          execution.cleanAfter = await Promise.all([
+            git(this.config.targets[side], [
+              "-c",
+              "core.fsmonitor=false",
+              "status",
+              "--porcelain=v1",
+              "--untracked-files=all",
+              "--ignore-submodules=none",
+            ]),
+            git(this.config.targets[side], ["ls-files", "-v", "-z"]),
           ]).then(
-            (value) => value === "",
+            ([status, index]) => {
+              assertOrdinaryTrackedIndex(index, `${side} target`);
+              return status === "";
+            },
             () => false,
           );
           await this.refresh();

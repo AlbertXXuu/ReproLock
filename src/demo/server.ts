@@ -1,13 +1,44 @@
+import assert from "node:assert/strict";
 import { randomBytes } from "node:crypto";
-import { readdir, readFile } from "node:fs/promises";
+import { lstat, opendir, readFile } from "node:fs/promises";
 import { createServer } from "node:http";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { verifyEvidenceBundle } from "../../spikes/local-functional-regression/tools/evidence-cli.ts";
-import { CASE, verifyDemoExport } from "./evidence.ts";
+import { CASE, type DemoExport, verifyDemoExport } from "./evidence.ts";
 import { checkPrerequisites, DemoRunner, readConfig } from "./run.ts";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
+const savedJsonLimit = 8_388_608;
+export const DEFAULT_DEMO_PORT = 7872;
+
+async function readSavedJson(path: string): Promise<unknown> {
+  const info = await lstat(path);
+  assert.ok(
+    info.isFile() && !info.isSymbolicLink() && info.size <= savedJsonLimit,
+    "Saved JSON must be a regular file at most 8 MiB",
+  );
+  const bytes = await readFile(path);
+  assert.ok(bytes.length <= savedJsonLimit, "Saved JSON changed or exceeds 8 MiB");
+  return JSON.parse(bytes.toString("utf8"));
+}
+
+/** Keep the public Demo history response bounded even when retained runs accumulate. */
+export async function recentRunIds(path: string): Promise<string[]> {
+  const runs: string[] = [];
+  const directory = await opendir(path);
+  let entries = 0;
+  for await (const entry of directory) {
+    entries++;
+    assert.ok(entries <= 10_000, "Demo history exceeds 10,000 entries");
+    if (!entry.isDirectory() || !/^[0-9TZ]+-[a-f0-9]{8}$/u.test(entry.name)) continue;
+    runs.push(entry.name);
+    runs.sort().reverse();
+    if (runs.length > 30) runs.length = 30;
+  }
+  return runs;
+}
+
 const publicFiles: Record<string, [string, string]> = {
   "/": ["src/demo/public/index.html", "text/html; charset=utf-8"],
   "/app.js": ["src/demo/public/app.js", "text/javascript; charset=utf-8"],
@@ -123,12 +154,7 @@ export async function startDemo(options: {
       if (url.pathname === "/api/state") {
         let runs: string[] = [];
         try {
-          runs = (await readdir(join(root, "output/demo"), { withFileTypes: true }))
-            .filter((entry) => entry.isDirectory() && /^[0-9TZ]+-[a-f0-9]{8}$/u.test(entry.name))
-            .map((entry) => entry.name)
-            .sort()
-            .reverse()
-            .slice(0, 30);
+          runs = await recentRunIds(join(root, "output/demo"));
         } catch (error) {
           if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
         }
@@ -146,9 +172,9 @@ export async function startDemo(options: {
       }
       const match = /^\/api\/(export|run)\/([0-9TZ]+-[a-f0-9]{8})$/u.exec(url.pathname);
       if (match) {
-        const bundle = JSON.parse(
-          await readFile(join(root, "output/demo", match[2] ?? "", "export.json"), "utf8"),
-        );
+        const bundle = (await readSavedJson(
+          join(root, "output/demo", match[2] ?? "", "export.json"),
+        )) as DemoExport;
         if (match[1] === "export") {
           response.setHeader(
             "Content-Disposition",
@@ -156,12 +182,15 @@ export async function startDemo(options: {
           );
           send(200, bundle);
         } else {
-          const final = JSON.parse(
-            await readFile(join(root, "output/demo", match[2] ?? "", "final.json"), "utf8"),
-          );
+          const final = (await readSavedJson(
+            join(root, "output/demo", match[2] ?? "", "final.json"),
+          )) as { started: unknown };
+          const run = bundle.files["run.json"];
+          const attempts = bundle.files["attempts.json"];
+          assert.ok(typeof run === "string" && typeof attempts === "string");
           send(200, {
-            run: JSON.parse(bundle.files["run.json"]),
-            attempts: JSON.parse(bundle.files["attempts.json"]),
+            run: JSON.parse(run),
+            attempts: JSON.parse(attempts),
             started: final.started,
             verification: verifyDemoExport(bundle),
           });
@@ -187,7 +216,11 @@ export async function startDemo(options: {
   server.maxConnections = 32;
   await new Promise<void>((accept, reject) => {
     server.once("error", reject);
-    server.listen(options.port ?? 4317, "127.0.0.1", accept);
+    server.listen(options.port ?? DEFAULT_DEMO_PORT, "127.0.0.1", accept);
+  }).catch((error: unknown) => {
+    if ((error as NodeJS.ErrnoException).code === "EADDRINUSE")
+      throw new Error(`Demo UI port ${options.port ?? DEFAULT_DEMO_PORT} is already in use`);
+    throw error;
   });
   const bound = server.address();
   if (!bound || typeof bound === "string") throw new Error("Loopback server did not bind");
@@ -205,12 +238,17 @@ export async function startDemo(options: {
 if (process.argv[1] && pathToFileURL(resolve(process.argv[1])).href === import.meta.url) {
   const args = process.argv.slice(2);
   let configPath = resolve("demo.local.json");
-  let port = 4317;
+  let port = DEFAULT_DEMO_PORT;
   for (let index = 0; index < args.length; index += 2) {
     const value = args[index + 1];
-    if (!value) throw new Error("Usage: pnpm demo --config demo.local.json [--port 4317]");
+    if (!value) throw new Error("Usage: pnpm demo --config demo.local.json [--port 7872]");
     if (args[index] === "--config") configPath = resolve(value);
-    else if (args[index] === "--port" && /^\d+$/u.test(value) && Number(value) <= 65535)
+    else if (
+      args[index] === "--port" &&
+      /^\d+$/u.test(value) &&
+      Number(value) >= 1 &&
+      Number(value) <= 65535
+    )
       port = Number(value);
     else throw new Error("Unknown Demo argument");
   }

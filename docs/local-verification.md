@@ -1,115 +1,168 @@
 # Verify a local candidate test
 
-This experimental CLI runs one reviewed Playwright test unchanged against two exact clean local
-Git worktrees, then checks whether the observed business assertion fails before the fix and passes
-after it. It uses the pinned Node and Playwright installation from ReproLock. Start with the
-[installation instructions](../README.md#development).
+This experimental CLI runs one human-reviewed Playwright test unchanged against two exact clean
+local Git worktrees. It independently checks whether an observed business assertion fails before
+the fix and passes after it. Replay and portable verification use no model call.
 
-## Prepare the inputs
+## Start with a case workspace
 
-Use a repository supplied or selected by its maintainer. Create disposable pre-fix and post-fix
-worktrees from the same Git repository, install their locked dependencies, and inspect the existing
-start command. V1 supports an explicit Node entry point inside each target, including an installed
-Vite entry point. The application must serve only the configured loopback address. The coordinator
-checks clean full revisions, tracked package/lock files and unchanged start-entry fingerprints.
+Use only a repository supplied or selected by its maintainer. Create disposable pre-fix and
+post-fix worktrees from the same Git repository, install their locked dependencies and build each
+revision with commands you have reviewed, and identify an explicit Node entry point. The example
+below assumes both builds produced `dist` and uses Vite's preview server. The application must bind
+only to the configured loopback address.
 
-Review one self-contained TypeScript test importing only `@playwright/test`. Use the standard
-`page`/`context` fixtures. The test must contain:
+Create a small UTF-8 issue file and optionally a workflow note or recorder output. ReproLock stores
+these files as inert data and never derives a command or executable action from them:
 
-- One top-level `test.step('reset', ...)`, including assertions of the actual initial state. A fresh
-  browser context alone does not reset server-side data; configure your disposable application and
-  explicitly assert its reset postcondition.
-- One later top-level `test.step('outcome', ...)` with a single direct `expect(actual).toBe(expected)`
-  comparison of an observed scalar. Read the actual UI state before comparing it. Use the same
-  assertion callsite on both versions. An example is `expect(await page.title()).toBe('Editor')`.
+```sh
+corepack pnpm reprolock init ../my-reprolock-case \
+  --issue ../issue.txt \
+  --workflow ../workflow.txt \
+  --pre ../app-pre \
+  --post ../app-post \
+  --start-node node_modules/vite/bin/vite.js \
+  --start-arg preview \
+  --start-arg --host \
+  --start-arg 127.0.0.1 \
+  --start-arg --port \
+  --start-arg 4173 \
+  --start-arg --strictPort \
+  --served-path dist \
+  --origin http://127.0.0.1:4173
+```
 
-Actions and readiness waits belong between reset and outcome. Assertions should reflect the
-maintainer's intended behavior. ReproLock checks execution evidence; human review establishes that
-the reset and oracle mean what the issue requires. An assertion such as `expect(true).toBe(true)`
-does not independently verify application state.
+`init` requires a new directory outside both worktrees and never overwrites an existing path. It
+copies at most 256 KiB per input, writes hashes without source filenames or paths, creates a local
+configuration and emits a deliberately incomplete ordinary Playwright scaffold. The copied inputs,
+local configuration and run directory are ignored by the generated `.gitignore`.
 
-Use one test with zero retries. Expected failures, skips, extra tests, incomplete steps, locator/API
-errors, unknown matcher diagnostics and unobserved outcomes cannot confirm a differential. Native
-value comparison diagnostics are parsed conservatively; V1 recognizes `toBe` scalar differences.
-The test remains an ordinary Playwright file when used without ReproLock.
+## Review the candidate
 
-## Configuration
+Read the copied input and replace every `REPROLOCK_TODO` in `candidate.spec.ts`. ReproLock rejects
+an incomplete scaffold before it checks a browser or starts an application.
 
-Save the following as `output/my-case.local.json`, replacing the paths and full revisions with
-your supplied local inputs. Paths resolve relative to this configuration file:
+The self-contained TypeScript candidate may import only `@playwright/test` and must use the
+standard fixtures. V1 requires:
+
+- exactly one top-level `test.step("reset", ...)`, including at least one passing assertion of the
+  actual initial state;
+- one later top-level `test.step("outcome", ...)` with a single direct
+  `expect(actual).toBe(expected)` comparison of an observed scalar;
+- the same outcome assertion callsite on both revisions; and
+- one test, zero retries, and no expected failure or skip.
+
+A fresh browser context alone does not reset server-side data. Configure a disposable application,
+perform the real reset, and assert its postcondition. Actions and readiness waits belong between
+reset and outcome. The assertion must reflect the maintainer's intended behavior; a tautology can
+be internally consistent without proving the issue.
+
+Expected failures, skips, extra tests, incomplete steps, locator/API errors, unknown matcher
+diagnostics and unobserved outcomes cannot confirm a differential. Native value-comparison
+diagnostics are parsed conservatively; V1 recognizes scalar `toBe` differences.
+
+## Review the local configuration
+
+`init` writes this schema with the two full revisions resolved from the supplied worktrees:
 
 ```json
 {
   "schemaVersion": 1,
-  "candidate": "../my-case.spec.ts",
+  "candidate": "./candidate.spec.ts",
   "targets": [
-    { "path": "../../app-pre", "revision": "FULL_PRE_FIX_40_CHARACTER_SHA" },
-    { "path": "../../app-post", "revision": "FULL_POST_FIX_40_CHARACTER_SHA" }
+    { "path": "../app-pre", "revision": "FULL_PRE_FIX_40_CHARACTER_SHA" },
+    { "path": "../app-post", "revision": "FULL_POST_FIX_40_CHARACTER_SHA" }
   ],
   "start": {
     "nodeScript": "node_modules/vite/bin/vite.js",
-    "args": ["--host", "127.0.0.1", "--port", "4173", "--strictPort"]
+    "args": ["preview", "--host", "127.0.0.1", "--port", "4173", "--strictPort"]
   },
+  "servedPaths": ["dist"],
   "origin": "http://127.0.0.1:4173",
   "readyPath": "/",
-  "resetDescription": "Describe the actual reset and the UI postcondition checked by the test",
-  "repetitions": 3,
+  "resetDescription": "Describe the reviewed reset and its observable postcondition",
+  "repetitions": 1,
   "timeoutMs": 180000,
-  "testTimeoutMs": 15000
+  "testTimeoutMs": 15000,
+  "outputRoot": "./runs"
 }
 ```
 
-The array order is pre-fix, then post-fix. Repetitions are 1–20; the total execution deadline is
-at most 25 minutes, with a maximum 60-second test timeout. The supported start entry uses Node,
-an argument array and no shell. Configure the same entry point and arguments for both versions.
+Unknown keys are rejected so a misspelling cannot silently select a default. Paths resolve against
+the configuration file. `outputRoot` is a normalized relative path and may not overlap either
+target. Existing older local configurations without that field default to `./runs`.
+
+Use `servedPaths` for ignored or generated bytes the start entry actually serves, such as `dist`.
+The same relative paths must exist in each target. ReproLock hashes every regular file and relative
+name before and after execution. It rejects traversal, overlap, symlinks, special files, more than
+16 roots, 10,000 files and directories, 16 MiB per file, or 512 MiB total. The portable bundle stores only the
+settings hash and resulting target fingerprint, not file names or content.
+
+The array order is pre-fix then post-fix. Repetitions are 1–20; use one while authoring and explicitly
+raise it for a stability claim. The total deadline is at most 25 minutes and the test timeout at
+most 60 seconds. The start command is one relative Node entry plus a bounded argument array and no
+shell. Never put credentials in arguments.
+
+## Check, run and independently verify
 
 ```sh
-pnpm regression check output/my-case.local.json
-pnpm regression run output/my-case.local.json
-pnpm regression verify output/verify/run-REPLACE_WITH_PRINTED_ID/export.json
+corepack pnpm exec playwright install chromium
+corepack pnpm reprolock check ../my-reprolock-case/reprolock.local.json
+corepack pnpm reprolock run ../my-reprolock-case/reprolock.local.json
+corepack pnpm reprolock verify ../my-reprolock-case/runs/run-REPLACE/export.json
 ```
 
-`check` reads inputs and tests port availability without starting the application. `run` prints
-the actual run directory, terminal status, per-attempt classifications and `differential`.
-Exit 0 means the requested differential was confirmed; 2 means it was not confirmed, 124 is a
-deadline and 130 is cancellation. `verify` independently recomputes the gate and exits 2 for a
+`check` parses the candidate, verifies exact clean worktrees without assume-unchanged or skip-worktree
+index entries, hashes source and served bytes,
+checks the Chromium installation and tests port availability without starting either application.
+It prints both revisions and target fingerprints.
+
+`run` creates a new directory under the caller-owned `outputRoot`. It prints the actual directory,
+terminal status, first local diagnostic, per-attempt classifications and `differential`. Exit 0
+means the requested differential was confirmed; 2 means it was not confirmed, 124 is a deadline and
+130 is cancellation. A runtime failure still writes partial evidence when a run directory exists.
+
+`verify` reads only the portable export, validates its 8 MiB bound and recomputes hashes,
+classifications, repetition identity, assertion callsite and the pre/post gate. It exits 2 for a
 partial, contradictory or non-differential bundle. Three repetitions do not satisfy the historical
 Spike's separate 20+20 gate or establish broad reliability.
 
-Ctrl+C cancels the current run and stops its owned processes. It never kills an unrelated process
-by port. Unknown cleanup prevents confirmation. On Windows this requires permission to inspect
-and terminate your own processes; a restricted execution sandbox may leave cleanup unverified.
+Ctrl+C cancels the current run and stops its observed owned processes. It never kills a process by
+port. Unknown cleanup prevents confirmation. Current process-tree accounting is observation-based;
+it is not a security container for hostile code or a proof that a deliberately detached,
+never-observed child cannot escape.
 
 ## Evidence and trust
 
-Each `run` invocation creates a new `output/verify/run-*` directory. Frozen candidate and guard sources,
-effective Playwright configuration, source/target fingerprints, partial observations and final
-reports remain separate from historical Spike records. Completed attempts are atomically saved
-as they occur, so interruption does not turn missing attempts into successes.
+The run directory freezes the candidate and guard, effective Playwright configuration, minimized
+observations and portable result. Completed observations are atomically saved. Local metadata stores
+configuration hashes and process-output byte counts/hashes; raw stdout/stderr, raw input prose,
+target paths and start arguments are not persisted by default.
 
-The portable `export.json` contains the candidate, declared revisions, settings hashes, runtime
-source hashes, target fingerprints and minimized observations. It includes native step categories,
+Playwright failure snapshots and attachments are disabled with `preserveOutput: "never"`; the
+minimized reporter is the retained execution record. Standard fixture traffic is compared with the
+validated configuration origin even if a candidate calls `test.use({ baseURL })`.
+
+`export.json` contains the full candidate source, declared revisions, settings hashes, runtime
+source hashes, target fingerprints and minimized observations. It includes step categories,
 assertion callsites, order and parent links, error digests and hashed expected/received scalar
-representations. It omits error messages, screenshots, page bodies and target directory names.
-Inspect the candidate itself before sharing; it is source code provided by the caller. The
-`local-*` files and application logs stay local and can contain paths or application output.
+representations. It omits error messages, screenshots, page bodies, target directories and copied
+issue/workflow text. Inspect the candidate before sharing because it is caller-provided source code.
 
-The verifier recomputes hashes, classifications, repetition identity and the pre/post gate from
-the pinned reporter's observations. These records establish internal consistency, not authenticated
-proof of who executed the test. The reporter and candidate are trusted executable code. The browser
-guard restricts the standard fixtures to the configured origin and the runner passes a small OS
-environment allowlist; this is a local execution boundary, not an untrusted-code sandbox. Custom
-browser launches, hidden model/network calls and dynamic loading are outside the reviewed contract.
+The evidence establishes internal consistency, not authenticated execution provenance. The
+candidate, target and pinned reporter are trusted executable code. The standard browser fixtures
+are restricted to the exact origin, child processes receive a small environment allowlist, and
+dynamic imports are rejected as a contract check. These controls are not a sandbox: Node process
+APIs, custom browser launches, Playwright request contexts and deliberately hidden networking remain
+possible in code you choose to run.
 
-The target fingerprint covers the committed package manifest and lockfile plus the installed start
-entry. If that entry serves ignored build output, the caller must build each exact revision and bind
-the complete served output separately. The DrawDB experiment records a sorted full-file `dist`
-inventory before and after both comparison arms; a clean Git worktree alone would not prove which
-generated bytes the browser received.
+Historical schema-v1 exports that predate `servedPaths` remain verifiable. Their target fingerprints
+do not gain retroactive build binding. The DrawDB experiment separately froze a full 28-file
+`dist` inventory; new runs should configure `servedPaths` so this binding is automatic.
 
-## Value experiment
+## Value gate
 
-The engineering fixture verifies the CLI contract. A second real case should measure end-to-end
-setup, authoring, review, corrections, execution and later maintenance against an equally strong
-manual baseline. Agent elapsed time is recorded as agent operation time; it is not a measurement
-of saved developer hours. External adoption and human effort benefit remain separate product gates.
+The engineering fixture and two recorded cases verify the current protocol. They do not prove that
+ReproLock saves authoring time or maintenance effort: ordinary Playwright achieved the same two
+recorded differentials. The next product gate is a real outside maintainer completing the workflow
+without author assistance and choosing to retain the standalone test or CI integration.

@@ -37,6 +37,17 @@ const record = (value: unknown): Record<string, unknown> => {
   assert.ok(value && typeof value === "object" && !Array.isArray(value), "Expected an object");
   return value as Record<string, unknown>;
 };
+const exactKeys = (
+  value: Record<string, unknown>,
+  expected: readonly string[],
+  label: string,
+): void => {
+  assert.deepEqual(
+    Object.keys(value).sort(),
+    [...expected].sort(),
+    `Unknown or missing ${label} fields`,
+  );
+};
 const integer = (value: unknown, min: number, max: number): void => {
   assert.ok(
     Number.isInteger(value) && Number(value) >= min && Number(value) <= max,
@@ -55,6 +66,7 @@ const hashes = (value: unknown): void => {
 /** Validate untrusted persisted observations before deriving any outcome. */
 export function parseReport(value: unknown): Report {
   const r = record(value);
+  exactKeys(r, ["schemaVersion", "planned", "status", "errors", "observations"], "report");
   assert.equal(r.schemaVersion, 1);
   integer(r.planned, 0, 20);
   assert.ok(["passed", "failed", "timedout", "interrupted"].includes(String(r.status)));
@@ -62,6 +74,11 @@ export function parseReport(value: unknown): Report {
   assert.ok(Array.isArray(r.observations) && r.observations.length <= 20);
   for (const item of r.observations) {
     const o = record(item);
+    exactKeys(
+      o,
+      ["repetition", "retry", "expectedStatus", "status", "errors", "steps"],
+      "observation",
+    );
     integer(o.repetition, 0, 19);
     integer(o.retry, 0, 20);
     assert.ok(
@@ -74,6 +91,22 @@ export function parseReport(value: unknown): Report {
     const events = new Set<number>();
     for (const item of o.steps) {
       const s = record(item);
+      exactKeys(
+        s,
+        [
+          "id",
+          "parent",
+          "category",
+          "label",
+          "begin",
+          "end",
+          "error",
+          "line",
+          "column",
+          "comparison",
+        ],
+        "step",
+      );
       integer(s.id, 0, 199);
       integer(s.begin, 0, 399);
       integer(s.end, -1, 399);
@@ -97,6 +130,7 @@ export function parseReport(value: unknown): Report {
       assert.equal(s.line === null, s.column === null);
       if (s.comparison !== null) {
         const comparison = record(s.comparison);
+        exactKeys(comparison, ["matcher", "expected", "received"], "comparison");
         assert.equal(comparison.matcher, "toBe");
         hashes([comparison.expected, comparison.received]);
         assert.ok(s.category === "expect" && s.error !== null);
@@ -210,6 +244,7 @@ export type Bundle = {
     readyPath: string;
     startScript: string;
     startArgsSha256: string;
+    servedPathsSha256?: string;
     timeoutMs: number;
     testTimeoutMs: number;
     resetDescriptionSha256: string;
@@ -236,6 +271,22 @@ export function verifyBundle(value: unknown): {
 } {
   try {
     const b = record(value);
+    exactKeys(
+      b,
+      [
+        "schemaVersion",
+        "candidate",
+        "candidateSha256",
+        "repetitions",
+        "status",
+        "revisions",
+        "fingerprints",
+        "sourceHashes",
+        "settings",
+        "executions",
+      ],
+      "bundle",
+    );
     assert.equal(b.schemaVersion, 1);
     assert.ok(typeof b.candidate === "string" && Buffer.byteLength(b.candidate) <= 131_072);
     assert.equal(b.candidateSha256, hash(b.candidate));
@@ -249,11 +300,29 @@ export function verifyBundle(value: unknown): {
         b.revisions[0] !== b.revisions[1],
     );
     hashes(b.fingerprints);
+    assert.ok((b.fingerprints as unknown[]).length <= 2, "At most two fingerprints are allowed");
     const sources = record(b.sourceHashes);
     for (const name of ["candidate", "guard", "cli", "reporter", "evidence", "process"])
       assert.ok(typeof sources[name] === "string" && sha.test(sources[name]));
     assert.equal(sources.candidate, b.candidateSha256);
     const settings = record(b.settings);
+    const settingKeys = Object.keys(settings).sort();
+    const legacySettingKeys = [
+      "origin",
+      "readyPath",
+      "resetDescriptionSha256",
+      "startArgsSha256",
+      "startScript",
+      "testTimeoutMs",
+      "timeoutMs",
+    ];
+    const currentSettingKeys = [...legacySettingKeys, "servedPathsSha256"].sort();
+    assert.ok(
+      [legacySettingKeys.sort(), currentSettingKeys].some(
+        (allowed) => JSON.stringify(allowed) === JSON.stringify(settingKeys),
+      ),
+      "Unknown or missing evidence settings",
+    );
     assert.ok(
       typeof settings.origin === "string" && /^http:\/\/127\.0\.0\.1:\d+$/u.test(settings.origin),
     );
@@ -263,6 +332,27 @@ export function verifyBundle(value: unknown): {
     );
     assert.ok(typeof settings.startScript === "string");
     hashes([settings.startArgsSha256, settings.resetDescriptionSha256]);
+    if (settings.servedPathsSha256 !== undefined) hashes([settings.servedPathsSha256]);
+    if (settings.servedPathsSha256 !== undefined)
+      for (const name of ["workspace", "playwrightShim", "playwrightShimPackage"])
+        assert.ok(typeof sources[name] === "string" && sha.test(sources[name]));
+    exactKeys(
+      sources,
+      settings.servedPathsSha256 === undefined
+        ? ["candidate", "guard", "cli", "reporter", "evidence", "process"]
+        : [
+            "candidate",
+            "guard",
+            "cli",
+            "workspace",
+            "reporter",
+            "evidence",
+            "process",
+            "playwrightShim",
+            "playwrightShimPackage",
+          ],
+      "sourceHashes",
+    );
     integer(settings.timeoutMs, 1, 1_500_000);
     integer(settings.testTimeoutMs, 1, 60_000);
     const outcomes: Verdict[][] = [];
@@ -270,6 +360,22 @@ export function verifyBundle(value: unknown): {
     const revisions: string[] = [];
     for (const item of b.executions) {
       const e = record(item);
+      exactKeys(
+        e,
+        [
+          "revision",
+          "cleanBefore",
+          "cleanAfter",
+          "exitCode",
+          "cleanup",
+          "report",
+          "reportSha256",
+          "fingerprintBefore",
+          "fingerprintAfter",
+          "configurationSha256",
+        ],
+        "execution",
+      );
       assert.ok(typeof e.revision === "string" && /^[a-f0-9]{40}$/u.test(e.revision));
       revisions.push(e.revision);
       for (const key of ["cleanBefore", "cleanAfter", "cleanup"])

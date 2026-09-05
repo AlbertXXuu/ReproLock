@@ -1,7 +1,58 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { setTimeout as delay } from "node:timers/promises";
-import { OwnedProcess } from "../../src/demo/process.ts";
+import { OwnedProcess, restrictedChildEnvironment } from "../../src/demo/process.ts";
+
+test("restricted child environments exclude Git identity overrides", () => {
+  const values = {
+    GIT_DIR: "wrong-git-directory",
+    GIT_WORK_TREE: "wrong-worktree",
+    GIT_CONFIG_COUNT: "1",
+  };
+  Object.assign(process.env, values);
+  try {
+    const child = restrictedChildEnvironment();
+    for (const key of Object.keys(values)) assert.equal(child[key], undefined);
+  } finally {
+    for (const key of Object.keys(values)) delete process.env[key];
+  }
+});
+
+test("owned processes receive the restricted environment by default", {
+  timeout: 30_000,
+}, async () => {
+  const key = "REPROLOCK_TEST_PARENT_SECRET";
+  process.env[key] = "must-not-cross-boundary";
+  const restricted = new OwnedProcess(
+    process.execPath,
+    ["-e", `process.stdout.write(process.env.${key} ?? 'hidden');setInterval(()=>{},1000)`],
+    process.cwd(),
+    { REPROLOCK_EXPLICIT_VALUE: "allowed" },
+  );
+  const explicit = new OwnedProcess(
+    process.execPath,
+    [
+      "-e",
+      "process.stdout.write(process.env.REPROLOCK_EXPLICIT_VALUE ?? 'missing');setInterval(()=>{},1000)",
+    ],
+    process.cwd(),
+    { REPROLOCK_EXPLICIT_VALUE: "allowed" },
+  );
+  try {
+    const readyBy = Date.now() + 10_000;
+    while (
+      (!restricted.output.includes("hidden") || !explicit.output.includes("allowed")) &&
+      Date.now() < readyBy
+    )
+      await delay(25);
+    assert.equal(restricted.output, "hidden");
+    assert.equal(explicit.output, "allowed");
+  } finally {
+    delete process.env[key];
+    await restricted.stop();
+    await explicit.stop();
+  }
+});
 
 test("owned process tree is observed and terminated without touching an unrelated process", {
   timeout: 35_000,

@@ -13,6 +13,18 @@ export function childEnvironment(extra: NodeJS.ProcessEnv = {}, inherit = true):
   );
 }
 
+/** Pass only runtime plumbing plus explicitly reviewed variables to owned executable code. */
+export function restrictedChildEnvironment(extra: NodeJS.ProcessEnv = {}): NodeJS.ProcessEnv {
+  const host = Object.fromEntries(
+    Object.entries(process.env).filter(([key]) =>
+      /^(?:PATH|PATHEXT|SYSTEMROOT|WINDIR|COMSPEC|TEMP|TMP|HOME|USERPROFILE|LOCALAPPDATA|APPDATA|PLAYWRIGHT_BROWSERS_PATH)$/iu.test(
+        key,
+      ),
+    ),
+  );
+  return childEnvironment({ ...host, ...extra }, false);
+}
+
 async function snapshot(timeout = 3_000): Promise<ProcessIdentity[]> {
   const windows = process.platform === "win32";
   const { stdout } = await execute(
@@ -52,18 +64,18 @@ export class OwnedProcess {
   exited = false;
   outputExceeded = false;
   private observing: Promise<void> | null = null;
-  private readonly timer: NodeJS.Timeout;
+  private timer: NodeJS.Timeout | null = null;
 
   constructor(
     command: string,
     args: string[],
     cwd: string,
     extra: NodeJS.ProcessEnv = {},
-    inherit = true,
+    inherit = false,
   ) {
     this.child = spawn(command, args, {
       cwd,
-      env: childEnvironment(extra, inherit),
+      env: inherit ? childEnvironment(extra, true) : restrictedChildEnvironment(extra),
       shell: false,
       windowsHide: true,
       detached: process.platform !== "win32",
@@ -72,10 +84,12 @@ export class OwnedProcess {
     this.closed = new Promise((accept) => {
       this.child.once("error", () => {
         this.exited = true;
+        if (this.timer) clearInterval(this.timer);
         accept(1);
       });
       this.child.once("close", (code) => {
         this.exited = true;
+        if (this.timer) clearInterval(this.timer);
         accept(code ?? 1);
       });
     });
@@ -120,7 +134,7 @@ export class OwnedProcess {
   }
 
   async stop(): Promise<Cleanup> {
-    clearInterval(this.timer);
+    if (this.timer) clearInterval(this.timer);
     const stopBy = Date.now() + 25_000;
     const remaining = () => {
       const ms = stopBy - Date.now();

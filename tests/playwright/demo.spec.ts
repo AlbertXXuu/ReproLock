@@ -1,5 +1,5 @@
 /// <reference lib="dom" />
-import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { expect, test } from "@playwright/test";
@@ -37,6 +37,35 @@ test("Demo loads standalone brand resources and preserves canonical responsive h
   await expect(home).toHaveAttribute("type", "button");
   await expect(home).toHaveAttribute("data-alvenx-home", "");
   await expect(page.locator("#history-verification")).toContainText("frozen inputs verified");
+  await expect(page.locator("#history-verification")).toHaveClass(/confirmed/u);
+  expect(
+    await page
+      .locator("#history-verification")
+      .evaluate((element) => getComputedStyle(element).color),
+  ).toBe("rgb(37, 99, 235)");
+  await page.locator("#verification").evaluate((element) => element.classList.add("confirmed"));
+  expect(
+    await page.locator("#verification").evaluate((element) => getComputedStyle(element).color),
+  ).toBe("rgb(37, 99, 235)");
+  const start = page.getByRole("button", { name: "Run 20 + 20 checks", exact: true });
+  await expect(start.locator('span[aria-hidden="true"]')).toHaveText("↗");
+  await expect(start).toHaveAccessibleName("Run 20 + 20 checks");
+  const startBox = await start.boundingBox();
+  expect(startBox?.height).toBeGreaterThanOrEqual(58);
+  expect(startBox?.width).toBeGreaterThanOrEqual(44);
+  await expect(start).toHaveCSS("text-decoration-line", "none");
+  expect(
+    await page
+      .locator("a")
+      .evaluateAll((links) => links.filter((link) => /[↗→↓]/u.test(link.textContent ?? "")).length),
+  ).toBe(0);
+  const restingBackground = await start.evaluate(
+    (element) => getComputedStyle(element).backgroundColor,
+  );
+  await start.hover();
+  await expect
+    .poll(() => start.evaluate((element) => getComputedStyle(element).backgroundColor))
+    .not.toBe(restingBackground);
   for (const width of [390, 900, 1440]) {
     await page.setViewportSize({ width, height: 1000 });
     await page.evaluate(() => document.fonts.ready);
@@ -69,10 +98,8 @@ test("Demo loads standalone brand resources and preserves canonical responsive h
       fontReady: true,
     });
   }
-  await page.locator("#start").focus();
-  expect(
-    await page.locator("#start").evaluate((element) => getComputedStyle(element).outlineStyle),
-  ).toBe("solid");
+  await start.focus();
+  expect(await start.evaluate((element) => getComputedStyle(element).outlineStyle)).toBe("solid");
   await home.focus();
   expect(await home.evaluate((element) => getComputedStyle(element).outlineStyle)).toBe("solid");
   await page.emulateMedia({ reducedMotion: "reduce" });
@@ -88,6 +115,22 @@ test("Demo loads standalone brand resources and preserves canonical responsive h
   ])
     expect((await page.request.get(`${demo.address}/assets/${resource}`)).ok()).toBe(true);
   expect(errors).toEqual([]);
+});
+
+test("Demo rejects an oversized retained export before parsing it", async ({ request }) => {
+  const id = "99999999T999999Z-deadbeef";
+  const run = join(process.cwd(), "output", "demo", id);
+  try {
+    await mkdir(run, { recursive: true });
+    await writeFile(join(run, "export.json"), Buffer.alloc(8_388_609, 123));
+    const response = await request.get(`${demo.address}/api/export/${id}`);
+    expect(response.status()).toBe(500);
+    expect(await response.json()).toEqual({
+      error: "Local operation failed; check prerequisites or retained run files",
+    });
+  } finally {
+    await rm(run, { recursive: true, force: true });
+  }
 });
 
 test("saved startup failure survives header home activation without navigation or reloading", async ({

@@ -1,0 +1,40 @@
+name: Real-case trial
+description: Propose an authorized local regression case to test ReproLock's current value.
+title: "[Trial]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ReproLock currently scaffolds and checks a maintainer-reviewed candidate; it does not
+        generate a finished test from issue text. Propose only a repository you own or may test.
+        Public issues must contain public or synthetic information only.
+  - type: input
+    id: repository
+    attributes:
+      label: Public repository or synthetic fixture
+      description: Link a public source, or describe a fixture without sharing private paths.
+    validations:
+      required: true
+  - type: textarea
+    id: regression
+    attributes:
+      label: Functional regression
+      description: State the pre-fix behavior, post-fix behavior, and observable business outcome.
+    validations:
+      required: true
+  - type: textarea
+    id: value
+    attributes:
+      label: What should this trial measure?
+      description: Examples include setup effort, authoring corrections, diagnosis, or later maintenance.
+    validations:
+      required: true
+  - type: checkboxes
+    id: authorization
+    attributes:
+      label: Authorization and data
+      options:
+        - label: I am authorized to run this target locally.
+          required: true
+        - label: The trial can use disposable state and contains no real account or personal data.
+          required: true

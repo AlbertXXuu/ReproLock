@@ -6,159 +6,179 @@
 
 # ReproLock
 
-ReproLock investigates turning a user-supplied functional bug description or recorded browser
-workflow into an independently checked, maintainable, standalone Playwright regression test.
+[![CI](https://github.com/AlbertXXuu/ReproLock/actions/workflows/ci.yml/badge.svg)](https://github.com/AlbertXXuu/ReproLock/actions/workflows/ci.yml)
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-2563eb.svg)](LICENSE)
 
-## Status — Experimental
+**Prove that a reviewed Playwright regression test fails before a fix and passes after it.**
 
-The current implementation is one TypeScript root application with deterministic evidence
-utilities, a local candidate-test verifier, a loopback fixture and a verifiable case Demo.
+ReproLock runs one ordinary Playwright candidate against two exact local Git worktrees, classifies
+only observed business assertions, checks cleanup and target identity, and writes a portable bundle
+whose differential result can be recomputed without a model call.
 
-The new experimental entry point accepts a reviewed, self-contained Playwright test and two exact
-local Git worktrees. It runs the same test on both versions, checks observed reset and assertion
-steps, and exports evidence whose differential gate can be recomputed. See
-[verify a candidate test](docs/local-verification.md) for the supported contract and commands.
+The repository is an **experimental source alpha** and the product decision remains
+**`SPIKE_CONDITIONAL`**. It does not turn issue prose into a finished test, sandbox untrusted code,
+publish an npm package, or claim that it saves more effort than writing Playwright directly.
 
-Safe Unfollow #163 has an unchanged standalone test with **20/20 expected pre-fix failures and
-20/20 post-fix passes**. The honest manual/recorder baseline achieves the same differential and
-two navigation actions. The 2026-09-01 blind experiment is preserved; a separate 2026-09-04 run
-revalidated both tests, with zero retries and no model calls. See the
-[Spike report](spikes/local-functional-regression/SPIKE_REPORT.md) and
-[dated execution evidence](spikes/local-functional-regression/revalidation/2026-09-04/execution.json).
+## Check the evidence in two minutes
 
-The decision remains **SPIKE_CONDITIONAL**. Evidence structure and checkpoint diagnosis are useful,
-but this unusually detailed case has not demonstrated enough incremental effort or maintenance
-value to authorize production implementation. Source hosting and passing CI do not grant product GO.
-There is no published package, general explorer/compiler, or released GitHub Action.
-
-A second local case now exercises official DrawDB Issue #687 with an independently checked, frozen
-test. ReproLock confirmed **20/20 pre-fix functional failures and 20/20 post-fix passes**; ordinary
-Playwright achieved the same 20/20 + 20/20 differential. Both arms bind the exact revisions and all
-28 served build files per revision. This supports cross-case engineering behavior, while the equal
-baseline result and known PR hints still do not establish saved authoring or maintenance effort. See
-the [DrawDB #687 execution report](spikes/local-candidate-verification/drawdb-687/REPORT.md).
-
-## Verifiable local Demo
-
-Install the dependencies below, then copy `demo.example.json` to `demo.local.json` and point it at
-the two supplied Safe Unfollow worktrees. Run `npm ci` in each target; see the
-[exact revisions and setup](docs/demo.md).
-
-```bash
-pnpm demo --config demo.local.json
-```
-
-Open **http://127.0.0.1:4317**. Inspect the frozen source and historical evidence, check prerequisites,
-then run the same test **20 times before and 20 times after** the fix. The UI shows actual progress,
-first failed checkpoint, cancellation/deadline status and independent current-run verification.
-Each run preserves its own evidence under `output/demo/`; failed attempts remain inspectable.
-Download the ordinary Playwright test/config and portable evidence, then check an export with
-`pnpm demo:verify output/demo/<run-id>/export.json`.
-
-This demonstrates one supplied case. It does not establish incremental value over the manual
-baseline or implement a general “issue → test” flow. See the [brand contract](docs/brand.md) and
-[actual acceptance record](harness/context/03-brand-verifiable-demo.md).
-
-![English Demo showing a saved, independently verified 20+20 differential](docs/demo-evidence/demo-1440.png)
-
-The screenshot shows the saved 2026-09-04 run in the current English interface; it is not a new execution.
-
-## Development
-
-Clone the repository into your development directory, then install the pinned dependencies.
-Contribute sequentially on a task branch in your checkout. The maintainer's saved D-drive checkout
-follows the same [ownership and cleanup policy](docs/foundation/branch-and-worktree-policy.md).
-
-Node.js 24.20.0 is the pinned primary runtime; 22.23.2 is the minimum. pnpm is pinned to 11.19.0.
-The workspace fixes `enableGlobalVirtualStore: false` for both CI and ordinary terminals.
-`verifyDepsBeforeRun: error` reports dependency drift before a script runs, without automatically
-replacing `node_modules`. Run the explicit frozen install below when dependencies need updating;
-no machine-specific store path or per-session environment override is required.
+This path verifies the checked-in DrawDB result. It does not rerun DrawDB or require a browser.
 
 ```bash
 git clone https://github.com/AlbertXXuu/ReproLock.git
 cd ReproLock
-corepack enable
-pnpm install --frozen-lockfile
-pnpm exec playwright install chromium
-pnpm check
-pnpm package:smoke
+corepack pnpm install --frozen-lockfile
+corepack pnpm quickstart
 ```
 
-If PowerShell cannot find `pnpm`, or `corepack enable` cannot write into the Node installation,
-use `corepack pnpm` in place of `pnpm`. For example:
+The command exits 0 only when the portable bundle still proves the complete pre-fix failure /
+post-fix pass differential. Try changing a copied field such as a revision, exit code, observation,
+fingerprint or hash; `reprolock verify` must reject the contradiction.
 
-```powershell
-corepack pnpm install --frozen-lockfile
+## Use it on a supplied local regression
+
+Prepare two clean worktrees from the same repository: one at the known pre-fix commit and one at the
+known post-fix commit. Install each target with its own trusted locked command. ReproLock never
+discovers or executes setup commands from issue text or repository prose.
+
+Run each target's reviewed, lockfile-backed build command first. The example below assumes both
+worktrees now contain `dist` and uses Vite's preview server. Create a small issue text file, then
+scaffold a case workspace outside both targets:
+
+```bash
+corepack pnpm reprolock init ../my-reprolock-case \
+  --issue ../issue.txt \
+  --pre ../app-pre \
+  --post ../app-post \
+  --start-node node_modules/vite/bin/vite.js \
+  --start-arg preview \
+  --start-arg --host \
+  --start-arg 127.0.0.1 \
+  --start-arg --port \
+  --start-arg 4173 \
+  --start-arg --strictPort \
+  --served-path dist \
+  --origin http://127.0.0.1:4173
+```
+
+`init` copies the issue and optional `--workflow` file into the ignored `inputs/` directory as
+inert data. It resolves the two Git revisions and creates:
+
+- `candidate.spec.ts`, an intentionally incomplete ordinary Playwright scaffold;
+- `reprolock.local.json`, a local explicit execution configuration;
+- `inputs/manifest.json`, with byte counts and SHA-256 hashes but no source paths; and
+- a case README with the review sequence.
+
+It does not interpret the issue, infer a reset, choose an oracle, or generate executable actions.
+Read the inputs, review and complete the candidate, remove every `REPROLOCK_TODO`, and replace the
+reset description in the local configuration. Then run:
+
+```bash
 corepack pnpm exec playwright install chromium
+corepack pnpm reprolock check ../my-reprolock-case/reprolock.local.json
+corepack pnpm reprolock run ../my-reprolock-case/reprolock.local.json
+corepack pnpm reprolock verify ../my-reprolock-case/runs/run-REPLACE/export.json
+```
+
+`check` reports the exact revisions and fingerprints without starting either application. `run`
+prints its real evidence directory, status, diagnostic and derived outcomes. Exit 0 means the
+requested differential was confirmed; 2 means it was not confirmed, 124 is a deadline, and 130 is
+cancellation. See the [complete candidate and configuration contract](docs/local-verification.md).
+
+## What ReproLock adds to Playwright
+
+Playwright executes browser tests. ReproLock keeps that test standalone and adds a narrow proof
+protocol around it:
+
+| Boundary | Current alpha behavior |
+| --- | --- |
+| Source identity | Requires two clean worktrees with ordinary tracked-index state (no hidden or sparse entries), full revisions, a committed package manifest and lockfile, and hashes the installed Node start entry. |
+| Ignored build output | `servedPaths` hashes a bounded, complete file tree such as `dist` before and after execution. Symlinks and special files are rejected. |
+| Reset | Requires one explicit `reset` step with an observed passing assertion. A fresh context alone is not accepted as application reset. |
+| Outcome | V1 accepts one direct scalar `toBe` assertion inside one later `outcome` step. Operational and unrelated errors are `inconclusive`. |
+| Differential | The same candidate and assertion callsite must fail functionally on pre-fix and pass on post-fix for every declared repetition. |
+| Runtime | Uses one worker, zero retries, loopback HTTP, bounded deadlines, restricted child environments, and observed process cleanup. |
+| Evidence | Canonical hashes bind settings, runtime sources, target fingerprints, reports and attempts; verification recomputes the gate. |
+
+Portable evidence establishes internal consistency, not who executed the run. The candidate source
+is included so reviewers can inspect and run it without ReproLock.
+
+## Trust and safety boundary
+
+The candidate and both target worktrees are **trusted executable code**. ReproLock's import checks,
+restricted environment and browser-origin guard reduce accidental scope; they are not an OS sandbox.
+Do not run code copied from an issue, recorder, model or contributor until you have reviewed it as
+code you are willing to execute under your own account. Custom browser launches, Node networking
+and process APIs can escape the browser fixture guard.
+
+The supported contract requires the target to bind only to loopback; standard Playwright fixtures
+are guarded to the exact configured origin. Portable exports omit configuration paths, raw start
+arguments, input prose, page bodies and process output. Local run metadata stores hashes and sizes
+instead of raw stdout/stderr, and general runs disable Playwright failure snapshots. The candidate
+itself can still contain private values, so inspect it and the export before sharing. Read the
+[security policy](SECURITY.md) and use the
+[private report channel](https://github.com/AlbertXXuu/ReproLock/security/advisories/new) for a
+vulnerability.
+
+## Evidence so far
+
+| Case | ReproLock result | Honest control and limitation |
+| --- | --- | --- |
+| Safe Unfollow #163 | 20/20 expected pre-fix failures and 20/20 post-fix passes, revalidated on 2026-09-04. | The manual/recorder baseline reached the same differential and action count. This highly structured case did not prove incremental value. |
+| DrawDB #687 | 20/20 pre-fix functional failures and 20/20 post-fix passes. Its frozen historical inventory separately binds all 28 served build files. | Ordinary Playwright also achieved 20/20 + 20/20. The candidate used known issue/PR hints, so authoring and maintenance benefit remain unmeasured. |
+
+Inspect the [Safe Unfollow Spike report](spikes/local-functional-regression/SPIKE_REPORT.md), its
+[dated revalidation](spikes/local-functional-regression/revalidation/2026-09-04/execution.json),
+and the [DrawDB #687 report](spikes/local-candidate-verification/drawdb-687/REPORT.md). Repetitions
+show stability for these exact cases; they do not establish general reliability.
+
+## Safe Unfollow reference evidence UI
+
+The local UI is a fixed reference case and historical evidence viewer, not the general CLI. After
+preparing the two Safe Unfollow worktrees described in [the Demo guide](docs/demo.md), run:
+
+```bash
 corepack pnpm demo --config demo.local.json
 ```
 
-This invokes the pinned package manager directly without requiring a global pnpm shim. A Node
-installation with Corepack is required; reopen your terminal after installing the runtime.
+Open **http://127.0.0.1:7872**. You can inspect the frozen standalone test, saved evidence and a real
+20+20 rerun. New evidence is stored under `output/demo/`; raw process output is not persisted by
+default. The UI remains English to match the other AlvenX project interfaces.
 
-`pnpm check` runs format, lint, brand/README validation, root and standalone typechecks,
-unit/process tests, Chromium fixture and Demo browser tests, and verification of the checked-in
-Spike, Demo and DrawDB evidence. CI repeats those checks on
-Node 22.23.2 and 24.20.0. The package smoke inspects archive paths, content and private metadata;
-it does not claim an installable published product. No target checkout or model credential is
-required for these engineering checks.
+![English Safe Unfollow reference UI showing a saved, independently verified 20+20 differential](docs/demo-evidence/demo-1440.png)
 
-## Replay and evidence
+The screenshot shows the saved 2026-09-04 run. It is not evidence of a new execution.
 
-The [frozen spec](spikes/local-functional-regression/generated/safe-unfollow-163.spec.ts) imports
-only `@playwright/test`. Follow its [prerequisites](spikes/local-functional-regression/generated/safe-unfollow-163.meta.json)
-to start the supplied local target on `127.0.0.1:4173`, then run:
+## Development
+
+Node.js 24.20.0 is the primary runtime and 22.23.2 is the minimum. pnpm 11.19.0 is pinned. If your
+shell cannot find `pnpm`, use `corepack pnpm` as shown below; no global pnpm install is required.
 
 ```bash
-node spikes/local-functional-regression/generated/replay-safe-unfollow-163.mjs --repeat 1
-pnpm evidence:verify
+corepack pnpm install --frozen-lockfile
+corepack pnpm exec playwright install chromium
+corepack pnpm check
+corepack pnpm package:smoke
 ```
 
-The wrapper rejects readiness redirects, bounds execution, and terminates its owned Playwright
-process tree on cancellation/deadline. The separately started target server remains the caller's
-responsibility. Windows process cleanup was exercised with the real target; other platforms need
-their own process-tree evidence beyond the CI fixture tests.
+`pnpm check` runs formatting, lint, brand validation, TypeScript, unit/process and browser tests,
+and every checked-in evidence verifier. CI repeats the accepted checks on Node 22.23.2 and 24.20.0.
+The package smoke checks a private source archive; installability and publication are intentionally
+not claimed.
 
-The verifier checks canonical bytes, hashes, frozen inputs, attempts, outcome/minimization
-contracts and summary consistency. It requires all five registered 2026-09-04 revalidation files
-and applies the same attempt/summary gates there, including execution identity, exit codes,
-revision/report/source bindings, timing and cleanup consistency. The current case-specific verifier
-checks the complete registered Spike bundle; materializing an isolated run alone does not satisfy
-that full-bundle gate. A manifest is an integrity check, not an authenticated proof
-of which source ran. The uncommitted run-envelope proposal was removed because computing current
-hashes when importing a historical report cannot establish past execution provenance. Historical
-v1 summaries and attempts remain byte-identical. Raw reports stay in ignored local output; their
-hashes and normalized results are portable. Materialization refuses to replace a differing run:
-use a new evidence root for each new experiment.
+The main implementation lives in `src/verify/`; `src/demo/` is the bounded reference UI;
+`spikes/` preserves case evidence; and `plans/` plus `harness/context/` preserve decisions and
+actual acceptance commands. Read the [project charter](PROJECT_CHARTER.md),
+[architecture baseline](reference/ARCHITECTURE_AND_ACCEPTANCE_BASELINE.md) and
+[contribution guide](CONTRIBUTING.md) before expanding scope.
 
-Captured tool hashes are checked against their independently inspected historical source commit
-`bfc2d521631b1bb69a0bf83a1a512a213cf97211`; the four spec/config hashes also match current bundle bytes.
-Updating the verifier does not rewrite historical execution records. These checks establish
-internal consistency, and do not authenticate who executed the experiment.
+## Project gate
 
-## Repository map
+Public source and passing CI do not grant product `GO`. The next gate is one outside maintainer,
+without author assistance, completing `init → review → check → run → verify`, keeping the standalone
+test or CI integration, and providing feedback that changes the product contract. Until then, do
+not claim automatic generation, saved developer time, lower maintenance cost or production support.
 
-- `src/domain/` and `src/evidence/`: terminal contracts, canonical JSON and atomic evidence writing.
-- `src/demo/`: the bounded local Safe Unfollow Demo, runner, reporter and current-run verifier.
-- `src/verify/`: explicit local candidate execution, native assertion observations and a separate
-  versioned differential-evidence contract.
-- `fixtures/loopback/` and `tests/`: executable foundation and bounded Spike regression checks.
-- `spikes/local-functional-regression/`: frozen standalone output, case-specific evidence tools,
-  historical records and separate dated revalidation.
-- `reference/` and `docs/`: architecture baseline, accepted ADR and sequential ownership policy.
-- `plans/` and `harness/context/`: exact commands, decisions, verification and remaining gates.
-- `packages/` and `examples/`: admission notes; logical boundaries do not require empty modules.
-
-See [PROJECT_CHARTER.md](PROJECT_CHARTER.md) and the
-[architecture baseline](reference/ARCHITECTURE_AND_ACCEPTANCE_BASELINE.md) for independent oracles,
-explicit reset, no-model replay, inconclusive handling, data minimization and release gates.
-Historical Wave 1 branches and stash objects remain preserved and are not current predecessor evidence.
-
-## Next gate
-
-The current increment tests whether independent candidate verification is useful across supplied
-local cases. Removing the conditional status requires a less-structured real case, measured effort
-or maintenance benefit against an honest baseline, and an explicit scope/value decision. Fixture
-checks establish engineering behavior; real maintainer adoption and saved human time remain open
-questions. See the [current experiment plan](plans/06-drawdb-value-validation.md).
+ReproLock code is licensed under [Apache-2.0](LICENSE). Instrument Sans is distributed under the
+[SIL Open Font License 1.1](docs/assets/InstrumentSans-OFL.txt); see
+[third-party notices](THIRD_PARTY_NOTICES.md). The AlvenX and ReproLock names and visual marks have
+separate [brand-use terms](TRADEMARKS.md).

@@ -125,7 +125,9 @@ async function refresh() {
     byId("pre-revision").textContent = state.case.revisions["pre-fix"];
     byId("post-revision").textContent = state.case.revisions["post-fix"];
     if (!showingStored) display(state.current);
-    byId("history-verification").textContent = state.historical.verification.ok
+    const historyVerdict = byId("history-verification");
+    historyVerdict.classList.toggle("confirmed", state.historical.verification.ok);
+    historyVerdict.textContent = state.historical.verification.ok
       ? "Stored bundle: consistency and frozen inputs verified"
       : "Stored bundle verification failed; inspect the source";
     byId("history-json").textContent = JSON.stringify(state.historical, null, 2);
