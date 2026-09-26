@@ -1,5 +1,9 @@
 # ReproLock Architecture and Acceptance Baseline
 
+<!-- 2026-09-26 execution routing -->
+> Historical architecture/acceptance baseline. Current executable commands and exit codes are in [local verification](../docs/local-verification.md); current engineering scope is in [README](../README.md) and [PROJECT_CHARTER](../PROJECT_CHARTER.md). Old phase gates and release instructions do not dispatch new work.
+
+
 - **Status:** Phase baseline for human review
 - **Decision:** `CONDITIONAL GO` for architecture/foundation; product `GO` remains gated
 - **Scope:** Local functional QA on explicit user-supplied repositories and disposable targets

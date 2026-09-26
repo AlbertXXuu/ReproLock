@@ -1,5 +1,9 @@
 # Phase Context Records
 
+<!-- 2026-09-26 execution routing -->
+> Existing numbered contexts are historical acceptance records, not pending assignments. Current work follows [README](../../README.md), [PROJECT_CHARTER](../../PROJECT_CHARTER.md) and a concrete new phase plan when needed. Preserve original checks and resource/authorization dates.
+
+
 Each task branch owns exactly one durable context file:
 
 ```text

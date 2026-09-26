@@ -1,5 +1,9 @@
 # Wave 0 Repository Foundation ExecPlan
 
+<!-- 2026-09-26 execution routing -->
+> Historical phase plan. Preserve its original decisions and acceptance record; pending checkboxes, adoption gates and publishing permissions do not authorize or block a new phase. Current scope is in [README](../README.md), [PROJECT_CHARTER](../PROJECT_CHARTER.md) and the [plan index](README.md).
+
+
 > **Historical pre-v2 record.** This file preserves the commands and decisions observed during
 > Wave 0. Its public-target, parallel-Wave, package-topology, and successor assumptions were
 > superseded by the scoped clean-start baseline and do not authorize current work.

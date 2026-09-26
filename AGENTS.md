@@ -10,9 +10,9 @@ Read `PROJECT_CHARTER.md` before making product or architecture decisions.
 
 This repository is for local functional QA and regression engineering.
 
-- Work only on repositories and test applications supplied by the user.
+- Work on existing repository fixtures, already authorized public cases, or repositories and test applications supplied by the user. Record the source and exact revisions used.
 - Run target applications locally on loopback addresses or in a disposable local test environment.
-- Do not discover new public targets or broaden the task beyond the supplied repository.
+- New target discovery must be part of the assigned task; keep engineering maintenance within its assigned repository and existing cases.
 - Do not access external accounts, production systems, private data, or third-party hosted instances.
 - Do not broaden the task beyond functional behavior in the supplied local test application.
 - If a requested task is not ordinary local functional QA, stop and report it as outside this workflow.
@@ -35,14 +35,14 @@ This repository is for local functional QA and regression engineering.
   and one writer at a time. Add an exclusive worktree only for a concrete parallel need;
   follow `docs/foundation/branch-and-worktree-policy.md` for integration and cleanup.
 - Read only the files relevant to the assigned phase.
-- For multi-step work, create or update an ExecPlan under `plans/`.
+- For multi-step implementation needing durable coordination, create or update an ExecPlan under `plans/`; reuse the assigned phase record. Simple reversible documentation fixes do not require a new plan.
 - Record baseline commands and their actual results before editing.
 - Modify only the directories authorized by the phase prompt.
 - Preserve unrelated user work and all prior attempts.
 - Prefer small, reviewable commits.
 - Resolve routine ambiguity using the safest reversible option and record the decision.
 - Do not claim success without command output or inspectable artifacts.
-- If required inputs are missing, return `blocked`; if an accepted check cannot observe one
+- If required inputs are missing, continue independent assigned work and identify the dependent step; if an accepted check cannot observe one
   outcome, classify that outcome `inconclusive`; if a required Spike gate fails, the final Spike
   decision is `NO-GO`. Always include evidence.
 - Parallel branches update only their own phase context. The integration branch alone updates the central build log.

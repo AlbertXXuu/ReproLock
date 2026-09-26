@@ -4,6 +4,9 @@
 
 State the one observable user outcome this phase must produce.
 
+Name the existing Issue, reproducible failure, explicit requirement or registered research hypothesis
+that justifies the work, its evidence location, and the smallest acceptance condition.
+
 ## Scope
 
 ### Allowed paths
@@ -14,7 +17,10 @@ State the one observable user outcome this phase must produce.
 
 - ...
 
-## Inputs supplied by the user
+## Authorized inputs and existing fixtures
+
+Use existing fixtures or already authorized public cases when sufficient. Record unknown inputs
+and resolve only the milestones that depend on them; external user recruitment is not a prerequisite.
 
 - target repository/path:
 - issue snapshot:

@@ -2,6 +2,11 @@
 
 Multi-step work maintains one living plan under `plans/`, governed by root `PLANS.md`.
 
+Plans `00` through `07` are completed or superseded phase records. Their old branches, release
+permissions and external-adoption gates do not dispatch current work. The next engineering scope
+is the complete existing-case workflow described in the current README and PROJECT_CHARTER.
+Open a new phase plan only for the concrete task being executed; preserve historical evidence.
+
 Use a stable lowercase identifier:
 
 ```text
