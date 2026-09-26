@@ -1,5 +1,9 @@
 # Single-session foundation and architecture ExecPlan
 
+<!-- 2026-09-26 execution routing -->
+> Historical phase plan. Preserve its original decisions and acceptance record; pending checkboxes, adoption gates and publishing permissions do not authorize or block a new phase. Current scope is in [README](../README.md), [PROJECT_CHARTER](../PROJECT_CHARTER.md) and the [plan index](README.md).
+
+
 ## Goal
 
 Produce one reviewable commit that gives ReproLock a minimal, executable local-functional-QA

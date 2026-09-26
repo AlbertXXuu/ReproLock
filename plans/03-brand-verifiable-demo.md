@@ -1,5 +1,9 @@
 # Brand and verifiable local Demo
 
+<!-- 2026-09-26 execution routing -->
+> Historical phase plan. Preserve its original decisions and acceptance record; pending checkboxes, adoption gates and publishing permissions do not authorize or block a new phase. Current scope is in [README](../README.md), [PROJECT_CHARTER](../PROJECT_CHARTER.md) and the [plan index](README.md).
+
+
 ## Goal and authorization
 
 Deliver a branded, runnable Safe Unfollow #163 Demo whose current result comes from actual

@@ -1,5 +1,9 @@
 # Local differential verification — execution plan
 
+<!-- 2026-09-26 execution routing -->
+> Historical phase plan. Preserve its original decisions and acceptance record; pending checkboxes, adoption gates and publishing permissions do not authorize or block a new phase. Current scope is in [README](../README.md), [PROJECT_CHARTER](../PROJECT_CHARTER.md) and the [plan index](README.md).
+
+
 Owner authorization: 2026-09-05 conversation, following the public-readiness audit and the
 proposal to accept a supplied local repository, two revisions and a candidate Playwright test.
 Product decision remains `SPIKE_CONDITIONAL`; this is a bounded value-validation increment.

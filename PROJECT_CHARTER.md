@@ -113,11 +113,16 @@ The source of truth is not a model statement or a screenshot alone. It is the co
 ### Production v0.x
 
 - fresh install works;
-- local fixture and one user-selected real case both work;
+- local fixtures and a documented authorized case both work, with pinned inputs and revisions;
 - replay has no model dependency;
 - package and GitHub Action have bounded, documented behavior;
 - an independent reviewer can reproduce the evidence.
 
 ### v1.0
 
-Do not plan v1.0 until at least one external maintainer keeps the generated test or CI integration in a real project and external feedback has changed the product contract.
+Plan a stable release from a defined supported workflow, fresh-install and end-to-end validation,
+versioned evidence compatibility, clear failure behavior, complete documentation, and a reviewed
+maintenance scope. These are future acceptance requirements, not a declaration that v1.0 is ready.
+External adoption remains an observed outcome and can inform later changes; it is not a prerequisite
+for engineering improvements or release planning. Efficiency and production claims require their
+own evidence.

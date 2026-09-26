@@ -173,10 +173,11 @@ actual acceptance commands. Read the [project charter](PROJECT_CHARTER.md),
 
 ## Project gate
 
-Public source and passing CI do not grant product `GO`. The next gate is one outside maintainer,
-without author assistance, completing `init → review → check → run → verify`, keeping the standalone
-test or CI integration, and providing feedback that changes the product contract. Until then, do
-not claim automatic generation, saved developer time, lower maintenance cost or production support.
+The next engineering milestone is a complete, documented `init → review → check → run → verify`
+workflow using existing fixtures and authorized cases, with fresh-environment checks, useful failure
+messages and independently verifiable evidence. External adoption is recorded when observed and
+can guide later improvements. The current source alpha does not establish automatic generation,
+saved developer time, lower maintenance cost or production support; those claims need specific evidence.
 
 ReproLock code is licensed under [Apache-2.0](LICENSE). Instrument Sans is distributed under the
 [SIL Open Font License 1.1](docs/assets/InstrumentSans-OFL.txt); see

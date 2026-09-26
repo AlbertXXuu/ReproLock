@@ -1,5 +1,9 @@
 # ReproLock Build Log
 
+<!-- 2026-09-26 execution routing -->
+> Coverage: the dated integration entries below document their original phases and are not a live project-status summary. Current scope is in [README](../README.md); completed phase details are indexed in [context](context/README.md).
+
+
 This is the central integration record for evidence-gated phases. Wave 0 creates this file; after
 that initialization, only the integration branch may update it. Task branches write their actual
 commands and evidence to `harness/context/<phase>.md`.

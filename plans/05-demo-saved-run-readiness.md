@@ -1,5 +1,9 @@
 # Saved run readiness
 
+<!-- 2026-09-26 execution routing -->
+> Historical phase plan. Preserve its original decisions and acceptance record; pending checkboxes, adoption gates and publishing permissions do not authorize or block a new phase. Current scope is in [README](../README.md), [PROJECT_CHARTER](../PROJECT_CHARTER.md) and the [plan index](README.md).
+
+
 Observed problem: main `9e630b8` CI run `33902484660`, Node 24 browser test at
 `tests/playwright/demo.spec.ts:104`, displayed `Startup failed` after clicking its retained run.
 All 82 unit/process tests passed; Node 22 passed. The failure log is preserved in local ignored
