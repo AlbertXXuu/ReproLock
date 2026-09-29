@@ -126,10 +126,18 @@ vulnerability.
 | Safe Unfollow #163 | 20/20 expected pre-fix failures and 20/20 post-fix passes, revalidated on 2026-09-04. | The manual/recorder baseline reached the same differential and action count. This highly structured case did not prove incremental value. |
 | DrawDB #687 | 20/20 pre-fix functional failures and 20/20 post-fix passes. Its frozen historical inventory separately binds all 28 served build files. | Ordinary Playwright also achieved 20/20 + 20/20. The candidate used known issue/PR hints, so authoring and maintenance benefit remain unmeasured. |
 
-Inspect the [Safe Unfollow Spike report](spikes/local-functional-regression/SPIKE_REPORT.md), its
-[dated revalidation](spikes/local-functional-regression/revalidation/2026-09-04/execution.json),
-and the [DrawDB #687 report](spikes/local-candidate-verification/drawdb-687/REPORT.md). Repetitions
-show stability for these exact cases; they do not establish general reliability.
+Read the complete reports in either language:
+
+- Safe Unfollow Spike: [English](spikes/local-functional-regression/SPIKE_REPORT.md) ·
+  [简体中文](docs/reports/SPIKE_REPORT.zh-CN.md), with its
+  [dated revalidation](spikes/local-functional-regression/revalidation/2026-09-04/execution.json).
+- DrawDB #687: [English](spikes/local-candidate-verification/drawdb-687/REPORT.md) ·
+  [简体中文](docs/reports/DRAWDB_687_REPORT.zh-CN.md).
+
+The Chinese reports translate the dated English originals, including their limitations. Original
+reports and frozen evidence bundles remain unchanged; translations link back to their sources and
+this bilingual index. Repetitions show stability for these exact cases; they do not establish
+general reliability.
 
 ## Safe Unfollow reference evidence UI
 
