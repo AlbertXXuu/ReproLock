@@ -9,6 +9,11 @@
 [![CI](https://github.com/AlbertXXuu/ReproLock/actions/workflows/ci.yml/badge.svg)](https://github.com/AlbertXXuu/ReproLock/actions/workflows/ci.yml)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-2563eb.svg)](LICENSE)
 
+Engineering case / 工程案例: [English](docs/case-studies/verified-browser-regression.md) ·
+[简体中文](docs/case-studies/verified-browser-regression.zh-CN.md) ·
+Website / 网站阅读版: [English](https://alvenx.com/notes/engineering/verified-browser-regression) ·
+[简体中文](https://alvenx.com/notes/engineering/verified-browser-regression-zh)
+
 **Prove that a reviewed Playwright regression test fails before a fix and passes after it.**
 
 ReproLock runs one ordinary Playwright candidate against two exact local Git worktrees, classifies
