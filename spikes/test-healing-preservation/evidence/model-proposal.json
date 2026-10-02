@@ -1,0 +1,4 @@
+{
+  "reason": "The original ID selectors no longer match the UI. Use the current field labels and button name, preserving the checkout inputs and the assertions that submission succeeds and charges $23.00. No tools were used or tests executed.",
+  "testBody": "await page.getByLabel('Quantity', { exact: true }).fill('2');\nawait page.getByLabel('Shipping', { exact: true }).selectOption('express');\nawait page.getByLabel('Coupon', { exact: true }).fill('FLAT2');\nawait page.getByRole('button', { name: 'Place order', exact: true }).click();\nawait expect(page.getByRole('status', { name: 'Order acknowledgement', exact: true })).toHaveText('Order received');\nawait expect(page.getByLabel('Charged amount', { exact: true })).toHaveText('$23.00');"
+}
