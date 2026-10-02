@@ -1,0 +1,21 @@
+Repair this Playwright test after a UI selector change. You must not use tools or access files: all needed evidence is included below. Return JSON matching the schema, with only the replacement statements for the test body in testBody (no imports or outer test declaration). Available variables are page and expect. Do not modify the application. Keep a test that checks the intended checkout result. Use ordinary Playwright APIs.
+
+Original body:
+await page.locator('#quantity').fill('2');
+await page.locator('#shipping').selectOption('express');
+await page.locator('#coupon').fill('FLAT2');
+await page.locator('#place').click();
+await expect(page.getByRole('status', {name: 'Order acknowledgement', exact: true})).toHaveText('Order received');
+await expect(page.getByLabel('Charged amount')).toHaveText('$23.00');
+
+Failure on current UI: locator('#quantity').fill timed out; the page did not submit an order.
+
+Current page HTML after loading:
+<h1>Checkout</h1><form>
+<label for="cart-qty">Quantity</label><input id="cart-qty" type="number" value="1" min="1" max="10">
+<label for="delivery">Shipping</label><select id="delivery"><option value="standard">Standard</option><option value="express">Express</option></select>
+<label for="offer">Coupon</label><input id="offer">
+<button id="confirm" type="submit">Place order</button></form>
+<p role="status" aria-label="Order acknowledgement"></p><output aria-label="Charged amount"></output>
+
+On successful submission the acknowledgement is Order received and the charged amount is displayed as a dollar string. The UI change preserved the checkout business rule. No browser or test execution tools are available in this proposal-only task.

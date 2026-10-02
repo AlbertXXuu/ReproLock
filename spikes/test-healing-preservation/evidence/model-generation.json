@@ -1,0 +1,29 @@
+{
+  "mode": "reviewed proposal without browser tools, replayed locally",
+  "formatting": "literal newline escapes decoded; Biome formatting only",
+  "servedModel": null,
+  "actualReasoningEffort": null,
+  "extraPaidService": 0,
+  "invocations": 1,
+  "harness": "codex-cli 0.159.2",
+  "inputSha256": "78ffc1ca95ae3bb5567e5b88bea2e127966050a2ca053b0e7323ae74cd6a81f4",
+  "configuredRequest": {
+    "reasoningEffort": "ultra",
+    "model": "gpt-6.1-sol",
+    "source": "local config observed after invocation; no CLI override"
+  },
+  "date": "2026-10-02",
+  "verificationLimit": "JSON event stream did not expose served settings",
+  "outputSha256": "9e8a6a49e12190790f170a520fb0ce59c3f99d4e3de839fd11075ccb0befaf28",
+  "usage": {
+    "input_tokens": 20054,
+    "cached_input_tokens": 0,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 427,
+    "reasoning_output_tokens": 221
+  },
+  "toolCalls": 0,
+  "originalOutputSha256": "b034f435e88d5afa695c19c0d21d81eb1dbd1923c8659d9af91af0d5bbd34abe",
+  "originalInputSha256": "78ffc1ca95ae3bb5567e5b88bea2e127966050a2ca053b0e7323ae74cd6a81f4",
+  "publishedTextNormalization": "Git LF text normalization; original input/output hashes retained separately"
+}

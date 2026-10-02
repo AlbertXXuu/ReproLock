@@ -1,0 +1,433 @@
+{
+  "schema": "reprolock.healing-preservation.v1",
+  "caseCount": 1,
+  "startTime": "2026-10-02T05:44:46.672Z",
+  "durationMs": 21216.977,
+  "rawReport": {
+    "name": "healer-control-raw.json",
+    "sha256": "16a73f25d8d98eda19f065a94c447a90270263c0c33415275c937ac26f0510ea"
+  },
+  "sourceSha256AtProjection": {
+    "fixture.ts": "84a32a41d63dd91191499d9990c4a2319e5755056f5f0762d4479e8b7c3ae875",
+    "control.spec.ts": "97509f9e1b10beaa23e8d3d6467a5ccbb788693b1eb547b248bf7f8943153acd",
+    "model-proposal.spec.ts": "37d32ab60931fda31c20870c74943be3b217f632cd572970da30b55972bc58b3",
+    "playwright.config.ts": "26ac8a2d77b00db02bd419320027d4459b7d872e7a0b2fd7ddded27c40bc2b85",
+    "summarize.mjs": "48c83f0e882b34a7da517a83a499f240d9b70228a12f04e99767f03d2495a84c"
+  },
+  "outerMeasurementStats": {
+    "startTime": "2026-10-02T05:44:46.672Z",
+    "duration": 21216.977,
+    "expected": 36,
+    "skipped": 12,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "candidateOutcomeCounts": {
+    "correct-pass": 15,
+    "business-bug-captured": 9,
+    "false-green": 6,
+    "locator-failure": 6
+  },
+  "skipped": 12,
+  "inconclusive": 0,
+  "observationCount": 36,
+  "observations": [
+    {
+      "ui": "old",
+      "buggy": false,
+      "strategy": "original",
+      "repeat": 0,
+      "testOutcome": "pass",
+      "committedChargesCents": [2300],
+      "requiredChargeCents": 2300,
+      "classification": "correct-pass",
+      "browserVersion": "151.0.7922.34"
+    },
+    {
+      "ui": "old",
+      "buggy": false,
+      "strategy": "repaired",
+      "repeat": 0,
+      "testOutcome": "pass",
+      "committedChargesCents": [2300],
+      "requiredChargeCents": 2300,
+      "classification": "correct-pass",
+      "browserVersion": "151.0.7922.34"
+    },
+    {
+      "ui": "old",
+      "buggy": false,
+      "strategy": "weakened",
+      "repeat": 0,
+      "testOutcome": "pass",
+      "committedChargesCents": [2300],
+      "requiredChargeCents": 2300,
+      "classification": "correct-pass",
+      "browserVersion": "151.0.7922.34"
+    },
+    {
+      "ui": "old",
+      "buggy": true,
+      "strategy": "original",
+      "repeat": 0,
+      "testOutcome": "fail",
+      "committedChargesCents": [2500],
+      "requiredChargeCents": 2300,
+      "classification": "business-bug-captured",
+      "browserVersion": "151.0.7922.34"
+    },
+    {
+      "ui": "old",
+      "buggy": true,
+      "strategy": "repaired",
+      "repeat": 0,
+      "testOutcome": "fail",
+      "committedChargesCents": [2500],
+      "requiredChargeCents": 2300,
+      "classification": "business-bug-captured",
+      "browserVersion": "151.0.7922.34"
+    },
+    {
+      "ui": "old",
+      "buggy": true,
+      "strategy": "weakened",
+      "repeat": 0,
+      "testOutcome": "pass",
+      "committedChargesCents": [2500],
+      "requiredChargeCents": 2300,
+      "classification": "false-green",
+      "browserVersion": "151.0.7922.34"
+    },
+    {
+      "ui": "new",
+      "buggy": false,
+      "strategy": "original",
+      "repeat": 0,
+      "testOutcome": "fail",
+      "committedChargesCents": [],
+      "requiredChargeCents": 2300,
+      "classification": "locator-failure",
+      "browserVersion": "151.0.7922.34"
+    },
+    {
+      "ui": "new",
+      "buggy": false,
+      "strategy": "repaired",
+      "repeat": 0,
+      "testOutcome": "pass",
+      "committedChargesCents": [2300],
+      "requiredChargeCents": 2300,
+      "classification": "correct-pass",
+      "browserVersion": "151.0.7922.34"
+    },
+    {
+      "ui": "new",
+      "buggy": false,
+      "strategy": "weakened",
+      "repeat": 0,
+      "testOutcome": "pass",
+      "committedChargesCents": [2300],
+      "requiredChargeCents": 2300,
+      "classification": "correct-pass",
+      "browserVersion": "151.0.7922.34"
+    },
+    {
+      "ui": "new",
+      "buggy": true,
+      "strategy": "original",
+      "repeat": 0,
+      "testOutcome": "fail",
+      "committedChargesCents": [],
+      "requiredChargeCents": 2300,
+      "classification": "locator-failure",
+      "browserVersion": "151.0.7922.34"
+    },
+    {
+      "ui": "new",
+      "buggy": true,
+      "strategy": "repaired",
+      "repeat": 0,
+      "testOutcome": "fail",
+      "committedChargesCents": [2500],
+      "requiredChargeCents": 2300,
+      "classification": "business-bug-captured",
+      "browserVersion": "151.0.7922.34"
+    },
+    {
+      "ui": "new",
+      "buggy": true,
+      "strategy": "weakened",
+      "repeat": 0,
+      "testOutcome": "pass",
+      "committedChargesCents": [2500],
+      "requiredChargeCents": 2300,
+      "classification": "false-green",
+      "browserVersion": "151.0.7922.34"
+    },
+    {
+      "ui": "old",
+      "buggy": false,
+      "strategy": "original",
+      "repeat": 1,
+      "testOutcome": "pass",
+      "committedChargesCents": [2300],
+      "requiredChargeCents": 2300,
+      "classification": "correct-pass",
+      "browserVersion": "151.0.7922.34"
+    },
+    {
+      "ui": "old",
+      "buggy": false,
+      "strategy": "repaired",
+      "repeat": 1,
+      "testOutcome": "pass",
+      "committedChargesCents": [2300],
+      "requiredChargeCents": 2300,
+      "classification": "correct-pass",
+      "browserVersion": "151.0.7922.34"
+    },
+    {
+      "ui": "old",
+      "buggy": false,
+      "strategy": "weakened",
+      "repeat": 1,
+      "testOutcome": "pass",
+      "committedChargesCents": [2300],
+      "requiredChargeCents": 2300,
+      "classification": "correct-pass",
+      "browserVersion": "151.0.7922.34"
+    },
+    {
+      "ui": "old",
+      "buggy": true,
+      "strategy": "original",
+      "repeat": 1,
+      "testOutcome": "fail",
+      "committedChargesCents": [2500],
+      "requiredChargeCents": 2300,
+      "classification": "business-bug-captured",
+      "browserVersion": "151.0.7922.34"
+    },
+    {
+      "ui": "old",
+      "buggy": true,
+      "strategy": "repaired",
+      "repeat": 1,
+      "testOutcome": "fail",
+      "committedChargesCents": [2500],
+      "requiredChargeCents": 2300,
+      "classification": "business-bug-captured",
+      "browserVersion": "151.0.7922.34"
+    },
+    {
+      "ui": "old",
+      "buggy": true,
+      "strategy": "weakened",
+      "repeat": 1,
+      "testOutcome": "pass",
+      "committedChargesCents": [2500],
+      "requiredChargeCents": 2300,
+      "classification": "false-green",
+      "browserVersion": "151.0.7922.34"
+    },
+    {
+      "ui": "new",
+      "buggy": false,
+      "strategy": "original",
+      "repeat": 1,
+      "testOutcome": "fail",
+      "committedChargesCents": [],
+      "requiredChargeCents": 2300,
+      "classification": "locator-failure",
+      "browserVersion": "151.0.7922.34"
+    },
+    {
+      "ui": "new",
+      "buggy": false,
+      "strategy": "repaired",
+      "repeat": 1,
+      "testOutcome": "pass",
+      "committedChargesCents": [2300],
+      "requiredChargeCents": 2300,
+      "classification": "correct-pass",
+      "browserVersion": "151.0.7922.34"
+    },
+    {
+      "ui": "new",
+      "buggy": false,
+      "strategy": "weakened",
+      "repeat": 1,
+      "testOutcome": "pass",
+      "committedChargesCents": [2300],
+      "requiredChargeCents": 2300,
+      "classification": "correct-pass",
+      "browserVersion": "151.0.7922.34"
+    },
+    {
+      "ui": "new",
+      "buggy": true,
+      "strategy": "original",
+      "repeat": 1,
+      "testOutcome": "fail",
+      "committedChargesCents": [],
+      "requiredChargeCents": 2300,
+      "classification": "locator-failure",
+      "browserVersion": "151.0.7922.34"
+    },
+    {
+      "ui": "new",
+      "buggy": true,
+      "strategy": "repaired",
+      "repeat": 1,
+      "testOutcome": "fail",
+      "committedChargesCents": [2500],
+      "requiredChargeCents": 2300,
+      "classification": "business-bug-captured",
+      "browserVersion": "151.0.7922.34"
+    },
+    {
+      "ui": "new",
+      "buggy": true,
+      "strategy": "weakened",
+      "repeat": 1,
+      "testOutcome": "pass",
+      "committedChargesCents": [2500],
+      "requiredChargeCents": 2300,
+      "classification": "false-green",
+      "browserVersion": "151.0.7922.34"
+    },
+    {
+      "ui": "old",
+      "buggy": false,
+      "strategy": "original",
+      "repeat": 2,
+      "testOutcome": "pass",
+      "committedChargesCents": [2300],
+      "requiredChargeCents": 2300,
+      "classification": "correct-pass",
+      "browserVersion": "151.0.7922.34"
+    },
+    {
+      "ui": "old",
+      "buggy": false,
+      "strategy": "repaired",
+      "repeat": 2,
+      "testOutcome": "pass",
+      "committedChargesCents": [2300],
+      "requiredChargeCents": 2300,
+      "classification": "correct-pass",
+      "browserVersion": "151.0.7922.34"
+    },
+    {
+      "ui": "old",
+      "buggy": false,
+      "strategy": "weakened",
+      "repeat": 2,
+      "testOutcome": "pass",
+      "committedChargesCents": [2300],
+      "requiredChargeCents": 2300,
+      "classification": "correct-pass",
+      "browserVersion": "151.0.7922.34"
+    },
+    {
+      "ui": "old",
+      "buggy": true,
+      "strategy": "original",
+      "repeat": 2,
+      "testOutcome": "fail",
+      "committedChargesCents": [2500],
+      "requiredChargeCents": 2300,
+      "classification": "business-bug-captured",
+      "browserVersion": "151.0.7922.34"
+    },
+    {
+      "ui": "old",
+      "buggy": true,
+      "strategy": "repaired",
+      "repeat": 2,
+      "testOutcome": "fail",
+      "committedChargesCents": [2500],
+      "requiredChargeCents": 2300,
+      "classification": "business-bug-captured",
+      "browserVersion": "151.0.7922.34"
+    },
+    {
+      "ui": "old",
+      "buggy": true,
+      "strategy": "weakened",
+      "repeat": 2,
+      "testOutcome": "pass",
+      "committedChargesCents": [2500],
+      "requiredChargeCents": 2300,
+      "classification": "false-green",
+      "browserVersion": "151.0.7922.34"
+    },
+    {
+      "ui": "new",
+      "buggy": false,
+      "strategy": "original",
+      "repeat": 2,
+      "testOutcome": "fail",
+      "committedChargesCents": [],
+      "requiredChargeCents": 2300,
+      "classification": "locator-failure",
+      "browserVersion": "151.0.7922.34"
+    },
+    {
+      "ui": "new",
+      "buggy": false,
+      "strategy": "repaired",
+      "repeat": 2,
+      "testOutcome": "pass",
+      "committedChargesCents": [2300],
+      "requiredChargeCents": 2300,
+      "classification": "correct-pass",
+      "browserVersion": "151.0.7922.34"
+    },
+    {
+      "ui": "new",
+      "buggy": false,
+      "strategy": "weakened",
+      "repeat": 2,
+      "testOutcome": "pass",
+      "committedChargesCents": [2300],
+      "requiredChargeCents": 2300,
+      "classification": "correct-pass",
+      "browserVersion": "151.0.7922.34"
+    },
+    {
+      "ui": "new",
+      "buggy": true,
+      "strategy": "original",
+      "repeat": 2,
+      "testOutcome": "fail",
+      "committedChargesCents": [],
+      "requiredChargeCents": 2300,
+      "classification": "locator-failure",
+      "browserVersion": "151.0.7922.34"
+    },
+    {
+      "ui": "new",
+      "buggy": true,
+      "strategy": "repaired",
+      "repeat": 2,
+      "testOutcome": "fail",
+      "committedChargesCents": [2500],
+      "requiredChargeCents": 2300,
+      "classification": "business-bug-captured",
+      "browserVersion": "151.0.7922.34"
+    },
+    {
+      "ui": "new",
+      "buggy": true,
+      "strategy": "weakened",
+      "repeat": 2,
+      "testOutcome": "pass",
+      "committedChargesCents": [2500],
+      "requiredChargeCents": 2300,
+      "classification": "false-green",
+      "browserVersion": "151.0.7922.34"
+    }
+  ],
+  "limits": "Authored controls and one model proposal; repetitions share one business case. Outer passed means observation validation, not candidate pass. Model generation metadata is recorded separately."
+}
